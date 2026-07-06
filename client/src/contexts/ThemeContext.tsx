@@ -24,10 +24,29 @@ export function ThemeProvider({
   const [theme, setTheme] = useState<Theme>(() => {
     if (switchable) {
       const stored = localStorage.getItem("theme");
-      return (stored as Theme) || defaultTheme;
+      if (stored) return (stored as Theme);
+    }
+    // Check system preference
+    if (typeof window !== "undefined" && window.matchMedia) {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      return prefersDark ? "dark" : "light";
     }
     return defaultTheme;
   });
+
+  // Listen for system theme changes
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.matchMedia) {
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      const handleChange = (e: MediaQueryListEvent) => {
+        if (!switchable) {
+          setTheme(e.matches ? "dark" : "light");
+        }
+      };
+      mediaQuery.addEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
+    }
+  }, [switchable]);
 
   useEffect(() => {
     const root = document.documentElement;
