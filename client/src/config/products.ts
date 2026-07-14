@@ -53,7 +53,7 @@ export type ProductCategory = {
 // ============================================================================
 // PRODUCT IMAGES - Define all product images here
 // ============================================================================
-const BILTONG_IMG = "/manus-storage/Gemini_Generated_Image_gchvregchvregchv_20b39c28.png";
+const BILTONG_IMG = "/manus-storage/biltong-image_8b84022b.png";
 const BOEREWORS_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663491314336/GHvX6FS9zEwj9cBKkXQgeg/shweetbrew-boerewors-HH3YRHnsYSGBPy5kcrdoBT.webp";
 const SHOTS_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663491314336/GHvX6FS9zEwj9cBKkXQgeg/shweetbrew-shots-Hb6gfTMf6mhbGddvFT325c.webp";
 const DRYWORS_IMG = "/manus-storage/Gemini_Generated_Image_1z1zlf1z1zlf1z1z_6a6c0aa1.png";
@@ -88,10 +88,10 @@ const PRODUCT_REGISTRY = [
           { size: "1kg", weight: "1kg", price: 360 },
         ],
         nutrition: {
-          protein: "52g",
+          protein: "51g",
           fat: "8g",
-          carbs: "0g",
-          calories: "280",
+          carbs: "1g",
+          calories: "260",
         },
       },
       {
@@ -109,10 +109,10 @@ const PRODUCT_REGISTRY = [
           { size: "1kg", weight: "1kg", price: 360 },
         ],
         nutrition: {
-          protein: "48g",
-          fat: "10g",
-          carbs: "4g",
-          calories: "295",
+          protein: "51g",
+          fat: "8g",
+          carbs: "1g",
+          calories: "260",
         },
       },
       {
@@ -129,10 +129,10 @@ const PRODUCT_REGISTRY = [
           { size: "1kg", weight: "1kg", price: 360 },
         ],
         nutrition: {
-          protein: "50g",
-          fat: "9g",
-          carbs: "3g",
-          calories: "285",
+          protein: "51g",
+          fat: "8g",
+          carbs: "1g",
+          calories: "260",
         },
       },
       {
@@ -150,9 +150,9 @@ const PRODUCT_REGISTRY = [
         ],
         nutrition: {
           protein: "51g",
-          fat: "8.5g",
+          fat: "8g",
           carbs: "1g",
-          calories: "282",
+          calories: "260",
         },
       },
     ],
@@ -176,8 +176,8 @@ const PRODUCT_REGISTRY = [
           { size: "1kg", weight: "1kg", price: 150 },
         ],
         nutrition: {
-          protein: "22g",
-          fat: "18g",
+          protein: "18g",
+          fat: "21g",
           carbs: "2g",
           calories: "280",
         },
@@ -204,10 +204,10 @@ const PRODUCT_REGISTRY = [
           { size: "1kg", weight: "1kg", price: 360 },
         ],
         nutrition: {
-          protein: "55g",
-          fat: "12g",
+          protein: "50g",
+          fat: "8g",
           carbs: "1g",
-          calories: "330",
+          calories: "280",
         },
       },
     ],
@@ -232,10 +232,10 @@ const PRODUCT_REGISTRY = [
           { size: "1kg", weight: "1kg", price: 360 },
         ],
         nutrition: {
-          protein: "54g",
-          fat: "7g",
-          carbs: "0g",
-          calories: "275",
+          protein: "38g",
+          fat: "25g",
+          carbs: "10g",
+          calories: "410",
         },
       },
       {

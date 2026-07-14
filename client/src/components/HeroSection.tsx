@@ -120,14 +120,14 @@ export default function HeroSection() {
 
           {/* Subheadline */}
           <p
-            className="font-body max-w-3xl mx-auto mb-10 leading-relaxed px-2"
+            className="font-body max-w-2xl mx-auto mb-10 leading-relaxed"
             style={{ color: "oklch(0.80 0.020 75)" }}
           >
-            <div style={{ fontSize: "clamp(0.875rem, 5vw, 1.5rem)", lineHeight: "1.3", marginBottom: "0.5rem" }}>Authentic South African <span style={{ color: "var(--accent)", fontWeight: 700 }}>Biltong and Boerewors</span>.</div>
-            <div style={{ fontSize: "clamp(0.875rem, 5vw, 1.5rem)", lineHeight: "1.3", marginBottom: "0.5rem" }}>Mouthwatering American <span style={{ color: "var(--accent)", fontWeight: 700 }}>Jerky</span>.</div>
+            <div className="text-xl md:text-2xl" style={{ fontSize: "1.2em" }}>Authentic South African <span style={{ color: "var(--accent)", fontWeight: 700 }}>Biltong and Boerewors</span>.</div>
+            <div className="text-xl md:text-2xl" style={{ fontSize: "1.2em" }}>Mouthwatering American <span style={{ color: "var(--accent)", fontWeight: 700 }}>Jerky</span>.</div>
             <div className="h-4"></div>
-            <div style={{ fontSize: "clamp(0.875rem, 4vw, 1.25rem)", lineHeight: "1.3", marginBottom: "0.25rem" }}>And more — crafted with <span style={{ color: "oklch(0.50 0.18 260)", fontWeight: 700 }}>Israeli pride</span> and <span style={{ color: "oklch(0.50 0.18 260)", fontWeight: 700 }}>SA soul</span>.</div>
-            <div style={{ fontSize: "clamp(0.875rem, 4vw, 1.25rem)", lineHeight: "1.3" }}>{translations.hero.taglineEnd[language]}</div>
+            <div className="text-lg md:text-xl">And more — crafted with <span style={{ color: "oklch(0.50 0.18 260)", fontWeight: 700 }}>Israeli pride</span> and <span style={{ color: "oklch(0.50 0.18 260)", fontWeight: 700 }}>SA soul</span>.</div>
+            <div className="text-lg md:text-xl">{translations.hero.taglineEnd[language]}</div>
           </p>
 
           {/* CTA Buttons */}
