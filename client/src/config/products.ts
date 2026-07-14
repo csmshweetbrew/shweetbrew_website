@@ -53,7 +53,7 @@ export type ProductCategory = {
 // ============================================================================
 // PRODUCT IMAGES - Define all product images here
 // ============================================================================
-const BILTONG_IMG = "/manus-storage/biltong-image_8b84022b.png";
+const BILTONG_IMG = "https://www.photo-pick.com/online/HsEVj3vB.link";
 const BOEREWORS_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663491314336/GHvX6FS9zEwj9cBKkXQgeg/shweetbrew-boerewors-HH3YRHnsYSGBPy5kcrdoBT.webp";
 const SHOTS_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663491314336/GHvX6FS9zEwj9cBKkXQgeg/shweetbrew-shots-Hb6gfTMf6mhbGddvFT325c.webp";
 const DRYWORS_IMG = "/manus-storage/drywors-image_64701567.png";
