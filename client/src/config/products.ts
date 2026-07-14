@@ -56,7 +56,7 @@ export type ProductCategory = {
 const BILTONG_IMG = "/manus-storage/biltong-image_8b84022b.png";
 const BOEREWORS_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663491314336/GHvX6FS9zEwj9cBKkXQgeg/shweetbrew-boerewors-HH3YRHnsYSGBPy5kcrdoBT.webp";
 const SHOTS_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663491314336/GHvX6FS9zEwj9cBKkXQgeg/shweetbrew-shots-Hb6gfTMf6mhbGddvFT325c.webp";
-const DRYWORS_IMG = "/manus-storage/Gemini_Generated_Image_1z1zlf1z1zlf1z1z_6a6c0aa1.png";
+const DRYWORS_IMG = "/manus-storage/drywors-image_64701567.png";
 const CHILLI_BITES_IMG = "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=600&q=80";
 const CHILLI_SAUCE_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663491314336/GHvX6FS9zEwj9cBKkXQgeg/shweetbrew_sweet_chili_sauce_1_fec07e64.jpeg";
 const HOLY_LAND_JERKY_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663491314336/GHvX6FS9zEwj9cBKkXQgeg/shweetbrew_jerky_8e61172e.jpeg";
