@@ -12,7 +12,7 @@ import { getWhatsAppLink } from "@/config/site";
 
 const WHATSAPP_URL = getWhatsAppLink("Hi Shweet Brew! I'd like to place an order 🥩");
 
-const HERO_IMAGE = "/manus-storage/shweetbrew-hero_e80e905e.jpg";
+const HERO_IMAGE = "https://wandering-glitter-178.linkyhost.com";
 
 export default function HeroSection() {
   const { language } = useLanguage();
