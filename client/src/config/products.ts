@@ -53,7 +53,7 @@ export type ProductCategory = {
 // ============================================================================
 // PRODUCT IMAGES - Define all product images here
 // ============================================================================
-const BILTONG_IMG = "https://www.photo-pick.com/online/HsEVj3vB.link";
+const BILTONG_IMG = "https://i.postimg.cc/DZTwQbD4/Gemini-Generated-Image-gchvregchvregchv.png";
 const BOEREWORS_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663491314336/GHvX6FS9zEwj9cBKkXQgeg/shweetbrew-boerewors-HH3YRHnsYSGBPy5kcrdoBT.webp";
 const SHOTS_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663491314336/GHvX6FS9zEwj9cBKkXQgeg/shweetbrew-shots-Hb6gfTMf6mhbGddvFT325c.webp";
 const DRYWORS_IMG = "/manus-storage/drywors-image_64701567.png";
@@ -227,6 +227,7 @@ const PRODUCT_REGISTRY = [
         spiceLevel: 0,
         isKosher: false,
         sizes: [
+          { size: "100g", weight: "100g", price: 50 },
           { size: "250g", weight: "250g", price: 100 },
           { size: "500g", weight: "500g", price: 185 },
           { size: "1kg", weight: "1kg", price: 360 },
@@ -247,6 +248,7 @@ const PRODUCT_REGISTRY = [
         spiceLevel: 0,
         isKosher: false,
         sizes: [
+          { size: "100g", weight: "100g", price: 50 },
           { size: "250g", weight: "250g", price: 100 },
           { size: "500g", weight: "500g", price: 185 },
           { size: "1kg", weight: "1kg", price: 360 },
@@ -267,6 +269,7 @@ const PRODUCT_REGISTRY = [
         spiceLevel: 2,
         isKosher: false,
         sizes: [
+          { size: "100g", weight: "100g", price: 50 },
           { size: "250g", weight: "250g", price: 100 },
           { size: "500g", weight: "500g", price: 185 },
           { size: "1kg", weight: "1kg", price: 360 },
@@ -287,6 +290,7 @@ const PRODUCT_REGISTRY = [
         spiceLevel: 4,
         isKosher: false,
         sizes: [
+          { size: "100g", weight: "100g", price: 50 },
           { size: "250g", weight: "250g", price: 100 },
           { size: "500g", weight: "500g", price: 185 },
           { size: "1kg", weight: "1kg", price: 360 },
