@@ -1,10 +1,10 @@
 [build]
   base = "client"
-  command = "pnpm run build"
+  command = "pnpm install && pnpm run build"
   publish = "dist"
 
 [context.production]
-  command = "pnpm run build"
+  command = "pnpm install && pnpm run build"
 
 [context.deploy-preview]
-  command = "pnpm run build"
+  command = "pnpm install && pnpm run build"
