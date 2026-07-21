@@ -1,7 +1,7 @@
 [build]
   base = "."
   command = "cd client && pnpm install && pnpm run build"
-  publish = "client/dist"
+  publish = "dist"
 
 [context.production]
   command = "cd client && pnpm install && pnpm run build"
