@@ -1,10 +1,15 @@
 [build]
   base = ""
   command = "cd client && pnpm install && pnpm run build"
-  publish = "dist"
+  publish = "dist/public"
 
 [context.production]
   command = "cd client && pnpm install && pnpm run build"
 
 [context.deploy-preview]
   command = "cd client && pnpm install && pnpm run build"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
