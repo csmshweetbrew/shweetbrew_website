@@ -21,6 +21,8 @@ type Review = {
   link: string;
 };
 
+const GOOGLE_MAPS_LINK = "https://www.google.com/maps/place/Shweet+Brew/@31.903635,34.993301,17z/data=!4m8!3m7!1s0x9658db83fe337bd:0x6a4c755c838010e9!8m2!3d31.903635!4d34.9958759!9m1!1b1!16s%2Fg%2F11kk14r7x7?entry=ttu&g_ep=EgoyMDI2MDcyMC4wIKXMDSoASAFQAw%3D%3D";
+
 const reviews: Review[] = [
   {
     id: 1,
@@ -30,7 +32,7 @@ const reviews: Review[] = [
     text: "I just finished a bag of Shweet Brew's delicious biltong and it was great, will definitely be buying again! Uri can also make different styles or order however you like it, so might try some different options out as well. Thanks for the great treat! The chilli was fantastic as well, by the way.",
     product: "Biltong",
     flag: "🇮🇱",
-    link: "https://www.google.com/maps/place/Shweet+Brew/@31.903635,34.993301,17z",
+    link: GOOGLE_MAPS_LINK,
   },
   {
     id: 2,
@@ -40,7 +42,7 @@ const reviews: Review[] = [
     text: "Best biltong in town. Shweet brew chilli sauce is unbelievable and goes with everything",
     product: "Biltong & Sauce",
     flag: "🇮🇱",
-    link: "https://www.google.com/maps/place/Shweet+Brew/@31.903635,34.993301,17z",
+    link: GOOGLE_MAPS_LINK,
   },
   {
     id: 3,
@@ -50,7 +52,7 @@ const reviews: Review[] = [
     text: "Shweet Brew totally enhanced our shabbat experience! Top quality taste and texture awakening the African in me! Look forward to my next biltong binge",
     product: "Biltong",
     flag: "🇮🇱",
-    link: "https://www.google.com/maps/place/Shweet+Brew/@31.903635,34.993301,17z",
+    link: GOOGLE_MAPS_LINK,
   },
   {
     id: 4,
@@ -60,7 +62,7 @@ const reviews: Review[] = [
     text: "First time trying these South African snacks - Amazing!! Thanks you Uri!! It was a pleasure meeting you and will definitely be back for more",
     product: "South African Snacks",
     flag: "🇮🇱",
-    link: "https://www.google.com/maps/place/Shweet+Brew/@31.903635,34.993301,17z",
+    link: GOOGLE_MAPS_LINK,
   },
   {
     id: 5,
@@ -70,7 +72,7 @@ const reviews: Review[] = [
     text: "Amazing biltong, Uri is always full of energy and is dedicated to his art.",
     product: "Biltong",
     flag: "🇮🇱",
-    link: "https://www.google.com/maps/place/Shweet+Brew/@31.903635,34.993301,17z",
+    link: GOOGLE_MAPS_LINK,
   },
   {
     id: 6,
@@ -80,7 +82,7 @@ const reviews: Review[] = [
     text: "Best biltong I have tasted in a long time. Totally addictive.",
     product: "Biltong",
     flag: "🇮🇱",
-    link: "https://www.google.com/maps/place/Shweet+Brew/@31.903635,34.993301,17z",
+    link: GOOGLE_MAPS_LINK,
   },
   {
     id: 7,
@@ -90,7 +92,7 @@ const reviews: Review[] = [
     text: "Excellent service, even better biltong. If 10 stars was an option I'd choose 11.",
     product: "Biltong",
     flag: "🇮🇱",
-    link: "https://www.google.com/maps/place/Shweet+Brew/@31.903635,34.993301,17z",
+    link: GOOGLE_MAPS_LINK,
   },
   {
     id: 8,
@@ -100,7 +102,7 @@ const reviews: Review[] = [
     text: "Great product! Tastes awesome and nothing like service with a smile :)",
     product: "Biltong",
     flag: "🇮🇱",
-    link: "https://www.google.com/maps/place/Shweet+Brew/@31.903635,34.993301,17z",
+    link: GOOGLE_MAPS_LINK,
   },
 ];
 

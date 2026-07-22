@@ -424,19 +424,19 @@ export const PRODUCTS: ProductCategory[] = PRODUCT_REGISTRY.map((product) => ({
 export function getSpiceFlames(spiceLevel: number): string {
   switch (spiceLevel) {
     case 0:
-      return "Mild";
+      return "🍃";
     case 1:
-      return "Mild";
+      return "🍃";
     case 2:
-      return "Hot";
+      return "🔥";
     case 3:
-      return "Hot";
+      return "🔥🔥";
     case 4:
-      return "Extra Hot";
+      return "🔥🔥🔥";
     case 5:
-      return "Extreme";
+      return "🔥🔥🔥🔥";
     default:
-      return "Mild";
+      return "🍃";
   }
 }
 
