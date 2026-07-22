@@ -79,10 +79,11 @@ const PRODUCT_REGISTRY = [
         description: "Air-dried beef biltong made to the original SA recipe. Spiced with coriander, black pepper, and vinegar.",
         tagline: "The OG. The Legend.",
         image: BILTONG_IMG,
-        spiceLevel: 0,
+        spiceLevel: 1,
         isKosher: true,
         isAvailable: true,
         sizes: [
+          { size: "100g", weight: "100g", price: 50 },
           { size: "250g", weight: "250g", price: 100 },
           { size: "500g", weight: "500g", price: 185 },
           { size: "1kg", weight: "1kg", price: 360 },
@@ -100,10 +101,11 @@ const PRODUCT_REGISTRY = [
         description: "Sweet, savoury, and slightly sticky. Teriyaki-spiced biltong that bridges South African tradition with Asian flavours.",
         tagline: "East meets braai.",
         image: BILTONG_IMG,
-        spiceLevel: 0,
+        spiceLevel: 1,
         isKosher: true,
 
         sizes: [
+          { size: "100g", weight: "100g", price: 50 },
           { size: "250g", weight: "250g", price: 100 },
           { size: "500g", weight: "500g", price: 185 },
           { size: "1kg", weight: "1kg", price: 360 },
@@ -124,6 +126,7 @@ const PRODUCT_REGISTRY = [
         spiceLevel: 2,
         isKosher: true,
         sizes: [
+          { size: "100g", weight: "100g", price: 50 },
           { size: "250g", weight: "250g", price: 100 },
           { size: "500g", weight: "500g", price: 185 },
           { size: "1kg", weight: "1kg", price: 360 },
@@ -144,6 +147,7 @@ const PRODUCT_REGISTRY = [
         spiceLevel: 4,
         isKosher: true,
         sizes: [
+          { size: "100g", weight: "100g", price: 50 },
           { size: "250g", weight: "250g", price: 100 },
           { size: "500g", weight: "500g", price: 185 },
           { size: "1kg", weight: "1kg", price: 360 },
@@ -229,8 +233,8 @@ const PRODUCT_REGISTRY = [
         sizes: [
           { size: "100g", weight: "100g", price: 50 },
           { size: "250g", weight: "250g", price: 100 },
-          { size: "500g", weight: "500g", price: 185 },
-          { size: "1kg", weight: "1kg", price: 360 },
+          { size: "500g", weight: "500g", price: 195 },
+          { size: "1kg", weight: "1kg", price: 380 },
         ],
         nutrition: {
           protein: "38g",
@@ -245,13 +249,13 @@ const PRODUCT_REGISTRY = [
         description: "A savory-sweet glazed favorite.",
         tagline: "Sweet meets savory.",
         image: HOLY_LAND_JERKY_IMG,
-        spiceLevel: 0,
+        spiceLevel: 1,
         isKosher: false,
         sizes: [
           { size: "100g", weight: "100g", price: 50 },
           { size: "250g", weight: "250g", price: 100 },
-          { size: "500g", weight: "500g", price: 185 },
-          { size: "1kg", weight: "1kg", price: 360 },
+          { size: "500g", weight: "500g", price: 195 },
+          { size: "1kg", weight: "1kg", price: 380 },
         ],
         nutrition: {
           protein: "50g",
@@ -271,8 +275,8 @@ const PRODUCT_REGISTRY = [
         sizes: [
           { size: "100g", weight: "100g", price: 50 },
           { size: "250g", weight: "250g", price: 100 },
-          { size: "500g", weight: "500g", price: 185 },
-          { size: "1kg", weight: "1kg", price: 360 },
+          { size: "500g", weight: "500g", price: 195 },
+          { size: "1kg", weight: "1kg", price: 380 },
         ],
         nutrition: {
           protein: "52g",
@@ -292,8 +296,8 @@ const PRODUCT_REGISTRY = [
         sizes: [
           { size: "100g", weight: "100g", price: 50 },
           { size: "250g", weight: "250g", price: 100 },
-          { size: "500g", weight: "500g", price: 185 },
-          { size: "1kg", weight: "1kg", price: 360 },
+          { size: "500g", weight: "500g", price: 195 },
+          { size: "1kg", weight: "1kg", price: 380 },
         ],
         nutrition: {
           protein: "53g",
@@ -312,8 +316,8 @@ const PRODUCT_REGISTRY = [
         isKosher: true,
         sizes: [
           { size: "250g", weight: "250g", price: 100 },
-          { size: "500g", weight: "500g", price: 185 },
-          { size: "1kg", weight: "1kg", price: 360 },
+          { size: "500g", weight: "500g", price: 195 },
+          { size: "1kg", weight: "1kg", price: 380 },
         ],
         nutrition: {
           protein: "58g",
@@ -328,12 +332,12 @@ const PRODUCT_REGISTRY = [
         description: "Lean, protein-packed chicken jerky with a savory-sweet teriyaki glaze and authentic braai spices.",
         tagline: "Sweet Savory. Protein Packed.",
         image: HOLY_LAND_JERKY_IMG,
-        spiceLevel: 0,
+        spiceLevel: 1,
         isKosher: true,
         sizes: [
           { size: "250g", weight: "250g", price: 100 },
-          { size: "500g", weight: "500g", price: 185 },
-          { size: "1kg", weight: "1kg", price: 360 },
+          { size: "500g", weight: "500g", price: 195 },
+          { size: "1kg", weight: "1kg", price: 380 },
         ],
         nutrition: {
           protein: "57g",
@@ -418,19 +422,22 @@ export const PRODUCTS: ProductCategory[] = PRODUCT_REGISTRY.map((product) => ({
 // ============================================================================
 
 export function getSpiceFlames(spiceLevel: number): string {
-  if (spiceLevel === 0) {
-    return "Mild";
+  switch (spiceLevel) {
+    case 0:
+      return "Mild";
+    case 1:
+      return "Mild";
+    case 2:
+      return "Hot";
+    case 3:
+      return "Hot";
+    case 4:
+      return "Extra Hot";
+    case 5:
+      return "Extreme";
+    default:
+      return "Mild";
   }
-  
-  const fullFlames = Math.floor(spiceLevel);
-  const hasHalfFlame = spiceLevel % 1 === 0.5;
-  
-  let result = "🔥".repeat(fullFlames);
-  if (hasHalfFlame) {
-    result += "🔥";
-  }
-  
-  return result;
 }
 
 export function getTranslatedProductName(variantId: string, language: Language): string {

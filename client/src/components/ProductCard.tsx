@@ -62,7 +62,7 @@ const ProductCardComponent = ({ variant, categoryName }: ProductCardProps) => {
         }}
       >
         {/* Product Image */}
-        <div className="relative h-48 overflow-hidden bg-black">
+        <div className="relative h-48 overflow-hidden bg-black cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setIsInfoOpen(true)}>
           <img
             src={variant.image}
             alt={`${categoryName} - ${variant.name}`}
