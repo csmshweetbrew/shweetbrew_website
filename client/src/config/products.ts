@@ -421,12 +421,13 @@ export const PRODUCTS: ProductCategory[] = PRODUCT_REGISTRY.map((product) => ({
 // HELPER FUNCTIONS - Automatically work with all products in PRODUCT_REGISTRY
 // ============================================================================
 
-export function getSpiceFlames(spiceLevel: number): string {
+export function getSpiceFlames(spiceLevel: number, language: Language = "en"): string {
+  const mild = translations.products.spiceMild[language];
   switch (spiceLevel) {
     case 0:
-      return "🍃";
+      return mild;
     case 1:
-      return "🍃";
+      return mild;
     case 2:
       return "🔥";
     case 3:
@@ -436,7 +437,7 @@ export function getSpiceFlames(spiceLevel: number): string {
     case 5:
       return "🔥🔥🔥🔥";
     default:
-      return "🍃";
+      return mild;
   }
 }
 
