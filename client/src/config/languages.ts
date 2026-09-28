@@ -146,7 +146,7 @@ export const translations = {
     addToCart: { en: "Add to Cart", he: "הוסף לעגלה" },
     selectSize: { en: "Select size", he: "בחר גודל" },
     spiceLevel: { en: "SPICE LEVEL", he: "רמת תבל" },
-    spiceMild: { en: "Mild", he: "מתון" },
+    spiceMild: { en: "No Heat", he: "ללא חריפות" },
     kosher: { en: "✡ KOSHER", he: "✡ כשר" },
     passoverKosher: { en: "✡ KOSHER FOR PASSOVER ", he: "✡ כשר לפסח" },
     notAvailable: { en: "NOT AVAILABLE", he: "לא זמין" },
