@@ -7,6 +7,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getWhatsAppLink } from "@/config/site";
 
 interface FAQItem {
   question: { en: string; he: string };
@@ -172,7 +173,7 @@ export default function FAQSection() {
               : "לא מוצא את התשובה שלך? צור קשר איתנו ב-WhatsApp!"}
           </p>
           <a
-            href="https://wa.me/972502000000?text=Hi%20Shweet%20Brew!%20I%20have%20a%20question"
+            href={getWhatsAppLink("Hi Shweet Brew! I have a question")}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 rounded font-bold text-sm tracking-wide transition-all hover:scale-105"
