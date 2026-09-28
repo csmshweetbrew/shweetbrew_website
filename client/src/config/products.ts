@@ -519,14 +519,14 @@ export function getTranslatedIngredients(variantId: string, language: Language):
     "biltong-sweet-chilli": { en: "Premium beef, sweet chilli seasoning, garlic, and spices.", he: "בשר בקר פרימיום, תיבול צ'ילי מתוק, שום ותבלינים." },
     "biltong-chilli": { en: "Premium beef, chilli powder, black pepper, garlic, and spices.", he: "בשר בקר פרימיום, אבקת צ'ילי, פלפל שחור, שום ותבלינים." },
     "biltong-wasabi": { en: "Premium beef, wasabi powder, ginger, garlic, and spices.", he: "בשר בקר פרימיום, אבקת וואסבי, ג'ינג'ר, שום ותבלינים." },
-    "boerewors-classic": { en: "Premium beef, coriander, cloves, nutmeg, garlic, and spices.", he: "בשר בקר פרימיום, כוסברה, ציפורנים, גוזנוג, שום ותבלינים." },
+    "boerewors-classic": { en: "Premium beef, coriander, cloves, nutmeg, garlic, and spices.", he: "בשר בקר פרימיום, כוסברה, ציפורנים, אגוז מוסקט, שום ותבלינים." },
     "drywors-classic": { en: "Premium beef, coriander, black pepper, garlic, and spices.", he: "בשר בקר פרימיום, כוסברה, פלפל שחור, שום ותבלינים." },
-    "holy-land-jerky-cowboy": { en: "Premium beef, salt, black pepper, onion powder, garlic powder, and spices.", he: "בשר בקר פרימיום, מלח, פלפל שחור, אבקט בצל, אבקט שום ותבלינים." },
+    "holy-land-jerky-cowboy": { en: "Premium beef, salt, black pepper, onion powder, garlic powder, and spices.", he: "בשר בקר פרימיום, מלח, פלפל שחור, אבקת בצל, אבקת שום ותבלינים." },
     "holy-land-jerky-teriyaki": { en: "Premium beef, teriyaki sauce, soy sauce, ginger, garlic, and spices.", he: "בשר בקר פרימיום, רטב טריאקי, רטב סויה, ג'ינג'ר, שום ותבלינים." },
     "holy-land-jerky-sweet-chilli": { en: "Premium beef, sweet chilli seasoning, honey, garlic, and spices.", he: "בשר בקר פרימיום, תיבול צ'ילי מתוק, דבש, שום ותבלינים." },
     "holy-land-jerky-chilli": { en: "Premium beef, chilli powder, cayenne pepper, black pepper, garlic, and spices.", he: "בשר בקר פרימיום, אבקט צ'ילי, פלפל קיינה, פלפל שחור, שום ותבלינים." },
-    "chilli-bites": { en: "Premium beef, chilli powder, black pepper, garlic, and spices.", he: "בשר בקר פרימיום, אבקט צ'ילי, פלפל שחור, שום ותבלינים." },
-    "shweetbrew-shots": { en: "Vodka, chilli, cinnamon, vanilla, and natural flavors.", he: "וודקה, צ'ילי, קינמון, ניל וטעמים טבעיים." },
+    "chilli-bites": { en: "Premium beef, chilli powder, black pepper, garlic, and spices.", he: "בשר בקר פרימיום, אבקת צ'ילי, פלפל שחור, שום ותבלינים." },
+    "shweetbrew-shots": { en: "Vodka, chilli, cinnamon, vanilla, and natural flavors.", he: "וודקה, צ'ילי, קינמון, וניל וטעמים טבעיים." },
     "chilli-sauce": { en: "Red chillies, garlic, vinegar, salt, and spices.", he: "צ'ילי אדום, שום, חומץ, מלח ותבלינים." },
   };
   return ingredientsMap[variantId]?.[language] || "";

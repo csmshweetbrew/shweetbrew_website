@@ -123,10 +123,21 @@ export default function HeroSection() {
             className="font-body max-w-2xl mx-auto mb-10 leading-relaxed"
             style={{ color: "oklch(0.80 0.020 75)" }}
           >
-            <div className="text-xl md:text-2xl" style={{ fontSize: "1.2em" }}>Authentic South African <span style={{ color: "var(--accent)", fontWeight: 700 }}>Biltong and Boerewors</span>.</div>
-            <div className="text-xl md:text-2xl" style={{ fontSize: "1.2em" }}>Mouthwatering American <span style={{ color: "var(--accent)", fontWeight: 700 }}>Jerky</span>.</div>
-            <div className="h-4"></div>
-            <div className="text-lg md:text-xl">And more — crafted with <span style={{ color: "oklch(0.50 0.18 260)", fontWeight: 700 }}>Israeli pride</span> and <span style={{ color: "oklch(0.50 0.18 260)", fontWeight: 700 }}>SA soul</span>.</div>
+            {language === "en" ? (
+              <>
+                <div className="text-xl md:text-2xl" style={{ fontSize: "1.2em" }}>Authentic South African <span style={{ color: "var(--accent)", fontWeight: 700 }}>Biltong and Boerewors</span>.</div>
+                <div className="text-xl md:text-2xl" style={{ fontSize: "1.2em" }}>Mouthwatering American <span style={{ color: "var(--accent)", fontWeight: 700 }}>Jerky</span>.</div>
+                <div className="h-4"></div>
+                <div className="text-lg md:text-xl">And more — crafted with <span style={{ color: "oklch(0.50 0.18 260)", fontWeight: 700 }}>Israeli pride</span> and <span style={{ color: "oklch(0.50 0.18 260)", fontWeight: 700 }}>SA soul</span>.</div>
+              </>
+            ) : (
+              <>
+                <div className="text-xl md:text-2xl" style={{ fontSize: "1.2em" }}><span style={{ color: "var(--accent)", fontWeight: 700 }}>בילטונג ובוארווורס</span> דרום אפריקאיים אותנטיים.</div>
+                <div className="text-xl md:text-2xl" style={{ fontSize: "1.2em" }}><span style={{ color: "var(--accent)", fontWeight: 700 }}>ג'רקי</span> אמריקאי מפתה.</div>
+                <div className="h-4"></div>
+                <div className="text-lg md:text-xl">ועוד — עשוי מתוך <span style={{ color: "oklch(0.50 0.18 260)", fontWeight: 700 }}>גאווה ישראלית</span> ו<span style={{ color: "oklch(0.50 0.18 260)", fontWeight: 700 }}>נשמה דרום אפריקאית</span>.</div>
+              </>
+            )}
             <div className="text-lg md:text-xl">{translations.hero.taglineEnd[language]}</div>
           </p>
 

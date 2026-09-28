@@ -26,20 +26,15 @@ export const translations = {
 
   // Hero Section
   hero: {
-    title1Word1: { en: "PLAY", he: "תיתן" },
-    title1Word2: { en: "HARD.", he: "בראש." },
+    title1Word1: { en: "PLAY", he: "שחק" },
+    title1Word2: { en: "HARD.", he: "חזק." },
     title2Word1: { en: "SNACK", he: "תתפרע" },
-    title2Word2: { en: "HARDER.", he: "על הנשנוש." },
-    tagline: { en: `Authentic South African Biltong and Boerewors.
-Mouthwatering American Jerky.
-And more — crafted with`, he: "בילטונג דרום אפריקאי אותנטי, בוארווורס ועוד — עשוי עם" },    israeliPride: { en: "Israeli pride", he: "גאווה ישראלית" },
-    and: { en: "and", he: "ו" },
-    saSoul: { en: "SA soul ", he: "נשמה דרום אפריקאית" },
+    title2Word2: { en: "HARDER.", he: "בנשנוש." },
     taglineEnd: { en: "Delivered across Israel. No nonsense. Just meat.", he: "מסופק בכל רחבי ישראל. אין טעויות. רק בשר." },
     browseProducts: { en: "Browse Products", he: "עיין במוצרים" },
-    madeInIsrael: { en: "🇮🇱 Made in Israel", he: "🇮L תוצרת הארץ" },
+    madeInIsrael: { en: "🇮🇱 Made in Israel", he: "🇮🇱 תוצרת הארץ" },
     saRoots: { en: "🇿🇦 SA Roots", he: "🇿🇦 שורשים דרום אפריקאיים" },
-    kosherOptions: { en: "✡ All Kosher Ingredients", he: "✡ רכבים כשרים" },
+    kosherOptions: { en: "✡ All Kosher Ingredients", he: "✡ כל הרכיבים כשרים" },
     // Stats section
     products: { en: "Products", he: "מוצרים" },
     beef: { en: "Beef", he: "בשר בקר" },
@@ -54,7 +49,7 @@ And more — crafted with`, he: "בילטונג דרום אפריקאי אותנ
   products: {
     sectionTitle: { en: "PRODUCTS THAT HIT DIFFERENT", he: "מוצרים שמכים אחרת" },
     sectionSubtitle: { en: "Every product is made with 100% beef, authentic SA spices, and the kind of love only a South African in Israel can understand.", he: "כל מוצר עשוי מ-100% בשר בקר, תבליני SA אותנטיים, וסוג האהבה שרק דרום אפריקאי בישראל יכול להבין." },
-    theRange: { en: "THE SHWEET BREW RANGE", he: "טווח שוויט ברו" },
+    theRange: { en: "THE SHWEET BREW RANGE", he: "המגוון של שוויט ברו" },
     filterAll: { en: "All", he: "הכל" },
     
     // BILTONG CATEGORY
@@ -74,8 +69,8 @@ And more — crafted with`, he: "בילטונג דרום אפריקאי אותנ
     
     // Biltong - Sweet Chilli
     sweetChilli: { en: "Sweet Chilli", he: "צ'ילי מתוק" },
-    sweetChilliDesc: { en: "Sweet heat with a kick. Perfect for those who want flavour without going full nuclear.", he: "חום מתוק עם כיסה. מושלם למי שרוצה טעם בלי להיות גרעיני." },
-    sweetChilliTagline: { en: "Sweet with a bite.", he: "מתוק עם כיסה." },
+    sweetChilliDesc: { en: "Sweet heat with a kick. Perfect for those who want flavour without going full nuclear.", he: "חום מתוק עם עוקץ קטן. מושלם למי שרוצה טעם בלי להתפוצץ מחריפות." },
+    sweetChilliTagline: { en: "Sweet with a bite.", he: "מתוק עם עוקץ." },
     
     // Biltong - Chilli
     biltongChilli: { en: "Chilli", he: "צ'ילי" },
@@ -84,23 +79,23 @@ And more — crafted with`, he: "בילטונג דרום אפריקאי אותנ
     
     // Biltong - Wasabi
     wasabi: { en: "Wasabi", he: "וואסבי" },
-    wasabiDesc: { en: "Absolutely wild. Wasabi-spiced biltong that will make your eyes water and your taste buds sing.", he: "לחלוטין פרוע. בילטונג בטעם וואסבי שיגרום לעיניים שלך להיות רטובות וטעם הברעם שלך לשיר." },
+    wasabiDesc: { en: "Absolutely wild. Wasabi-spiced biltong that will make your eyes water and your taste buds sing.", he: "פרוע לגמרי. בילטונג בטעם וואסבי שיגרום לעיניים שלכם לדמוע ולנבטי הטעם שלכם לשיר." },
     wasabiTagline: { en: "Not for the faint-hearted.", he: "לא לחלשי לב." },
 
     // BOEREWORS CATEGORY
     boerewors: { en: "Boerewors", he: "בוארווורס" },
-    boereworsDesc: { en: "Coiled beef sausage spiced with coriander, cloves, and nutmeg", he: "נקניקייה בקר מתפתלת תובלה בכוסברה, ציפורנים וגוזנוג" },
+    boereworsDesc: { en: "Coiled beef sausage spiced with coriander, cloves, and nutmeg", he: "נקניקיית בקר מתפתלת מתובלת בכוסברה, ציפורנים ואגוז מוסקט" },
     boereworsCategory: { en: "BOEREWORS", he: "בוארווורס" },
     boereworsClassic: { en: "Classic", he: "קלאסי" },
-    boereworsClassicDesc: { en: "The classic South African style sausage. Coiled beef sausage spiced with coriander, coarse salt and black pepper. Ready to grill. Go on, make yourself a delicious Boerie Roll.", he: "הנקניקייה הדרום אפריקאית הקלאסית. נקניקייה בקר מתפתלת תובלה בכוסברה, מלח גס ופלפל שחור. מוכנה לצלייה. בואו, תכינו לעצמכם בוארי רול טעים." },
+    boereworsClassicDesc: { en: "The classic South African style sausage. Coiled beef sausage spiced with coriander, coarse salt and black pepper. Ready to grill. Go on, make yourself a delicious Boerie Roll.", he: "הנקניקייה הדרום אפריקאית הקלאסית. נקניקיית בקר מתפתלת מתובלת בכוסברה, מלח גס ופלפל שחור. מוכנה לצלייה. קדימה, תכינו לעצמכם בוארי רול טעים." },
     boereworsClassicTagline: { en: "The Braai King.", he: "מלך הברייי." },
 
     // DRYWORS CATEGORY
     drywors: { en: "Drywors", he: "דרייוורס" },
-    dryworDesc: { en: "Thin, dried beef wors — the ultimate road-trip snack", he: "נקניקייה בקר דקה ומיובשת - החטיף המושלם לנסיעה" },
+    dryworDesc: { en: "Thin, dried beef wors — the ultimate road-trip snack", he: "נקניקיית בקר דקה ומיובשת - החטיף המושלם לנסיעה" },
     dryworCategory: { en: "DRYWORS", he: "דרייוורס" },
     dryworClassic: { en: "Classic", he: "קלאסי" },
-    dryworClassicDesc: { en: "Thin, dried beef wors — the ultimate road-trip snack. Spiced just right. Dangerously addictive. Classic South African style sausage, dried to perfection.", he: "נקניקייה בקר דקה ומיובשת - החטיף המושלם לנסיעה. תובל בצורה מושלמת. כמוסה מסוכנת. נקניקייה דרום אפריקאית קלאסית, מיובשת לשלמות." },
+    dryworClassicDesc: { en: "Thin, dried beef wors — the ultimate road-trip snack. Spiced just right. Dangerously addictive. Classic South African style sausage, dried to perfection.", he: "נקניקיית בקר דקה ומיובשת - החטיף המושלם לנסיעה. מתובלת בול בול. ממכרת בצורה מסוכנת. נקניקייה דרום אפריקאית קלאסית, מיובשת לשלמות." },
     dryworClassicTagline: { en: "Snack. Anywhere. Always.", he: "חטיף. בכל מקום. תמיד." },
 
     // JERKY CATEGORY
@@ -113,31 +108,31 @@ And more — crafted with`, he: "בילטונג דרום אפריקאי אותנ
 
     // HOLY LAND JERKY CATEGORY
     holyLandJerky: { en: "Holy Land Jerky", he: "ג'רקי הארץ הקדושה" },
-    holyLandJerkyDesc: { en: "Experience the perfect balance of tradition and craft. Holy Land Jerky, by Shweet Brew, delivers authentic jerky flavors and premium quality in every bite.", he: "חוו את האיזון המושלם בין מסורת וכישוריות. ג'רקי הארץ הקדושה, על ידי שוויט ברו, מספק טעמי ג'רקי אותנטיים ואיכות פרימיום בכל כיסה." },
+    holyLandJerkyDesc: { en: "Experience the perfect balance of tradition and craft. Holy Land Jerky, by Shweet Brew, delivers authentic jerky flavors and premium quality in every bite.", he: "חוו את האיזון המושלם בין מסורת לאומנות. ג'רקי הארץ הקדושה, מבית שוויט ברו, מספק טעמי ג'רקי אותנטיים ואיכות פרימיום בכל ביס." },
     holyLandJerkyCowboy: { en: "Traditional Cowboy", he: "קאובוי מסורתי" },
     holyLandJerkyCowboyDesc: { en: "The rugged classic. Soya sauce, salt and pepper with hints of onion and garlic.", he: "הקלאסי הגס. רוטב סויה, מלח ופלפל עם רמזים של בצל ושום." },
     holyLandJerkyCowboyTagline: { en: "The classic that started it all.", he: "הקלאסי שהתחיל הכל." },
     holyLandJerkyTeriyaki: { en: "Teriyaki", he: "טריאקי" },
-    holyLandJerkyTeriyakiDesc: { en: "A savory-sweet glazed favorite.", he: "אהדה מזוגגת מלוחה-מתוקה." },
+    holyLandJerkyTeriyakiDesc: { en: "A savory-sweet glazed favorite.", he: "טעם אהוב, מזוגג ומלוח-מתוק." },
     holyLandJerkyTeriyakiTagline: { en: "Sweet meets savory.", he: "מתוק פוגש מלוח." },
     holyLandJerkySweetChilli: { en: "Sweet Chilli", he: "צ'ילי מתוק" },
-    holyLandJerkySweetChilliDesc: { en: "The perfect blend of heat and sweet.", he: "תערובט מושלמת של חום ומתוק." },
+    holyLandJerkySweetChilliDesc: { en: "The perfect blend of heat and sweet.", he: "תערובת מושלמת של חריפות ומתיקות." },
     holyLandJerkySweetChilliTagline: { en: "Sweet Heat. Bold Bite.", he: "חריף מתוק. טעם רציני." },
     holyLandJerkyChilli: { en: "Chilli", he: "צ'ילי" },
-    holyLandJerkyChilliDesc: { en: "For those who crave a serious, authentic burn.", he: "למי שמכמה כוויה רצינית ואותנטית." },
+    holyLandJerkyChilliDesc: { en: "For those who crave a serious, authentic burn.", he: "למי שמשתוקק לחריפות רצינית ואותנטית." },
     holyLandJerkyChilliTagline: { en: "Serious heat. Serious flavor.", he: "חום רציני. טעם רציני." },
 
     // CHILLI BITES
     chilliBites: { en: "Chilli Bites", he: "ביטות צ'ילי" },
-    chilliBitesDesc: { en: "Bite-sized biltong pieces with a serious chilli kick. Gym bag essential.", he: "חתיכות בילטונג בגודל ביס עם כיסה צ'ילי רציני. הכרחי לתיק ההדרכה." },
+    chilliBitesDesc: { en: "Bite-sized biltong pieces with a serious chilli kick. Gym bag essential.", he: "חתיכות בילטונג בגודל ביס עם עוקץ צ'ילי רציני. הכרחי לתיק האימונים." },
     chilliBitesCategory: { en: "CHILLI BITES", he: "ביטות צ'ילי" },
     chilliBitesTagline: { en: "Not for the faint-hearted.", he: "לא לחלשי לב." },
 
     // SHOTS CATEGORY
     shots: { en: "Shweet Brew Shots", he: "שוטות שוויט ברו" },
-    shotsDesc: { en: "Vodka infused with chilli, cinnamon, and vanilla. The shot that starts the braai and ends the night. Serve ice cold.", he: "וודקה מעובדת עם צ'ילי, קינמון וניל. השוט שמתחיל את הברייי ומסיים את הלילה. הגש קר מאוד." },
+    shotsDesc: { en: "Vodka infused with chilli, cinnamon, and vanilla. The shot that starts the braai and ends the night. Serve ice cold.", he: "וודקה חדורה בצ'ילי, קינמון ווניל. השוט שפותח את הברייי ומסיים את הלילה. מוגש קר מאוד." },
     shotsCategory: { en: "SHOTS", he: "שוטות" },
-    shotsTagline: { en: "Chilli. Cinnamon. Vanilla. Chaos.", he: "צ'ילי. קינמון. ניל. כאוס." },
+    shotsTagline: { en: "Chilli. Cinnamon. Vanilla. Chaos.", he: "צ'ילי. קינמון. וניל. כאוס." },
 
     // SAUCES CATEGORY
     sauces: { en: "Sauces", he: "רטבים" },
@@ -179,7 +174,7 @@ And more — crafted with`, he: "בילטונג דרום אפריקאי אותנ
     
     // Zones
     selectArea: { en: "SELECT YOUR DELIVERY AREA", he: "בחר את אזור המשלוח שלך" },
-    modiin: { en: "Modiin (HQ)", he: "מודיעין (ראש הממשלה)" },
+    modiin: { en: "Modiin (HQ)", he: "מודיעין (המטה הראשי)" },
     modiin_time: { en: "Same day / Next day", he: "באותו יום / למחרת" },
     modiin_fee: { en: "₪0 (Free pickup)", he: "₪0 (איסוף חינם)" },
     telAviv: { en: "Tel Aviv & Gush Dan", he: "תל אביב וגוש דן" },
@@ -204,14 +199,14 @@ And more — crafted with`, he: "בילטונג דרום אפריקאי אותנ
     cutoffTitle: { en: "Order Cutoff", he: "סגירה הזמנות" },
     cutoffDesc: { en: "Order by 12pm for same-day delivery in Modiin. Contact us for delivery days in other areas.", he: "הזמנו עד 12:00 למשלוח באותו יום במודיעין. צור קשר לימי משלוח באזורים אחרים." },
     paymentTitle: { en: "Payment", he: "תשלום" },
-    paymentDesc: { en: "Cash, bank transfer, or Bit. Payment on delivery or in advance.", he: "מזומניט, העברה בנקאית, או Bit. תשלום עם המשלוח או מראש." },
+    paymentDesc: { en: "Cash, bank transfer, or Bit. Payment on delivery or in advance.", he: "מזומן, העברה בנקאית, או Bit. תשלום עם המשלוח או מראש." },
     pickupTitle: { en: "Pickup Available", he: "איסוף זמין" },
-    pickupDesc: { en: "Prefer to collect? Pickup available in Modiin. WhatsApp us to arrange.", he: "בדרך לאסוף בעצמך? איסוף זמין במודיעין. שלח לנו ב-WhatsApp לעריכה." },
+    pickupDesc: { en: "Prefer to collect? Pickup available in Modiin. WhatsApp us to arrange.", he: "מעדיפים לאסוף בעצמכם? איסוף זמין במודיעין. שלחו לנו הודעה ב-WhatsApp לתיאום." },
     
     contactForQuote: { en: "Contact for quote", he: "צור קשר לציטוט" },
     
     // Delivery zone names for dropdown
-    zoneModiin: { en: "Modiin (HQ)", he: "מודיעין (ראש הממשלה)" },
+    zoneModiin: { en: "Modiin (HQ)", he: "מודיעין (המטה הראשי)" },
     zoneTelAviv: { en: "Tel Aviv & Gush Dan", he: "תל אביב וגוש דן" },
     zoneJerusalem: { en: "Jerusalem", he: "ירושלים" },
     zoneHaifa: { en: "Haifa & North", he: "חיפה וצפון" },
@@ -222,7 +217,7 @@ And more — crafted with`, he: "בילטונג דרום אפריקאי אותנ
   // Order Section (Checkout)
   checkout: {
     title: { en: "CHECKOUT", he: "קופה" },
-    reviewYourOrder: { en: "Review your order and complete checkout", he: "בדוק את הזמנתך והשלם" },
+    reviewYourOrder: { en: "Review your order and complete checkout", he: "עברו על ההזמנה והשלימו את התהליך" },
     orderSummary: { en: "ORDER SUMMARY", he: "סיכום הזמנה" },
     yourDetails: { en: "YOUR DETAILS", he: "הפרטים שלך" },
     fullName: { en: "FULL NAME", he: "שם מלא" },
@@ -232,7 +227,7 @@ And more — crafted with`, he: "בילטונג דרום אפריקאי אותנ
     city: { en: "CITY", he: "עיר" },
     address: { en: "ADDRESS", he: "כתובת" },
     specialRequests: { en: "SPECIAL REQUESTS", he: "בקשות מיוחדות" },
-    subtotal: { en: "Subtotal:", he: "סה\"כ ביניים:" },
+    subtotal: { en: "Subtotal:", he: "סכום ביניים:" },
     delivery: { en: "Delivery:", he: "משלוח:" },
     total: { en: "Total:", he: "סה\"כ:" },
     completeOrder: { en: "Complete Order on WhatsApp", he: "השלם הזמנה ב-WhatsApp" },
@@ -243,7 +238,7 @@ And more — crafted with`, he: "בילטונג דרום אפריקאי אותנ
   // Reviews Section (titles only, not review boxes)
   reviews: {
     title: { en: "The People", he: "האנשים" },
-    haveSpoken: { en: "Have Spoken", he: "דברו" },
+    haveSpoken: { en: "Have Spoken", he: "דיברו" },
     subtitle: { en: "What People Are Saying", he: "מה אנשים אומרים" },
     happyCustomers: { en: "from 200+ happy customers", he: "מ-200+ לקוחות שמחים" },
     joinHundreds: { en: "Join hundreds of happy customers across Israel.", he: "הצטרף למאות לקוחות שמחים בכל רחבי ישראל." },
@@ -264,7 +259,7 @@ And more — crafted with`, he: "בילטונג דרום אפריקאי אותנ
     // Story section
     storyTitle: { en: "The Shweet Brew Story", he: "סיפור שוויט ברו" },
     storyParagraph1: { en: "We're South Africans who fell in love with Israel. And we couldn't let go of home.", he: "אנחנו דרום אפריקאים שהתאהבנו בישראל. ולא יכולנו לשחרר את הבית." },
-    storyParagraph2: { en: "When we moved to Israel, we missed the braai culture, the authentic flavours, the community. So we decided to bring it here.", he: "כשעברנו לישראל, חמקנו לתרבות הברייי, לטעמים האותנטיים, לקהילה. אז החלטנו להביא את זה לכאן." },
+    storyParagraph2: { en: "When we moved to Israel, we missed the braai culture, the authentic flavours, the community. So we decided to bring it here.", he: "כשעברנו לישראל, התגעגענו לתרבות הברייי, לטעמים האותנטיים ולקהילה. אז החלטנו להביא את זה לכאן." },
     storyParagraph3: { en: "Shweet Brew is our love letter to both nations. Every product is made with 100% beef, authentic SA spices, and the kind of pride that only comes from bridging two homes.", he: "שוויט ברו היא מכתב אהבה שלנו לשתי אומות. כל מוצר עשוי מ-100% בשר בקר, תבליני SA אותנטיים, וסוג הגאווה שמגיע רק מחיבור שני בתים." },
     
     // Values
@@ -308,7 +303,7 @@ And more — crafted with`, he: "בילטונג דרום אפריקאי אותנ
     city: { en: "City", he: "עיר" },
     address: { en: "Address", he: "כתובת" },
     specialRequests: { en: "Special requests...", he: "בקשות מיוחדות..." },
-    subtotal: { en: "Subtotal", he: "סה\"כ ביניים" },
+    subtotal: { en: "Subtotal", he: "סכום ביניים" },
     delivery: { en: "Delivery", he: "משלוח" },
     total: { en: "Total", he: "סה\"כ" },
     orderOnWhatsApp: { en: "Order on WhatsApp", he: "הזמן ב-WhatsApp" },

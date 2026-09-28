@@ -23,9 +23,9 @@ const faqItems: FAQItem[] = [
       en: `Biltong: In short, spiced and air dried. The meat is cured in a vinegar and spice bath (traditionally featuring coriander and black pepper) and then hung to air-dry naturally over several days.
 
 Jerky: In short, marinated and slow cooked. The meat is usually marinated, then cooked or smoked at low temperatures to dehydrate it quickly, which gives it that classic tough, chewy bite.`,
-      he: `בילטונג: בקיצור, תובלי ומיובש באוויר. הבשר מתובל בחומץ ותבליים (בעיקר כוסברה ופלפל שחור) ואז תלוי להתייבש באוויר טבעי במשך כמה ימים.
+      he: `בילטונג: בקיצור, מתובל ומיובש באוויר. הבשר נשרה בתערובת חומץ ותבלינים (בעיקר כוסברה ופלפל שחור) ולאחר מכן תלוי להתייבש באוויר הטבעי במשך מספר ימים.
 
-ג'רקי: בקיצור, מתובל ובישול איטי. הבשר בדרך כלל מתובל, ואז מבושל או מעושן בטמפרטורות נמוכות כדי להתייבש במהירות, מה שנותן לו את הטעם הקלאסי הקשה והגומי.`,
+ג'רקי: בקיצור, מתובל ומבושל לאט. הבשר בדרך כלל מתובל, ולאחר מכן מבושל או מעושן בטמפרטורות נמוכות כדי להתייבש במהירות, מה שמעניק לו את המרקם הקשיח והלעיס הקלאסי.`,
     },
   },
   {
@@ -41,13 +41,13 @@ Few days: Can be kept out of the fridge, unless it is extremely hot or humid.
 More than a few days: Keep in fridge and take out a few minutes before to eat at room temperature.
 
 Few weeks or months: They will freeze perfectly. Remove from freezer, thaw and eat at room temperature.`,
-      he: `בילטונג וג'רקי הם חטיפים טעימים, בריאים ועשירים בחלבון. הפרס הראשון הוא שהם צריכים להיאכל, לא להיאחסן. בילטונג וג'רקי של Shweet Brew טריים, ללא משמרים, ועשויים להנאה. אך אם אתה צריך לאחסן אותם לפני האכילה:
+      he: `בילטונג וג'רקי הם חטיפים טעימים, בריאים ועשירים בחלבון. הכי טוב הוא לאכול אותם ולא לאחסן אותם. הבילטונג והג'רקי של Shweet Brew טריים, ללא חומרים משמרים, ועשויים כדי שתיהנו מהם. אבל אם אתם צריכים לאחסן אותם לפני האכילה:
 
-כמה ימים: ניתן להשאיר בחוץ מהמקרר, אלא אם כן חם או לח מאוד.
+כמה ימים: ניתן להשאיר מחוץ למקרר, אלא אם כן מזג האוויר חם או לח במיוחד.
 
-יותר מכמה ימים: שמור במקרר וצא כמה דקות לפני כדי לאכול בטמפרטורת החדר.
+יותר מכמה ימים: שמרו במקרר והוציאו כמה דקות לפני כדי לאכול בטמפרטורת החדר.
 
-כמה שבועות או חודשים: הם יתקפלו בצורה מושלמת. הוציא מהמקפיא, הפשר ואכול בטמפרטורת החדר.`,
+כמה שבועות או חודשים: הם קופאים מצוין. הוציאו מהמקפיא, הפשירו ואכלו בטמפרטורת החדר.`,
     },
   },
   {
@@ -65,15 +65,15 @@ Top Tips:
 Medium Heat: Braai/BBQ over medium-hot coals. Too much heat will split the casing and dry out the meat.
 
 Turn Frequently: Turn the boerewors every few minutes using tongs rather than a fork, which prevents the casing from puncturing and letting the juices leak.`,
-      he: `בוארווורס הוא הטוב ביותר לאכול לאחר בישול על הברייי, aka BBQ aka grill.
+      he: `הכי טוב לאכול בוארווורס אחרי צלייה על הברייי, כלומר על האש או על הגריל.
 
-נמוך ובאיטיות: הטוב ביותר מבושל בחום נמוך כדי להפחית את הסיכוי לפיצול הקליפה. כדי שיישאר רטוב ולא יתייבש, אל תבשל יותר מדי והסר מהאש מוקדם יותר.
+חום נמוך ולאט: הכי טוב לצלות בחום נמוך כדי להפחית את הסיכוי שהקרום יתבקע. כדי לשמור עליו עסיסי ולא יבש, אל תבשלו אותו יותר מדי זמן והורידו אותו מהאש מוקדם יחסית.
 
 טיפים מובילים:
 
-חום בינוני: Braai/BBQ על פחמים בחום בינוני-חם. יותר מדי חום יפצל את הקליפה ויתייבש את הבשר.
+חום בינוני: צלו על גחלים בחום בינוני-גבוה. חום גבוה מדי יבקיע את הקרום וייבש את הבשר.
 
-הפוך לעתים קרובות: הפוך את הבוארווורס כל כמה דקות באמצעות צבטים ולא מזלג, מה שמונע את הקליפה מנקיבה ולתן לרוסות להיזלל.`,
+הפכו לעתים קרובות: הפכו את הבוארווורס כל כמה דקות באמצעות מלקחיים ולא מזלג, כדי למנוע ניקוב של הקרום ודליפת המיצים.`,
     },
   },
   {
@@ -83,7 +83,7 @@ Turn Frequently: Turn the boerewors every few minutes using tongs rather than a 
     },
     answer: {
       en: `Boerewors is a legendary, coiled South African sausage. Meaning "farmer's sausage" in Afrikaans, it is famous for its signature spiral shape, chunky coarse texture, and rich blend of spices—with roasted coriander being the star of the show.`,
-      he: `בוארווורס הוא נקניקייה דרום אפריקאית אגדית ומתפתלת. משמעות "נקניקיית חקלאי" באפריקאנס, היא מפורסמת בצורתה הספירלית החתימה, המרקם גס וחזק, וערבוב עשיר של תבליים - כשכוסברה קלויה היא כוכבת ההופעה.`,
+      he: `בוארווורס היא נקניקייה דרום אפריקאית אגדית ומסולסלת. פירוש השם באפריקאנס הוא "נקניקיית איכר", והיא ידועה בזכות צורתה הספירלית הייחודית, המרקם הגס והעשיר, ותערובת התבלינים העשירה - כשכוסברה קלויה היא כוכבת ההופעה.`,
     },
   },
   {
@@ -93,7 +93,7 @@ Turn Frequently: Turn the boerewors every few minutes using tongs rather than a 
     },
     answer: {
       en: `Boerewors (pronounced Boo-Ruh-Vors). This isn't your average, run-of-the-mill hot dog. It is a South African culinary treasure that takes backyard barbecues (or as the locals call it, a braai) to a whole new level.`,
-      he: `בוארווורס (מבוטא Boo-Ruh-Vors). זה לא הנקניקייה הממוצעת שלך. זה אוצר קולינרי דרום אפריקאי שלוקח ברביקיו בחצר האחורית (או כפי שהמקומיים קוראים לזה, ברייי) לרמה חדשה לחלוטין.`,
+      he: `בוארווורס (מבוטא Boo-Ruh-Vors). זו לא הנקניקייה הממוצעת שלכם. זהו אוצר קולינרי דרום אפריקאי שמעלה את הברביקיו בחצר האחורית (או כפי שהמקומיים קוראים לזה, ברייי) לרמה חדשה לגמרי.`,
     },
   },
 ];
@@ -116,7 +116,7 @@ export default function FAQSection() {
             </p>
           </div>
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
-            {language === "en" ? "Frequently Asked Questions" : "שאלות שנשאלות לעתים קרובות"}
+            {language === "en" ? "Frequently Asked Questions" : "שאלות ותשובות"}
           </h2>
           <p className="text-lg max-w-2xl mx-auto text-muted-foreground">
             {language === "en"

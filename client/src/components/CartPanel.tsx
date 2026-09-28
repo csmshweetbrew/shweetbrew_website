@@ -161,7 +161,7 @@ export default function CartPanel() {
                 letterSpacing: "0.05em",
               }}
             >
-              {language === "en" ? "YOUR CART" : "עגלה שלי"}
+              {language === "en" ? "YOUR CART" : "העגלה שלך"}
             </h3>
             <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-gray-800 rounded">
               <X className="w-4 h-4" style={{ color: "oklch(0.97 0.005 260)" }} />

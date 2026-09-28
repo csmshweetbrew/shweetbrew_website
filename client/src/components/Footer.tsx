@@ -192,7 +192,7 @@ export default function Footer() {
                   className="font-body text-sm"
                   style={{ color: "oklch(0.60 0.015 75)" }}
                 >
-                  {language === "en" ? "Based in Modiin, Israel" : "ממוקומים במודיעין, ישראל"}
+                  {language === "en" ? "Based in Modiin, Israel" : "ממוקמים במודיעין, ישראל"}
                 </span>
               </li>
             </ul>
