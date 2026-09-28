@@ -59,7 +59,7 @@ export default function Navbar() {
       }`}
       style={{ direction: "ltr" }}
     >
-      <div className="container flex items-center justify-between h-14 sm:h-16 md:h-20" style={{ direction: "ltr" }}>
+      <div className="container flex items-center justify-between h-16 sm:h-20 md:h-24" style={{ direction: "ltr" }}>
         {/* Logo */}
         <button
           onClick={() => handleNavClick("#landing", false)}
@@ -67,7 +67,7 @@ export default function Navbar() {
         >
           <svg
             viewBox="0 0 600.000000 602.000000"
-            className="w-auto h-10 sm:h-12 md:h-14 lg:h-16 group-hover:scale-105 transition-transform"
+            className="w-auto h-12 sm:h-14 md:h-16 lg:h-20 group-hover:scale-105 transition-transform"
             style={{ fill: getPrimaryColor() }}
             xmlns="http://www.w3.org/2000/svg"
           >
