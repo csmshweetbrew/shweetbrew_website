@@ -125,7 +125,7 @@ const ProductCardComponent = ({ variant, categoryName }: ProductCardProps) => {
                 {translations.products.spiceLevel[language]}
               </span>
               <div className="flex gap-1 items-center">
-                <span className="text-lg font-bold" aria-label={variant.spiceLevel <= 1 ? "Mild" : "Spice level"} style={{ color: variant.spiceLevel <= 1 ? "oklch(0.80 0.020 75)" : undefined }}>
+                <span className="text-lg font-bold" aria-label={variant.spiceLevel <= 1 ? "No Heat" : "Spice level"} style={{ color: variant.spiceLevel <= 1 ? "oklch(0.80 0.020 75)" : undefined }}>
                   {getSpiceFlames(variant.spiceLevel, language)}
                 </span>
               </div>
