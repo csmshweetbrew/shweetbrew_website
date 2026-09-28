@@ -151,6 +151,7 @@ And more — crafted with`, he: "בילטונג דרום אפריקאי אותנ
     addToCart: { en: "Add to Cart", he: "הוסף לעגלה" },
     selectSize: { en: "Select size", he: "בחר גודל" },
     spiceLevel: { en: "SPICE LEVEL", he: "רמת תבל" },
+    spiceMild: { en: "Mild", he: "מתון" },
     kosher: { en: "✡ KOSHER", he: "✡ כשר" },
     passoverKosher: { en: "✡ KOSHER FOR PASSOVER ", he: "✡ כשר לפסח" },
     notAvailable: { en: "NOT AVAILABLE", he: "לא זמין" },
