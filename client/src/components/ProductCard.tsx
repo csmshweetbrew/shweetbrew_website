@@ -148,7 +148,7 @@ const ProductCardComponent = ({ variant, categoryName }: ProductCardProps) => {
             <select
               value={selectedSize}
               onChange={(e) => setSelectedSize(e.target.value)}
-              className="w-full px-3 py-2 rounded text-sm font-bold"
+              className="w-full min-w-0 px-2 sm:px-3 py-2 rounded text-xs sm:text-sm font-bold"
               style={{
                 backgroundColor: "oklch(0.13 0.005 60)",
                 borderColor: "var(--accent)",
@@ -158,7 +158,7 @@ const ProductCardComponent = ({ variant, categoryName }: ProductCardProps) => {
             >
               {variant.sizes.map((size) => (
                 <option key={size.size} value={size.size}>
-                  {size.size} — ₪{size.price}
+                  {size.size} · ₪{size.price}
                 </option>
               ))}
             </select>
