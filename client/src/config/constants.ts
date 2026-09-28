@@ -14,7 +14,7 @@ export const SOCIAL_LINKS = {
 export const CONTACT_INFO = {
   whatsapp: "+972584132576",
   whatsappDisplay: "058 413 2576",
-  email: "shweetbrew@gmail.com",
+  email: "csmshweetbrew@gmail.com",
   phone: "+972584132576",
   location: "Modiin, Israel",
 };

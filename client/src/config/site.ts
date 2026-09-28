@@ -11,7 +11,7 @@ export const SITE_CONFIG = {
   contact: {
     whatsapp: "+972584132576", // WhatsApp number (with country code)
     whatsappDisplay: "058 413 2576", // Display format
-    email: "shweetbrew@gmail.com",
+    email: "csmshweetbrew@gmail.com",
     phone: "+972584132576",
   },
 

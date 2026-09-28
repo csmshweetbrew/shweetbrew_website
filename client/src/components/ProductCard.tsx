@@ -55,14 +55,19 @@ const ProductCardComponent = ({ variant, categoryName }: ProductCardProps) => {
   return (
     <>
       <div
-        className="rounded-lg overflow-hidden shadow-lg transition-shadow duration-200 hover:shadow-2xl"
+        className="h-full rounded-lg overflow-hidden shadow-lg transition-shadow duration-200 hover:shadow-2xl flex flex-col"
         style={{
           backgroundColor: "oklch(0.21 0.006 285.885)",
           borderLeft: "4px solid var(--accent)",
         }}
       >
         {/* Product Image */}
-        <div className="relative h-48 overflow-hidden bg-black cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setIsInfoOpen(true)}>
+        <button
+          type="button"
+          aria-label={`View information for ${variant.name}`}
+          className="relative block w-full h-48 overflow-hidden bg-black cursor-pointer hover:opacity-80 transition-opacity text-left"
+          onClick={() => setIsInfoOpen(true)}
+        >
           <img
             src={variant.image}
             alt={`${categoryName} - ${variant.name}`}
@@ -86,8 +91,7 @@ const ProductCardComponent = ({ variant, categoryName }: ProductCardProps) => {
 
           </div>
           {/* Info Button */}
-          <button
-            onClick={() => setIsInfoOpen(true)}
+          <span
             className="absolute bottom-3 left-3 p-2 rounded-full transition-all hover:scale-110"
             style={{
               backgroundColor: "oklch(0.62 0.20 42 / 0.9)",
@@ -96,11 +100,11 @@ const ProductCardComponent = ({ variant, categoryName }: ProductCardProps) => {
             title="View nutrients & ingredients"
           >
             <Info className="w-4 h-4" />
-          </button>
-        </div>
+          </span>
+        </button>
 
         {/* Product Info */}
-        <div className="p-4">
+        <div className="p-4 flex-1 flex flex-col">
           {/* Category & Name */}
           <p className="text-xs font-bold mb-1" style={{ color: "var(--accent)" }}>
             {language === "en" ? categoryName : (translations.products as any)[categoryName.toLowerCase()]?.[language] || categoryName}
@@ -121,21 +125,15 @@ const ProductCardComponent = ({ variant, categoryName }: ProductCardProps) => {
                 {translations.products.spiceLevel[language]}
               </span>
               <div className="flex gap-1 items-center">
-                {variant.spiceLevel === 0 ? (
-                  <span className="text-sm font-semibold" style={{ color: "oklch(0.70 0.015 65)" }}>
-                    Mild
-                  </span>
-                ) : (
-                  <span className="text-lg">
-                    {getSpiceFlames(variant.spiceLevel)}
-                  </span>
-                )}
+                <span className="text-lg" aria-label={variant.spiceLevel <= 1 ? "Mild" : "Spice level"}>
+                  {getSpiceFlames(variant.spiceLevel)}
+                </span>
               </div>
             </div>
           </div>
 
           {/* Description (short) */}
-          <p className="text-sm mb-4 leading-relaxed line-clamp-2" style={{ color: "oklch(0.80 0.020 75)" }}>
+          <p className="text-sm mb-4 leading-relaxed line-clamp-2 min-h-[3rem]" style={{ color: "oklch(0.80 0.020 75)" }}>
             {getTranslatedProductDescription(variant.id, language)}
           </p>
 

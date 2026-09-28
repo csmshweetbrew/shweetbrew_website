@@ -162,6 +162,10 @@ And more — crafted with`, he: "בילטונג דרום אפריקאי אותנ
     fat: { en: "Fat", he: "שומן" },
     carbs: { en: "Carbs", he: "פחמימות" },
     calories: { en: "Calories", he: "קלוריות" },
+    macroDisclaimer: {
+      en: "Nutritional values are estimates per 100g and may vary slightly due to natural ingredient and preparation differences.",
+      he: "הערכים התזונתיים הם הערכות ל-100 גרם ועשויים להשתנות מעט בשל הבדלים טבעיים במרכיבים ובתהליך ההכנה.",
+    },
     allergens: { en: "ALLERGENS", he: "אלרגנים" },
     close: { en: "Close", he: "סגור" },
   },

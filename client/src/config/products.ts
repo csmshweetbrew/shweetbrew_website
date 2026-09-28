@@ -176,8 +176,8 @@ const PRODUCT_REGISTRY = [
         spiceLevel: 0,
         isKosher: true,
         sizes: [
-          { size: "500g", weight: "500g", price: 85 },
-          { size: "1kg", weight: "1kg", price: 150 },
+          { size: "500g", weight: "500g", price: 60 },
+          { size: "1kg", weight: "1kg", price: 110 },
         ],
         nutrition: {
           protein: "18g",
@@ -315,9 +315,9 @@ const PRODUCT_REGISTRY = [
         spiceLevel: 2,
         isKosher: true,
         sizes: [
-          { size: "250g", weight: "250g", price: 100 },
-          { size: "500g", weight: "500g", price: 195 },
-          { size: "1kg", weight: "1kg", price: 380 },
+          { size: "250g", weight: "250g", price: 85 },
+          { size: "500g", weight: "500g", price: 165 },
+          { size: "1kg", weight: "1kg", price: 320 },
         ],
         nutrition: {
           protein: "58g",
@@ -335,9 +335,9 @@ const PRODUCT_REGISTRY = [
         spiceLevel: 1,
         isKosher: true,
         sizes: [
-          { size: "250g", weight: "250g", price: 100 },
-          { size: "500g", weight: "500g", price: 195 },
-          { size: "1kg", weight: "1kg", price: 380 },
+          { size: "250g", weight: "250g", price: 85 },
+          { size: "500g", weight: "500g", price: 165 },
+          { size: "1kg", weight: "1kg", price: 320 },
         ],
         nutrition: {
           protein: "57g",
@@ -473,7 +473,8 @@ export function getTranslatedProductDescription(variantId: string, language: Lan
     "shweetbrew-shots": translations.products.shotsDesc,
     "chilli-sauce": translations.products.chilliSauceDesc,
   };
-  return translationMap[variantId]?.[language] || "";
+  const fallback = PRODUCT_REGISTRY.flatMap((product) => product.variants).find((variant) => variant.id === variantId)?.description || "";
+  return translationMap[variantId]?.[language] || fallback;
 }
 
 export function getTranslatedProductTagline(variantId: string, language: Language): string {
@@ -493,7 +494,8 @@ export function getTranslatedProductTagline(variantId: string, language: Languag
     "shweetbrew-shots": translations.products.shotsTagline,
     "chilli-sauce": translations.products.chilliSauceTagline,
   };
-  return translationMap[variantId]?.[language] || "";
+  const fallback = PRODUCT_REGISTRY.flatMap((product) => product.variants).find((variant) => variant.id === variantId)?.tagline || "";
+  return translationMap[variantId]?.[language] || fallback;
 }
 
 export function getCategoryNameHebrew(categoryName: string): string {

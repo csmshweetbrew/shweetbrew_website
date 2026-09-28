@@ -112,6 +112,9 @@ export default function ProductInfoModal({ variant, categoryName, isOpen, onClos
                 </p>
               </div>
             </div>
+            <p className="mt-3 text-xs leading-relaxed" style={{ color: "oklch(0.65 0.015 75)" }}>
+              {translations.products.macroDisclaimer[language]}
+            </p>
           </div>
 
           {/* Ingredients Section */}
