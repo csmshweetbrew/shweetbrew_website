@@ -103,11 +103,17 @@ export default function Navbar() {
         {/* Right side: Jerky logo, Language Toggle & WhatsApp CTA, Mobile Menu */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Jerky Logo */}
-          <img
-            src="/jerky.svg"
-            alt="Shweet Brew Jerky"
-            className="w-auto h-12 sm:h-14 md:h-16 lg:h-20 rounded transition-transform hover:scale-105"
-          />
+          <button
+            onClick={() => handleNavClick("#landing", false)}
+            className="cursor-pointer"
+            aria-label="Scroll to top"
+          >
+            <img
+              src="/jerky-transparent.png"
+              alt="Holy Land Jerky by Shweet Brew"
+              className="w-auto h-12 sm:h-14 md:h-16 lg:h-20 transition-transform hover:scale-105"
+            />
+          </button>
 
           {/* Language Toggle & WhatsApp CTA */}
           <div className="hidden md:flex items-center gap-3">
