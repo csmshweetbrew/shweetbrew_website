@@ -85,8 +85,8 @@ const PRODUCT_REGISTRY = [
         sizes: [
           { size: "100g", weight: "100g", price: 50 },
           { size: "250g", weight: "250g", price: 100 },
-          { size: "500g", weight: "500g", price: 185 },
-          { size: "1kg", weight: "1kg", price: 360 },
+          { size: "500g", weight: "500g", price: 195 },
+          { size: "1kg", weight: "1kg", price: 380 },
         ],
         nutrition: {
           protein: "51g",
@@ -107,8 +107,8 @@ const PRODUCT_REGISTRY = [
         sizes: [
           { size: "100g", weight: "100g", price: 50 },
           { size: "250g", weight: "250g", price: 100 },
-          { size: "500g", weight: "500g", price: 185 },
-          { size: "1kg", weight: "1kg", price: 360 },
+          { size: "500g", weight: "500g", price: 195 },
+          { size: "1kg", weight: "1kg", price: 380 },
         ],
         nutrition: {
           protein: "51g",
@@ -128,8 +128,8 @@ const PRODUCT_REGISTRY = [
         sizes: [
           { size: "100g", weight: "100g", price: 50 },
           { size: "250g", weight: "250g", price: 100 },
-          { size: "500g", weight: "500g", price: 185 },
-          { size: "1kg", weight: "1kg", price: 360 },
+          { size: "500g", weight: "500g", price: 195 },
+          { size: "1kg", weight: "1kg", price: 380 },
         ],
         nutrition: {
           protein: "51g",
@@ -149,8 +149,8 @@ const PRODUCT_REGISTRY = [
         sizes: [
           { size: "100g", weight: "100g", price: 50 },
           { size: "250g", weight: "250g", price: 100 },
-          { size: "500g", weight: "500g", price: 185 },
-          { size: "1kg", weight: "1kg", price: 360 },
+          { size: "500g", weight: "500g", price: 195 },
+          { size: "1kg", weight: "1kg", price: 380 },
         ],
         nutrition: {
           protein: "51g",

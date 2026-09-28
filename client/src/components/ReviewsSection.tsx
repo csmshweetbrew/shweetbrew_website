@@ -13,7 +13,6 @@ import { getWhatsAppLink } from "@/config/site";
 type Review = {
   id: number;
   name: string;
-  location: string;
   rating: number;
   text: string;
   product?: string;
@@ -27,7 +26,6 @@ const reviews: Review[] = [
   {
     id: 1,
     name: "Hilton Giesenow",
-    location: "Modiin",
     rating: 5,
     text: "I just finished a bag of Shweet Brew's delicious biltong and it was great, will definitely be buying again! Uri can also make different styles or order however you like it, so might try some different options out as well. Thanks for the great treat! The chilli was fantastic as well, by the way.",
     product: "Biltong",
@@ -37,7 +35,6 @@ const reviews: Review[] = [
   {
     id: 2,
     name: "Craig Gerber",
-    location: "Modiin",
     rating: 5,
     text: "Best biltong in town. Shweet brew chilli sauce is unbelievable and goes with everything",
     product: "Biltong & Sauce",
@@ -47,7 +44,6 @@ const reviews: Review[] = [
   {
     id: 3,
     name: "Shmuel Shantall",
-    location: "Modiin",
     rating: 5,
     text: "Shweet Brew totally enhanced our shabbat experience! Top quality taste and texture awakening the African in me! Look forward to my next biltong binge",
     product: "Biltong",
@@ -57,7 +53,6 @@ const reviews: Review[] = [
   {
     id: 4,
     name: "Avi Ettinger",
-    location: "Modiin",
     rating: 5,
     text: "First time trying these South African snacks - Amazing!! Thanks you Uri!! It was a pleasure meeting you and will definitely be back for more",
     product: "South African Snacks",
@@ -67,7 +62,6 @@ const reviews: Review[] = [
   {
     id: 5,
     name: "Akiva Yach",
-    location: "Modiin",
     rating: 5,
     text: "Amazing biltong, Uri is always full of energy and is dedicated to his art.",
     product: "Biltong",
@@ -77,7 +71,6 @@ const reviews: Review[] = [
   {
     id: 6,
     name: "Miriam Gozani",
-    location: "Modiin",
     rating: 5,
     text: "Best biltong I have tasted in a long time. Totally addictive.",
     product: "Biltong",
@@ -87,7 +80,6 @@ const reviews: Review[] = [
   {
     id: 7,
     name: "Moshe Sevitz",
-    location: "Modiin",
     rating: 5,
     text: "Excellent service, even better biltong. If 10 stars was an option I'd choose 11.",
     product: "Biltong",
@@ -97,7 +89,6 @@ const reviews: Review[] = [
   {
     id: 8,
     name: "Avigdor Book",
-    location: "Modiin",
     rating: 5,
     text: "Great product! Tastes awesome and nothing like service with a smile :)",
     product: "Biltong",
@@ -148,19 +139,11 @@ function ReviewCard({ review }: { review: Review }) {
         "{review.text}"
       </p>
       <div className="flex items-center justify-between">
-        <div>
-          <div
-            className="font-body font-bold text-sm"
-            style={{ color: "oklch(0.94 0.025 75)" }}
-          >
-            {review.flag} {review.name}
-          </div>
-          <div
-            className="font-body text-xs"
-            style={{ color: "oklch(0.55 0.015 75)" }}
-          >
-            {review.location}
-          </div>
+        <div
+          className="font-body font-bold text-sm"
+          style={{ color: "oklch(0.94 0.025 75)" }}
+        >
+          {review.flag} {review.name}
         </div>
         {review.product && (
           <span
