@@ -105,7 +105,7 @@ export default function DeliverySection() {
                             color: "oklch(0.15 0.01 260)",
                           }}
                         >
-                          {language === "en" ? "HQ" : "ראש הממשלה"}
+                          {language === "en" ? "HQ" : "מטה"}
                         </span>
                       )}
                     </div>
@@ -124,7 +124,7 @@ export default function DeliverySection() {
                   style={{ color: "oklch(0.70 0.015 75)", borderColor: "oklch(0.62 0.20 42 / 0.3)" }}
                 >
                   <div style={{ color: "oklch(0.80 0.020 75)", marginBottom: "0.25rem", fontWeight: "600" }}>
-                    {language === "en" ? "Cities:" : "עירות:"}
+                    {language === "en" ? "Cities:" : "ערים:"}
                   </div>
                   <div>{zone.cities.join(", ")}</div>
                 </div>
@@ -155,7 +155,7 @@ export default function DeliverySection() {
             className="font-body font-bold mb-3"
             style={{ color: "oklch(0.94 0.025 75)", fontSize: "1.125rem" }}
           >
-            {language === "en" ? "Delivery Schedule Notice" : "העדכון לשידול דרום"}
+            {language === "en" ? "Delivery Schedule Notice" : "הודעה על לוחות זמנים למשלוחים"}
           </h3>
           <p
             className="font-body text-sm mb-3"
@@ -163,7 +163,7 @@ export default function DeliverySection() {
           >
             {language === "en"
               ? "Delivery days vary by city and region. Please place your order before Wednesday to ensure it is included in your area's next delivery cycle. Orders received after Wednesday will be scheduled for the following week."
-              : "ימי דרום שונים לפי עיר ואזור. בבקשה הזמינו שלכם לפני יום רביעי כדי לוודא שההזמינה תוכנה בסידור דרום הבא באזורך. הזמינות שהוערו אחרי יום רביעי ישודלו בשבוע הבא."
+              : "ימי המשלוח משתנים לפי עיר ואזור. אנא בצעו את ההזמנה לפני יום רביעי כדי לוודא שהיא תיכלל בסבב המשלוחים הבא באזורכם. הזמנות שיתקבלו אחרי יום רביעי יסודרו לשבוע הבא."
             }
           </p>
           <p
@@ -172,7 +172,7 @@ export default function DeliverySection() {
           >
             {language === "en"
               ? "Need it sooner? Urgent deliveries can be accommodated for an additional fee. Please contact us directly to arrange a rush order."
-              : "צריכים בהדרך? דרומים דחופים יכולים להיות משומ בעידו נוסף. אנא הצטרפו אלינו ישירות לסדר הזמינה מהירה."
+              : "צריכים את זה מהר יותר? ניתן לתאם משלוחים דחופים בתוספת תשלום. אנא צרו איתנו קשר ישירות כדי לתאם הזמנה דחופה."
             }
           </p>
         </div>
