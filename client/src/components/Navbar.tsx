@@ -59,7 +59,7 @@ export default function Navbar() {
       }`}
       style={{ direction: "ltr" }}
     >
-      <div className="container flex items-center justify-between h-16 sm:h-20 md:h-24" style={{ direction: "ltr" }}>
+      <div className="container flex items-center justify-between h-24 sm:h-28 md:h-32 lg:h-40" style={{ direction: "ltr" }}>
         {/* Logo */}
         <button
           onClick={() => handleNavClick("#landing", false)}
@@ -67,7 +67,7 @@ export default function Navbar() {
         >
           <svg
             viewBox="0 0 600.000000 602.000000"
-            className="w-auto h-12 sm:h-14 md:h-16 lg:h-20 group-hover:scale-105 transition-transform"
+            className="w-auto h-[72px] sm:h-[84px] md:h-[96px] lg:h-[120px] group-hover:scale-105 transition-transform"
             style={{ fill: getPrimaryColor() }}
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -87,7 +87,7 @@ export default function Navbar() {
         </button>
 
         {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden lg:flex items-center gap-8">
           {navLinks.map((link) => (
             <button
               key={link.href}
@@ -116,7 +116,7 @@ export default function Navbar() {
           </button>
 
           {/* Language Toggle & WhatsApp CTA */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3">
             {/* Language Toggle */}
             <button
               onClick={() => setLanguage(language === "en" ? "he" : "en")}
@@ -149,7 +149,7 @@ export default function Navbar() {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 rounded transition-colors"
+            className="lg:hidden p-2 rounded transition-colors"
             style={{ color: "oklch(0.94 0.025 75)" }}
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
@@ -162,7 +162,7 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {menuOpen && (
         <div
-          className="md:hidden border-t border-white/10"
+          className="lg:hidden border-t border-white/10"
           style={{ backgroundColor: "oklch(0.13 0.005 60/0.98)" }}
         >
           <div className="container py-4 flex flex-col gap-1">
