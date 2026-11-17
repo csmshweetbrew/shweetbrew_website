@@ -19,7 +19,7 @@ export default function About() {
             <p className="text-sm font-bold mb-4 tracking-widest" style={{ color: "var(--accent)" }}>
               — OUR STORY —
             </p>
-            <h1 className="font-display text-5xl md:text-6xl font-bold mb-6" style={{ color: "oklch(0.97 0.005 260)" }}>
+            <h1 className="font-display text-5xl md:text-6xl font-bold mb-6" style={{ color: "oklch(0.94 0.025 75)" }}>
               Born in South Africa.
               <br />
               <span style={{ color: "var(--accent)" }}>Proud to be Israeli.</span>
@@ -35,11 +35,11 @@ export default function About() {
             <div
               className="p-8 rounded-lg"
               style={{
-                backgroundColor: "oklch(0.21 0.006 285.885)",
+                backgroundColor: "var(--card)",
                 borderLeft: "6px solid var(--accent)",
               }}
             >
-              <h2 className="font-display text-3xl font-bold mb-4" style={{ color: "oklch(0.97 0.005 260)" }}>
+              <h2 className="font-display text-3xl font-bold mb-4" style={{ color: "oklch(0.94 0.025 75)" }}>
                 The Beginning
               </h2>
               <p className="text-lg leading-relaxed" style={{ color: "oklch(0.80 0.020 75)" }}>
@@ -57,11 +57,11 @@ export default function About() {
             <div
               className="p-8 rounded-lg"
               style={{
-                backgroundColor: "oklch(0.21 0.006 285.885)",
+                backgroundColor: "var(--card)",
                 borderLeft: "6px solid oklch(0.35 0.15 260)",
               }}
             >
-              <h2 className="font-display text-3xl font-bold mb-4" style={{ color: "oklch(0.97 0.005 260)" }}>
+              <h2 className="font-display text-3xl font-bold mb-4" style={{ color: "oklch(0.94 0.025 75)" }}>
                 Our Values
               </h2>
               <p className="text-lg leading-relaxed" style={{ color: "oklch(0.80 0.020 75)" }}>
@@ -79,7 +79,7 @@ export default function About() {
 
           {/* Values Grid */}
           <div className="mb-16">
-            <h2 className="font-display text-3xl font-bold mb-8 text-center" style={{ color: "oklch(0.97 0.005 260)" }}>
+            <h2 className="font-display text-3xl font-bold mb-8 text-center" style={{ color: "oklch(0.94 0.025 75)" }}>
               What We Stand For
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -88,12 +88,12 @@ export default function About() {
                   key={idx}
                   className="p-6 rounded-lg text-center"
                   style={{
-                    backgroundColor: "oklch(0.21 0.006 285.885)",
+                    backgroundColor: "var(--card)",
                     border: "2px solid var(--accent)",
                   }}
                 >
                   <div className="text-5xl mb-3">{value.icon}</div>
-                  <h3 className="font-bold text-lg mb-2" style={{ color: "oklch(0.97 0.005 260)" }}>
+                  <h3 className="font-bold text-lg mb-2" style={{ color: "oklch(0.94 0.025 75)" }}>
                     {value.title}
                   </h3>
                   <p style={{ color: "oklch(0.80 0.020 75)" }}>{value.description}</p>
@@ -106,17 +106,17 @@ export default function About() {
           <div
             className="p-8 rounded-lg mb-16"
             style={{
-              backgroundColor: "oklch(0.21 0.006 285.885)",
+              backgroundColor: "var(--card)",
               borderLeft: "6px solid var(--accent)",
             }}
           >
-            <h2 className="font-display text-3xl font-bold mb-4" style={{ color: "oklch(0.97 0.005 260)" }}>
+            <h2 className="font-display text-3xl font-bold mb-4" style={{ color: "oklch(0.94 0.025 75)" }}>
               Who We Serve
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <div className="text-3xl mb-2">🇿🇦</div>
-                <h4 className="font-bold mb-2" style={{ color: "oklch(0.97 0.005 260)" }}>
+                <h4 className="font-bold mb-2" style={{ color: "oklch(0.94 0.025 75)" }}>
                   Joburg Expats
                 </h4>
                 <p style={{ color: "oklch(0.80 0.020 75)" }}>
@@ -125,7 +125,7 @@ export default function About() {
               </div>
               <div>
                 <div className="text-3xl mb-2">🇮🇱</div>
-                <h4 className="font-bold mb-2" style={{ color: "oklch(0.97 0.005 260)" }}>
+                <h4 className="font-bold mb-2" style={{ color: "oklch(0.94 0.025 75)" }}>
                   Israelis
                 </h4>
                 <p style={{ color: "oklch(0.80 0.020 75)" }}>
@@ -134,7 +134,7 @@ export default function About() {
               </div>
               <div>
                 <div className="text-3xl mb-2">🇺🇸</div>
-                <h4 className="font-bold mb-2" style={{ color: "oklch(0.97 0.005 260)" }}>
+                <h4 className="font-bold mb-2" style={{ color: "oklch(0.94 0.025 75)" }}>
                   Meat Lovers
                 </h4>
                 <p style={{ color: "oklch(0.80 0.020 75)" }}>
@@ -171,25 +171,25 @@ export default function About() {
               <div className="font-display text-4xl font-bold mb-2" style={{ color: "var(--accent)" }}>
                 7+
               </div>
-              <p style={{ color: "oklch(0.70 0.015 65)" }}>{language === "en" ? "Products" : "מוצרים"}</p>
+              <p style={{ color: "oklch(0.70 0.015 75)" }}>{language === "en" ? "Products" : "מוצרים"}</p>
             </div>
             <div>
               <div className="font-display text-4xl font-bold mb-2" style={{ color: "var(--accent)" }}>
                 100%
               </div>
-              <p style={{ color: "oklch(0.70 0.015 65)" }}>{language === "en" ? "Beef" : "בשר בקר"}</p>
+              <p style={{ color: "oklch(0.70 0.015 75)" }}>{language === "en" ? "Beef" : "בשר בקר"}</p>
             </div>
             <div>
               <div className="font-display text-4xl font-bold mb-2" style={{ color: "var(--accent)" }}>
                 200+
               </div>
-              <p style={{ color: "oklch(0.70 0.015 65)" }}>{language === "en" ? "Happy Customers" : "לקוחות שמחים"}</p>
+              <p style={{ color: "oklch(0.70 0.015 75)" }}>{language === "en" ? "Happy Customers" : "לקוחות שמחים"}</p>
             </div>
             <div>
               <div className="font-display text-4xl font-bold mb-2" style={{ color: "var(--accent)" }}>
                 🇮🇱
               </div>
-              <p style={{ color: "oklch(0.70 0.015 65)" }}>{language === "en" ? "Israel-wide" : "בכל רחבי ישראל"}</p>
+              <p style={{ color: "oklch(0.70 0.015 75)" }}>{language === "en" ? "Israel-wide" : "בכל רחבי ישראל"}</p>
             </div>
           </div>
         </div>

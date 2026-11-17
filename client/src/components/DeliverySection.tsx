@@ -49,19 +49,11 @@ export default function DeliverySection() {
         {/* Header */}
         <div className="mb-12 text-center">
           <div
-            className="font-body text-xs tracking-widest uppercase mb-3"
-            style={{ color: "var(--accent)", letterSpacing: "0.25em" }}
+            className="section-eyebrow mb-3"
           >
             — {translations.delivery.sectionTitle[language]} —
           </div>
-          <h2
-            className="font-display leading-none mb-4"
-            style={{
-              fontFamily: "'Bebas Neue', sans-serif",
-              fontSize: "clamp(2.5rem, 6vw, 5rem)",
-              color: "oklch(0.94 0.025 75)",
-            }}
-          >
+          <h2 className="section-title mb-4">
             {language === "en" ? "We Deliver" : "אנחנו משלחים"}{" "}
             <span style={{ color: "oklch(0.50 0.18 260)" }}>{translations.delivery.sectionSubtitle[language]}</span>
           </h2>
@@ -83,7 +75,7 @@ export default function DeliverySection() {
               key={zone.id}
               className="p-5 rounded-lg border transition-all"
               style={{
-                backgroundColor: zone.highlight ? "oklch(0.35 0.15 260 / 0.15)" : "oklch(0.18 0.006 60)",
+                backgroundColor: zone.highlight ? "oklch(0.35 0.15 260 / 0.15)" : "var(--card)",
                 borderColor: zone.highlight ? "oklch(0.50 0.18 260)" : "oklch(1 0 0 / 0.10)",
                 boxShadow: zone.highlight ? "0 0 20px oklch(0.35 0.15 260 / 0.2)" : "none",
               }}
@@ -101,8 +93,8 @@ export default function DeliverySection() {
                         <span
                           className="ml-2 text-xs px-1.5 py-0.5 rounded font-semibold"
                           style={{
-                            backgroundColor: "oklch(0.65 0.18 260)",
-                            color: "oklch(0.15 0.01 260)",
+                            backgroundColor: "oklch(0.50 0.18 260)",
+                            color: "oklch(0.94 0.025 75)",
                           }}
                         >
                           {language === "en" ? "HQ" : "מטה"}
@@ -121,7 +113,7 @@ export default function DeliverySection() {
               {zone.cities && zone.cities.length > 0 && (
                 <div
                   className="font-body text-xs mb-3 pb-3 border-b"
-                  style={{ color: "oklch(0.70 0.015 75)", borderColor: "oklch(0.62 0.20 42 / 0.3)" }}
+                  style={{ color: "oklch(0.70 0.015 75)", borderColor: "color-mix(in oklab, var(--accent) 30%, transparent)" }}
                 >
                   <div style={{ color: "oklch(0.80 0.020 75)", marginBottom: "0.25rem", fontWeight: "600" }}>
                     {language === "en" ? "Cities:" : "ערים:"}
@@ -147,8 +139,8 @@ export default function DeliverySection() {
         <div
           className="p-6 rounded-lg border mb-8"
           style={{
-            backgroundColor: "oklch(0.21 0.006 285.885)",
-            borderColor: "oklch(0.62 0.20 42 / 0.5)",
+            backgroundColor: "var(--card)",
+            borderColor: "color-mix(in oklab, var(--accent) 50%, transparent)",
           }}
         >
           <h3
@@ -205,7 +197,7 @@ export default function DeliverySection() {
               key={item.title}
               className="p-5 rounded-lg border"
               style={{
-                backgroundColor: "oklch(0.18 0.006 60)",
+                backgroundColor: "var(--card)",
                 borderColor: "oklch(1 0 0 / 0.08)",
               }}
             >
@@ -219,7 +211,7 @@ export default function DeliverySection() {
                 className="font-display font-bold text-sm mb-2"
                 style={{
                   fontFamily: "'Bebas Neue', sans-serif",
-                  color: "oklch(0.97 0.005 260)",
+                  color: "oklch(0.94 0.025 75)",
                   letterSpacing: "0.04em",
                 }}
               >

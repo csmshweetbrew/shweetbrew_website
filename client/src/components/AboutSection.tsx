@@ -22,14 +22,7 @@ export default function AboutSection() {
       <div className="container">
         {/* Section Header */}
         <div className="text-center mb-20">
-          <h2
-            className="font-display text-5xl md:text-7xl font-bold mb-6"
-            style={{
-              fontFamily: "'Bebas Neue', sans-serif",
-              color: "oklch(0.97 0.005 260)",
-              letterSpacing: "0.05em",
-            }}
-          >
+          <h2 className="section-title mb-6">
             {translations.about.sectionTitle[language]}
           </h2>
           <p
@@ -60,10 +53,10 @@ export default function AboutSection() {
             <div
               className="absolute -bottom-6 -right-6 md:bottom-8 md:right-8 p-6 rounded-xl border text-center shadow-2xl"
               style={{
-                backgroundColor: "oklch(0.18 0.006 60)",
+                backgroundColor: "var(--card)",
                 borderColor: "var(--accent)",
                 borderWidth: "2px",
-                boxShadow: "0 0 40px oklch(0.62 0.20 42 / 0.3)",
+                boxShadow: "0 0 40px color-mix(in oklab, var(--accent) 30%, transparent)",
               }}
             >
               <div
@@ -90,8 +83,7 @@ export default function AboutSection() {
           {/* Right - Story Text */}
           <div>
             <div
-              className="font-body text-xs tracking-widest uppercase mb-6"
-              style={{ color: "var(--accent)", letterSpacing: "0.25em" }}
+              className="section-eyebrow mb-6"
             >
               {language === "en" ? "WHO WE ARE" : "מי אנחנו"}
             </div>
@@ -100,7 +92,7 @@ export default function AboutSection() {
               className="font-display text-4xl md:text-5xl font-bold mb-8 leading-tight"
               style={{
                 fontFamily: "'Bebas Neue', sans-serif",
-                color: "oklch(0.97 0.005 260)",
+                color: "oklch(0.94 0.025 75)",
                 letterSpacing: "0.02em",
               }}
             >
@@ -139,7 +131,7 @@ export default function AboutSection() {
             className="font-display text-4xl font-bold text-center mb-16"
             style={{
               fontFamily: "'Bebas Neue', sans-serif",
-              color: "oklch(0.97 0.005 260)",
+              color: "oklch(0.94 0.025 75)",
               letterSpacing: "0.05em",
             }}
           >
@@ -173,8 +165,8 @@ export default function AboutSection() {
                 key={idx}
                 className="p-8 rounded-lg text-center transition-all hover:shadow-lg"
                 style={{
-                  backgroundColor: "oklch(0.21 0.006 285.885)",
-                  border: "2px solid oklch(0.62 0.20 42 / 0.3)",
+                  backgroundColor: "var(--card)",
+                  border: "2px solid color-mix(in oklab, var(--accent) 30%, transparent)",
                   borderLeft: "4px solid var(--accent)",
                 }}
               >
@@ -183,7 +175,7 @@ export default function AboutSection() {
                   className="font-display text-2xl font-bold mb-3"
                   style={{
                     fontFamily: "'Bebas Neue', sans-serif",
-                    color: "oklch(0.97 0.005 260)",
+                    color: "oklch(0.94 0.025 75)",
                     letterSpacing: "0.02em",
                   }}
                 >
@@ -201,9 +193,9 @@ export default function AboutSection() {
         <div
           className="mt-24 p-12 md:p-16 rounded-2xl text-center"
           style={{
-            backgroundColor: "oklch(0.21 0.006 285.885)",
+            backgroundColor: "var(--card)",
             border: "3px solid var(--accent)",
-            boxShadow: "0 0 40px oklch(0.62 0.20 42 / 0.2)",
+            boxShadow: "0 0 40px color-mix(in oklab, var(--accent) 20%, transparent)",
           }}
         >
           <h3

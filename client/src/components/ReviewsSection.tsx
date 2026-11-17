@@ -122,7 +122,7 @@ function ReviewCard({ review }: { review: Review }) {
       rel="noopener noreferrer"
       className="flex-shrink-0 w-72 sm:w-80 md:w-96 p-4 sm:p-6 rounded-lg border mx-2 sm:mx-3 block transition-all hover:scale-105 hover:shadow-lg cursor-pointer"
       style={{
-        backgroundColor: "oklch(0.18 0.006 60)",
+        backgroundColor: "var(--card)",
         borderColor: "oklch(1 0 0 / 0.10)",
         direction: "ltr",
       }}
@@ -149,7 +149,7 @@ function ReviewCard({ review }: { review: Review }) {
           <span
             className="font-body text-xs px-2 py-1 rounded"
             style={{
-              backgroundColor: "oklch(0.22 0.006 60)",
+              backgroundColor: "oklch(0.13 0.005 60)",
               color: "var(--accent)",
             }}
           >
@@ -214,20 +214,12 @@ export default function ReviewsSection() {
     >
       <div className="container mb-12">
         <div
-          className="font-body text-xs tracking-widest uppercase mb-3"
-          style={{ color: "var(--accent)", letterSpacing: "0.25em" }}
+          className="section-eyebrow mb-3"
         >
           — {translations.reviews.subtitle[language]} —
         </div>
         <div className="flex flex-col md:flex-row md:items-end gap-4 md:gap-8">
-          <h2
-            className="font-display leading-none"
-            style={{
-              fontFamily: "'Bebas Neue', sans-serif",
-              fontSize: "clamp(2.5rem, 6vw, 5rem)",
-              color: "oklch(0.94 0.025 75)",
-            }}
-          >
+          <h2 className="section-title">
             {translations.reviews.title[language]}{" "}
             <span style={{ color: "var(--accent)" }}>{translations.reviews.haveSpoken[language]}</span>
           </h2>
@@ -277,7 +269,7 @@ export default function ReviewsSection() {
           style={{
             color: "oklch(0.94 0.025 75)",
             borderColor: "oklch(1 0 0 / 0.2)",
-            backgroundColor: "oklch(0.18 0.006 60)",
+            backgroundColor: "var(--card)",
           }}
         >
           {translations.reviews.beNext[language]}

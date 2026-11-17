@@ -78,14 +78,7 @@ export default function ContactSection() {
       <div className="container">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <h2
-            className="font-display text-4xl md:text-5xl font-bold mb-4"
-            style={{
-              fontFamily: "'Bebas Neue', sans-serif",
-              color: "oklch(0.97 0.005 260)",
-              letterSpacing: "0.05em",
-            }}
-          >
+          <h2 className="section-title mb-4">
             {translations.contact.sectionTitle[language]}
           </h2>
           <p
@@ -111,7 +104,7 @@ export default function ContactSection() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xl font-bold transition-colors hover:text-fire"
-                style={{ color: "oklch(0.97 0.005 260)" }}
+                style={{ color: "oklch(0.94 0.025 75)" }}
               >
                 {SITE_CONFIG.contact.whatsappDisplay}
               </a>
@@ -127,7 +120,7 @@ export default function ContactSection() {
               <a
                 href={`mailto:${SITE_CONFIG.contact.email}`}
                 className="text-xl font-bold transition-colors hover:text-fire"
-                style={{ color: "oklch(0.97 0.005 260)" }}
+                style={{ color: "oklch(0.94 0.025 75)" }}
               >
                 {SITE_CONFIG.contact.email}
               </a>
@@ -146,7 +139,7 @@ export default function ContactSection() {
                     key={type.value}
                     className="flex items-center gap-3 p-3 rounded"
                     style={{
-                      backgroundColor: "oklch(0.21 0.006 285.885)",
+                      backgroundColor: "var(--card)",
                       borderLeft: "3px solid var(--accent)",
                     }}
                   >
@@ -164,7 +157,7 @@ export default function ContactSection() {
           <div
             className="rounded-lg p-8"
             style={{
-              backgroundColor: "oklch(0.21 0.006 285.885)",
+              backgroundColor: "var(--card)",
               border: "2px solid var(--accent)",
             }}
           >
@@ -172,7 +165,7 @@ export default function ContactSection() {
               <div className="text-6xl mb-6">💬</div>
               <h3
                 className="text-3xl font-bold mb-4"
-                style={{ color: "oklch(0.97 0.005 260)" }}
+                style={{ color: "oklch(0.94 0.025 75)" }}
               >
                 {language === "en" ? "Chat with Us on WhatsApp" : "דברו איתנו ב-WhatsApp"}
               </h3>
@@ -211,7 +204,7 @@ export default function ContactSection() {
                     style={{
                       backgroundColor: "oklch(0.13 0.005 60)",
                       borderColor: "var(--accent)",
-                      color: "oklch(0.97 0.005 260)",
+                      color: "oklch(0.94 0.025 75)",
                     }}
                     placeholder="Your name"
                   />
@@ -232,7 +225,7 @@ export default function ContactSection() {
                     style={{
                       backgroundColor: "oklch(0.13 0.005 60)",
                       borderColor: "var(--accent)",
-                      color: "oklch(0.97 0.005 260)",
+                      color: "oklch(0.94 0.025 75)",
                     }}
                     placeholder="your@email.com"
                   />
@@ -253,7 +246,7 @@ export default function ContactSection() {
                     style={{
                       backgroundColor: "oklch(0.13 0.005 60)",
                       borderColor: "var(--accent)",
-                      color: "oklch(0.97 0.005 260)",
+                      color: "oklch(0.94 0.025 75)",
                     }}
                     placeholder="+972 50 123 4567"
                   />
@@ -273,7 +266,7 @@ export default function ContactSection() {
                     style={{
                       backgroundColor: "oklch(0.13 0.005 60)",
                       borderColor: "var(--accent)",
-                      color: "oklch(0.97 0.005 260)",
+                      color: "oklch(0.94 0.025 75)",
                     }}
                   >
                     {inquiryTypes.map((type) => (
@@ -298,7 +291,7 @@ export default function ContactSection() {
                     style={{
                       backgroundColor: "oklch(0.13 0.005 60)",
                       borderColor: "var(--accent)",
-                      color: "oklch(0.97 0.005 260)",
+                      color: "oklch(0.94 0.025 75)",
                     }}
                     placeholder="Your message..."
                   />
@@ -310,7 +303,7 @@ export default function ContactSection() {
                   className="w-full py-3 font-bold text-lg"
                   style={{
                     backgroundColor: "var(--accent)",
-                    color: "oklch(0.97 0.005 260)",
+                    color: "oklch(0.94 0.025 75)",
                   }}
                 >
                   {isSubmitting ? "Sending..." : "Send via WhatsApp"}

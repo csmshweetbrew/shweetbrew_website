@@ -94,14 +94,7 @@ export default function OrderForm() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-12 text-center">
-          <h2
-            className="text-3xl md:text-4xl font-bold mb-4"
-            style={{
-              fontFamily: "'Bebas Neue', sans-serif",
-              color: "oklch(0.97 0.005 260)",
-              letterSpacing: "0.05em",
-            }}
-          >
+          <h2 className="section-title mb-4">
             {translations.checkout.title[language]}
           </h2>
           <p style={{ color: "oklch(0.80 0.020 75)" }} className="text-base md:text-lg">
@@ -115,15 +108,15 @@ export default function OrderForm() {
             <div
               className="p-6 rounded-lg border"
               style={{
-                backgroundColor: "oklch(0.21 0.006 285.885)",
-                borderColor: "oklch(0.62 0.20 42 / 0.5)",
+                backgroundColor: "var(--card)",
+                borderColor: "color-mix(in oklab, var(--accent) 50%, transparent)",
               }}
             >
               <h3
                 className="text-xl font-bold mb-4"
                 style={{
                   fontFamily: "'Bebas Neue', sans-serif",
-                  color: "oklch(0.97 0.005 260)",
+                  color: "oklch(0.94 0.025 75)",
                   letterSpacing: "0.05em",
                 }}
               >
@@ -144,7 +137,7 @@ export default function OrderForm() {
                       <p style={{ color: "var(--accent)" }} className="font-bold text-xs mb-1">
                         {item.categoryName}
                       </p>
-                      <p style={{ color: "oklch(0.97 0.005 260)" }} className="font-bold text-sm">
+                      <p style={{ color: "oklch(0.94 0.025 75)" }} className="font-bold text-sm">
                         {item.productName}
                       </p>
                       <p style={{ color: "oklch(0.80 0.020 75)" }} className="text-xs">
@@ -161,7 +154,7 @@ export default function OrderForm() {
               {/* Pricing */}
               <div
                 className="pt-4 border-t space-y-2"
-                style={{ borderColor: "oklch(0.62 0.20 42 / 0.5)" }}
+                style={{ borderColor: "color-mix(in oklab, var(--accent) 50%, transparent)" }}
               >
                 <div className="flex justify-between" style={{ color: "oklch(0.80 0.020 75)" }}>
                   <span>{translations.checkout.subtotal[language]}</span>
@@ -183,7 +176,7 @@ export default function OrderForm() {
                   className="flex justify-between text-lg font-bold pt-2"
                   style={{
                     color: "var(--accent)",
-                    borderTop: "1px solid oklch(0.62 0.20 42 / 0.5)",
+                    borderTop: "1px solid color-mix(in oklab, var(--accent) 50%, transparent)",
                   }}
                 >
                   <span>{translations.checkout.total[language]}</span>
@@ -196,15 +189,15 @@ export default function OrderForm() {
             <div
               className="p-6 rounded-lg border space-y-4"
               style={{
-                backgroundColor: "oklch(0.21 0.006 285.885)",
-                borderColor: "oklch(0.62 0.20 42 / 0.5)",
+                backgroundColor: "var(--card)",
+                borderColor: "color-mix(in oklab, var(--accent) 50%, transparent)",
               }}
             >
               <h3
                 className="text-lg font-bold"
                 style={{
                   fontFamily: "'Bebas Neue', sans-serif",
-                  color: "oklch(0.97 0.005 260)",
+                  color: "oklch(0.94 0.025 75)",
                   letterSpacing: "0.05em",
                 }}
               >
@@ -229,7 +222,7 @@ export default function OrderForm() {
                     style={{
                       backgroundColor: "oklch(0.13 0.005 60)",
                       borderColor: "var(--accent)",
-                      color: "oklch(0.97 0.005 260)",
+                      color: "oklch(0.94 0.025 75)",
                       border: "1px solid var(--accent)",
                     }}
                   />
@@ -251,7 +244,7 @@ export default function OrderForm() {
                     style={{
                       backgroundColor: "oklch(0.13 0.005 60)",
                       borderColor: "var(--accent)",
-                      color: "oklch(0.97 0.005 260)",
+                      color: "oklch(0.94 0.025 75)",
                       border: "1px solid var(--accent)",
                     }}
                   />
@@ -273,7 +266,7 @@ export default function OrderForm() {
                   style={{
                     backgroundColor: "oklch(0.13 0.005 60)",
                     borderColor: "var(--accent)",
-                    color: "oklch(0.97 0.005 260)",
+                    color: "oklch(0.94 0.025 75)",
                     border: "1px solid var(--accent)",
                   }}
                 >
@@ -327,7 +320,7 @@ export default function OrderForm() {
                     style={{
                       backgroundColor: "oklch(0.13 0.005 60)",
                       borderColor: "var(--accent)",
-                      color: "oklch(0.97 0.005 260)",
+                      color: "oklch(0.94 0.025 75)",
                       border: "1px solid var(--accent)",
                     }}
                   />
@@ -349,7 +342,7 @@ export default function OrderForm() {
                     style={{
                       backgroundColor: "oklch(0.13 0.005 60)",
                       borderColor: "var(--accent)",
-                      color: "oklch(0.97 0.005 260)",
+                      color: "oklch(0.94 0.025 75)",
                       border: "1px solid var(--accent)",
                     }}
                   />
@@ -373,7 +366,7 @@ export default function OrderForm() {
                   style={{
                     backgroundColor: "oklch(0.13 0.005 60)",
                     borderColor: "var(--accent)",
-                    color: "oklch(0.97 0.005 260)",
+                    color: "oklch(0.94 0.025 75)",
                     border: "1px solid var(--accent)",
                   }}
                 />
@@ -385,7 +378,7 @@ export default function OrderForm() {
                 className="w-full py-3 rounded font-bold text-sm transition-all"
                 style={{
                   backgroundColor: "var(--accent)",
-                  color: "oklch(0.13 0.005 60)",
+                  color: "oklch(0.94 0.025 75)",
                   letterSpacing: "0.05em",
                 }}
               >
@@ -397,8 +390,8 @@ export default function OrderForm() {
           <div
             className="p-8 rounded-lg border text-center"
             style={{
-              backgroundColor: "oklch(0.21 0.006 285.885)",
-              borderColor: "oklch(0.62 0.20 42 / 0.5)",
+              backgroundColor: "var(--card)",
+              borderColor: "color-mix(in oklab, var(--accent) 50%, transparent)",
             }}
           >
             <p style={{ color: "oklch(0.80 0.020 75)" }} className="mb-6">
@@ -409,7 +402,7 @@ export default function OrderForm() {
               className="inline-flex items-center gap-2 px-6 py-3 rounded font-bold text-sm transition-all"
               style={{
                 backgroundColor: "var(--accent)",
-                color: "oklch(0.13 0.005 60)",
+                color: "oklch(0.94 0.025 75)",
                 letterSpacing: "0.05em",
               }}
             >

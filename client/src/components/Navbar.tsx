@@ -92,7 +92,7 @@ export default function Navbar() {
             <button
               key={link.href}
               onClick={() => handleNavClick(link.href, link.isPage)}
-              className="font-body text-sm font-700 tracking-widest uppercase transition-colors hover:text-fire"
+              className="font-body text-sm font-bold tracking-widest uppercase transition-colors hover:text-fire"
               style={{ color: "oklch(0.80 0.020 75)", letterSpacing: "0.12em" }}
             >
               {translations.navbar[link.key as keyof typeof translations.navbar][language]}

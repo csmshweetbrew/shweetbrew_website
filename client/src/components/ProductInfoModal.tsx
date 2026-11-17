@@ -31,7 +31,7 @@ export default function ProductInfoModal({ variant, categoryName, isOpen, onClos
               className="text-3xl font-bold"
               style={{
                 fontFamily: "'Bebas Neue', sans-serif",
-                color: "oklch(0.97 0.005 260)",
+                color: "oklch(0.94 0.025 75)",
                 letterSpacing: "0.05em",
               }}
             >
@@ -41,9 +41,9 @@ export default function ProductInfoModal({ variant, categoryName, isOpen, onClos
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-800 rounded transition"
-            style={{ backgroundColor: "oklch(0.21 0.006 285.885)" }}
+            style={{ backgroundColor: "var(--card)" }}
           >
-            <X className="w-6 h-6" style={{ color: "oklch(0.97 0.005 260)" }} />
+            <X className="w-6 h-6" style={{ color: "oklch(0.94 0.025 75)" }} />
           </button>
         </div>
 
@@ -58,7 +58,7 @@ export default function ProductInfoModal({ variant, categoryName, isOpen, onClos
           <div>
             <h3
               className="text-lg font-bold mb-3"
-              style={{ color: "oklch(0.97 0.005 260)", letterSpacing: "0.05em" }}
+              style={{ color: "oklch(0.94 0.025 75)", letterSpacing: "0.05em" }}
             >
               {language === "en" ? "ABOUT THIS PRODUCT" : "על המוצר"}
             </h3>
@@ -71,19 +71,19 @@ export default function ProductInfoModal({ variant, categoryName, isOpen, onClos
           <div>
             <h3
               className="text-lg font-bold mb-3"
-              style={{ color: "oklch(0.97 0.005 260)", letterSpacing: "0.05em" }}
+              style={{ color: "oklch(0.94 0.025 75)", letterSpacing: "0.05em" }}
             >
               {translations.products.nutrition[language]} (per 100g)
             </h3>
             <div
               className="grid grid-cols-2 gap-4 p-4 rounded"
-              style={{ backgroundColor: "oklch(0.21 0.006 285.885)", border: "1px solid oklch(0.62 0.20 42 / 0.3)" }}
+              style={{ backgroundColor: "var(--card)", border: "1px solid color-mix(in oklab, var(--accent) 30%, transparent)" }}
             >
               <div>
                 <p style={{ color: "var(--accent)" }} className="text-xs font-bold">
                   {translations.products.protein[language]}
                 </p>
-                <p style={{ color: "oklch(0.97 0.005 260)" }} className="text-lg font-bold">
+                <p style={{ color: "oklch(0.94 0.025 75)" }} className="text-lg font-bold">
                   {variant.nutrition?.protein || "50g"}
                 </p>
               </div>
@@ -91,7 +91,7 @@ export default function ProductInfoModal({ variant, categoryName, isOpen, onClos
                 <p style={{ color: "var(--accent)" }} className="text-xs font-bold">
                   {translations.products.fat[language]}
                 </p>
-                <p style={{ color: "oklch(0.97 0.005 260)" }} className="text-lg font-bold">
+                <p style={{ color: "oklch(0.94 0.025 75)" }} className="text-lg font-bold">
                   {variant.nutrition?.fat || "8g"}
                 </p>
               </div>
@@ -99,7 +99,7 @@ export default function ProductInfoModal({ variant, categoryName, isOpen, onClos
                 <p style={{ color: "var(--accent)" }} className="text-xs font-bold">
                   {translations.products.carbs[language]}
                 </p>
-                <p style={{ color: "oklch(0.97 0.005 260)" }} className="text-lg font-bold">
+                <p style={{ color: "oklch(0.94 0.025 75)" }} className="text-lg font-bold">
                   {variant.nutrition?.carbs || "2g"}
                 </p>
               </div>
@@ -107,7 +107,7 @@ export default function ProductInfoModal({ variant, categoryName, isOpen, onClos
                 <p style={{ color: "var(--accent)" }} className="text-xs font-bold">
                   {translations.products.calories[language]}
                 </p>
-                <p style={{ color: "oklch(0.97 0.005 260)" }} className="text-lg font-bold">
+                <p style={{ color: "oklch(0.94 0.025 75)" }} className="text-lg font-bold">
                   {variant.nutrition?.calories || "300"}
                 </p>
               </div>
@@ -121,7 +121,7 @@ export default function ProductInfoModal({ variant, categoryName, isOpen, onClos
           <div>
             <h3
               className="text-lg font-bold mb-3"
-              style={{ color: "oklch(0.97 0.005 260)", letterSpacing: "0.05em" }}
+              style={{ color: "oklch(0.94 0.025 75)", letterSpacing: "0.05em" }}
             >
               {translations.products.ingredients[language]}
             </h3>
@@ -137,7 +137,7 @@ export default function ProductInfoModal({ variant, categoryName, isOpen, onClos
           <div>
             <h3
               className="text-lg font-bold mb-3"
-              style={{ color: "oklch(0.97 0.005 260)", letterSpacing: "0.05em" }}
+              style={{ color: "oklch(0.94 0.025 75)", letterSpacing: "0.05em" }}
             >
               {translations.products.allergens[language]}
             </h3>
@@ -153,7 +153,7 @@ export default function ProductInfoModal({ variant, categoryName, isOpen, onClos
             title={translations.products.close[language]}
             style={{
               backgroundColor: "var(--accent)",
-              color: "oklch(0.97 0.005 260)",
+              color: "oklch(0.94 0.025 75)",
             }}
           >
             {translations.products.close[language]}

@@ -43,7 +43,7 @@ export default function AnnouncementBar() {
       >
         <span
           className="font-body text-xs font-bold tracking-wide"
-          style={{ color: "oklch(0.97 0.005 260)", letterSpacing: "0.05em" }}
+          style={{ color: "oklch(0.94 0.025 75)", letterSpacing: "0.05em" }}
         >
           {text}&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;{text}&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;{text}
         </span>

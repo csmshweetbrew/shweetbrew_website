@@ -57,7 +57,7 @@ const ProductCardComponent = ({ variant, categoryName }: ProductCardProps) => {
       <div
         className="h-full rounded-lg overflow-hidden shadow-lg transition-shadow duration-200 hover:shadow-2xl flex flex-col"
         style={{
-          backgroundColor: "oklch(0.21 0.006 285.885)",
+          backgroundColor: "var(--card)",
           borderLeft: "4px solid var(--accent)",
         }}
       >
@@ -94,8 +94,8 @@ const ProductCardComponent = ({ variant, categoryName }: ProductCardProps) => {
           <span
             className="absolute bottom-3 left-3 p-2 rounded-full transition-all hover:scale-110"
             style={{
-              backgroundColor: "oklch(0.62 0.20 42 / 0.9)",
-              color: "oklch(0.97 0.005 260)",
+              backgroundColor: "color-mix(in oklab, var(--accent) 90%, transparent)",
+              color: "oklch(0.94 0.025 75)",
             }}
             title="View nutrients & ingredients"
           >
@@ -109,12 +109,12 @@ const ProductCardComponent = ({ variant, categoryName }: ProductCardProps) => {
           <p className="text-xs font-bold mb-1" style={{ color: "var(--accent)" }}>
             {language === "en" ? categoryName : (translations.products as any)[categoryName.toLowerCase()]?.[language] || categoryName}
           </p>
-          <h3 className="font-display text-lg font-bold mb-1" style={{ color: "oklch(0.97 0.005 260)" }}>
+          <h3 className="font-display text-lg font-bold mb-1" style={{ color: "oklch(0.94 0.025 75)" }}>
             {getTranslatedProductName(variant.id, language)}
           </h3>
 
           {/* Tagline */}
-          <p className="text-xs mb-3" style={{ color: "oklch(0.70 0.015 65)", fontStyle: "italic" }}>
+          <p className="text-xs mb-3" style={{ color: "oklch(0.70 0.015 75)", fontStyle: "italic" }}>
             {getTranslatedProductTagline(variant.id, language)}
           </p>
 
@@ -138,7 +138,7 @@ const ProductCardComponent = ({ variant, categoryName }: ProductCardProps) => {
           </p>
 
           {/* Size Selection */}
-          <div className="mb-4 pb-4 border-b" style={{ borderColor: "oklch(0.62 0.20 42 / 0.3)" }}>
+          <div className="mb-4 pb-4 border-b" style={{ borderColor: "color-mix(in oklab, var(--accent) 30%, transparent)" }}>
             <label
               className="block text-xs font-bold mb-2"
               style={{ color: "oklch(0.80 0.020 75)", letterSpacing: "0.05em" }}
@@ -152,7 +152,7 @@ const ProductCardComponent = ({ variant, categoryName }: ProductCardProps) => {
               style={{
                 backgroundColor: "oklch(0.13 0.005 60)",
                 borderColor: "var(--accent)",
-                color: "oklch(0.97 0.005 260)",
+                color: "oklch(0.94 0.025 75)",
                 border: "1px solid var(--accent)",
               }}
             >
@@ -170,7 +170,7 @@ const ProductCardComponent = ({ variant, categoryName }: ProductCardProps) => {
             className="w-full py-3 rounded font-bold text-sm flex items-center justify-center gap-2 transition-all hover:scale-105"
             style={{
               backgroundColor: "var(--accent)",
-              color: "oklch(0.97 0.005 260)",
+              color: "oklch(0.94 0.025 75)",
             }}
           >
             <ShoppingCart className="w-4 h-4" />

@@ -69,7 +69,7 @@ export default function ProductModal({ categoryName, productName, isOpen, onClos
             className="text-3xl font-bold"
             style={{
               fontFamily: "'Bebas Neue', sans-serif",
-              color: "oklch(0.97 0.005 260)",
+              color: "oklch(0.94 0.025 75)",
               letterSpacing: "0.05em",
             }}
           >
@@ -78,9 +78,9 @@ export default function ProductModal({ categoryName, productName, isOpen, onClos
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-800 rounded transition"
-            style={{ backgroundColor: "oklch(0.21 0.006 285.885)" }}
+            style={{ backgroundColor: "var(--card)" }}
           >
-            <X className="w-6 h-6" style={{ color: "oklch(0.97 0.005 260)" }} />
+            <X className="w-6 h-6" style={{ color: "oklch(0.94 0.025 75)" }} />
           </button>
         </div>
 
@@ -121,7 +121,7 @@ export default function ProductModal({ categoryName, productName, isOpen, onClos
           {product.isKosher && (
             <div
               className="inline-block px-4 py-2 rounded"
-              style={{ backgroundColor: "oklch(0.21 0.006 285.885)", border: "2px solid oklch(0.50 0.18 260)" }}
+              style={{ backgroundColor: "var(--card)", border: "2px solid oklch(0.50 0.18 260)" }}
             >
               <span style={{ color: "oklch(0.50 0.18 260)", fontWeight: 700 }}>✡ KOSHER</span>
             </div>
@@ -142,9 +142,9 @@ export default function ProductModal({ categoryName, productName, isOpen, onClos
               onChange={(e) => setSelectedSize(e.target.value)}
               className="w-full px-4 py-2 rounded border"
               style={{
-                backgroundColor: "oklch(0.21 0.006 285.885)",
+                backgroundColor: "var(--card)",
                 borderColor: "var(--accent)",
-                color: "oklch(0.97 0.005 260)",
+                color: "oklch(0.94 0.025 75)",
               }}
             >
               <option value="">Select size</option>
@@ -173,17 +173,17 @@ export default function ProductModal({ categoryName, productName, isOpen, onClos
               <button
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 className="px-4 py-2 rounded font-bold"
-                style={{ backgroundColor: "oklch(0.21 0.006 285.885)", color: "oklch(0.97 0.005 260)" }}
+                style={{ backgroundColor: "var(--card)", color: "oklch(0.94 0.025 75)" }}
               >
                 −
               </button>
-              <span style={{ color: "oklch(0.97 0.005 260)" }} className="text-xl font-bold">
+              <span style={{ color: "oklch(0.94 0.025 75)" }} className="text-xl font-bold">
                 {quantity}
               </span>
               <button
                 onClick={() => setQuantity(quantity + 1)}
                 className="px-4 py-2 rounded font-bold"
-                style={{ backgroundColor: "oklch(0.21 0.006 285.885)", color: "oklch(0.97 0.005 260)" }}
+                style={{ backgroundColor: "var(--card)", color: "oklch(0.94 0.025 75)" }}
               >
                 +
               </button>
@@ -196,7 +196,7 @@ export default function ProductModal({ categoryName, productName, isOpen, onClos
             className="w-full py-4 rounded font-bold text-lg flex items-center justify-center gap-2 transition-all hover:scale-105"
             style={{
               backgroundColor: "var(--accent)",
-              color: "oklch(0.97 0.005 260)",
+              color: "oklch(0.94 0.025 75)",
             }}
           >
             <ShoppingCart className="w-5 h-5" />

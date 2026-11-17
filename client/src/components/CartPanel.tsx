@@ -108,8 +108,8 @@ export default function CartPanel() {
           className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg flex items-center gap-2 animate-bounce"
           style={{
             backgroundColor: "var(--accent)",
-            color: "oklch(0.97 0.005 260)",
-            boxShadow: "0 0 20px oklch(0.62 0.20 42 / 0.6)",
+            color: "oklch(0.94 0.025 75)",
+            boxShadow: "0 0 20px color-mix(in oklab, var(--accent) 60%, transparent)",
           }}
         >
           <Check className="w-5 h-5" />
@@ -123,10 +123,10 @@ export default function CartPanel() {
         className="fixed bottom-8 right-8 z-40 p-4 rounded-full shadow-lg transition-all hover:scale-110"
         style={{
           backgroundColor: "var(--accent)",
-          boxShadow: "0 0 30px oklch(0.62 0.20 42 / 0.5)",
+          boxShadow: "0 0 30px color-mix(in oklab, var(--accent) 50%, transparent)",
         }}
       >
-        <ShoppingCart className="w-6 h-6" style={{ color: "oklch(0.97 0.005 260)" }} />
+        <ShoppingCart className="w-6 h-6" style={{ color: "oklch(0.94 0.025 75)" }} />
         {items.length > 0 && (
           <span
             className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
@@ -157,14 +157,14 @@ export default function CartPanel() {
               className="font-bold text-base"
               style={{
                 fontFamily: "'Bebas Neue', sans-serif",
-                color: "oklch(0.97 0.005 260)",
+                color: "oklch(0.94 0.025 75)",
                 letterSpacing: "0.05em",
               }}
             >
               {language === "en" ? "YOUR CART" : "העגלה שלך"}
             </h3>
             <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-gray-800 rounded">
-              <X className="w-4 h-4" style={{ color: "oklch(0.97 0.005 260)" }} />
+              <X className="w-4 h-4" style={{ color: "oklch(0.94 0.025 75)" }} />
             </button>
           </div>
 
@@ -182,8 +182,8 @@ export default function CartPanel() {
                     key={idx}
                     className="p-2 rounded border text-sm"
                     style={{
-                      backgroundColor: "oklch(0.21 0.006 285.885)",
-                      borderColor: "oklch(0.62 0.20 42 / 0.5)",
+                      backgroundColor: "var(--card)",
+                      borderColor: "color-mix(in oklab, var(--accent) 50%, transparent)",
                     }}
                   >
                     <div className="flex items-start justify-between mb-1">
@@ -191,7 +191,7 @@ export default function CartPanel() {
                         <p style={{ color: "var(--accent)" }} className="font-bold text-xs mb-0.5">
                           {language === "en" ? item.categoryName : (item.categoryName === "Biltong" ? "בילטונג" : item.categoryName === "Boerewors" ? "בוארווורס" : item.categoryName === "Drywors" ? "דרייוורס" : item.categoryName === "Jerky" ? "ג'רקי" : item.categoryName === "Chilli Bites" ? "ביטות צ'ילי" : item.categoryName === "Shots" ? "שוטות" : item.categoryName === "Sauces" ? "רטבים" : item.categoryName)}
                         </p>
-                        <p style={{ color: "oklch(0.97 0.005 260)" }} className="font-bold text-xs">
+                        <p style={{ color: "oklch(0.94 0.025 75)" }} className="font-bold text-xs">
                           {item.productName}
                         </p>
                       </div>
@@ -215,7 +215,7 @@ export default function CartPanel() {
                         style={{
                           backgroundColor: "oklch(0.13 0.005 60)",
                           borderColor: "var(--accent)",
-                          color: "oklch(0.97 0.005 260)",
+                          color: "oklch(0.94 0.025 75)",
                           border: "1px solid var(--accent)",
                         }}
                       >
@@ -233,17 +233,17 @@ export default function CartPanel() {
                         <button
                           onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
                           className="px-1.5 py-0.5 rounded text-xs"
-                          style={{ backgroundColor: "oklch(0.13 0.005 60)", color: "oklch(0.97 0.005 260)" }}
+                          style={{ backgroundColor: "oklch(0.13 0.005 60)", color: "oklch(0.94 0.025 75)" }}
                         >
                           −
                         </button>
-                        <span style={{ color: "oklch(0.97 0.005 260)" }} className="w-6 text-center text-xs">
+                        <span style={{ color: "oklch(0.94 0.025 75)" }} className="w-6 text-center text-xs">
                           {item.quantity}
                         </span>
                         <button
                           onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
                           className="px-1.5 py-0.5 rounded text-xs"
-                          style={{ backgroundColor: "oklch(0.13 0.005 60)", color: "oklch(0.97 0.005 260)" }}
+                          style={{ backgroundColor: "oklch(0.13 0.005 60)", color: "oklch(0.94 0.025 75)" }}
                         >
                           +
                         </button>
@@ -272,7 +272,7 @@ export default function CartPanel() {
                   style={{
                     backgroundColor: "oklch(0.13 0.005 60)",
                     borderColor: "var(--accent)",
-                    color: "oklch(0.97 0.005 260)",
+                    color: "oklch(0.94 0.025 75)",
                     border: "1px solid var(--accent)",
                   }}
                 />
@@ -285,7 +285,7 @@ export default function CartPanel() {
                   style={{
                     backgroundColor: "oklch(0.13 0.005 60)",
                     borderColor: "var(--accent)",
-                    color: "oklch(0.97 0.005 260)",
+                    color: "oklch(0.94 0.025 75)",
                     border: "1px solid var(--accent)",
                   }}
                 />
@@ -299,7 +299,7 @@ export default function CartPanel() {
                 style={{
                   backgroundColor: "oklch(0.13 0.005 60)",
                   borderColor: "var(--accent)",
-                  color: "oklch(0.97 0.005 260)",
+                  color: "oklch(0.94 0.025 75)",
                   border: "1px solid var(--accent)",
                 }}
               >
@@ -340,7 +340,7 @@ export default function CartPanel() {
                   style={{
                     backgroundColor: "oklch(0.13 0.005 60)",
                     borderColor: "var(--accent)",
-                    color: "oklch(0.97 0.005 260)",
+                    color: "oklch(0.94 0.025 75)",
                     border: "1px solid var(--accent)",
                   }}
                 />
@@ -353,7 +353,7 @@ export default function CartPanel() {
                   style={{
                     backgroundColor: "oklch(0.13 0.005 60)",
                     borderColor: "var(--accent)",
-                    color: "oklch(0.97 0.005 260)",
+                    color: "oklch(0.94 0.025 75)",
                     border: "1px solid var(--accent)",
                   }}
                 />
@@ -369,13 +369,13 @@ export default function CartPanel() {
                 style={{
                   backgroundColor: "oklch(0.13 0.005 60)",
                   borderColor: "var(--accent)",
-                  color: "oklch(0.97 0.005 260)",
+                  color: "oklch(0.94 0.025 75)",
                   border: "1px solid var(--accent)",
                 }}
               />
 
               {/* Pricing Breakdown */}
-              <div className="text-xs space-y-1 border-t pt-2" style={{ borderColor: "oklch(0.62 0.20 42 / 0.5)" }}>
+              <div className="text-xs space-y-1 border-t pt-2" style={{ borderColor: "color-mix(in oklab, var(--accent) 50%, transparent)" }}>
                 <div className="flex justify-between" style={{ color: "oklch(0.80 0.020 75)" }}>
                   <span>{language === "en" ? "Subtotal:" : "סה\"כ ביניים:"}</span>
                   <span>₪{subtotal}</span>
@@ -415,7 +415,7 @@ export default function CartPanel() {
                 onClick={() => clearCart()}
                 className="w-full py-1.5 rounded font-bold text-xs"
                 style={{
-                  backgroundColor: "oklch(0.21 0.006 285.885)",
+                  backgroundColor: "var(--card)",
                   color: "oklch(0.80 0.020 75)",
                   border: "1px solid var(--accent)",
                 }}

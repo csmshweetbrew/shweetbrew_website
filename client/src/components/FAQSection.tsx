@@ -106,17 +106,15 @@ export default function FAQSection() {
   return (
     <section
       id="faq"
-      className="py-16 md:py-24 bg-background"
+      className="py-20 md:py-28 bg-background"
     >
       <div className="container">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <div className="inline-block mb-4 px-4 py-2 rounded-full border border-accent/30 bg-accent/5">
-            <p className="text-xs font-bold tracking-widest uppercase text-accent">
-              {language === "en" ? "COMMON QUESTIONS" : "שאלות נפוצות"}
-            </p>
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+        <div className="text-center mb-12">
+          <p className="section-eyebrow mb-3">
+            — {language === "en" ? "COMMON QUESTIONS" : "שאלות נפוצות"} —
+          </p>
+          <h2 className="section-title mb-4">
             {language === "en" ? "Frequently Asked Questions" : "שאלות ותשובות"}
           </h2>
           <p className="text-lg max-w-2xl mx-auto text-muted-foreground">

@@ -79,7 +79,7 @@ export default function Contact() {
           <p className="text-sm font-bold mb-4 tracking-widest" style={{ color: "var(--accent)" }}>
             — GET IN TOUCH —
           </p>
-          <h1 className="font-display text-5xl md:text-6xl font-bold mb-6" style={{ color: "oklch(0.97 0.005 260)" }}>
+          <h1 className="font-display text-5xl md:text-6xl font-bold mb-6" style={{ color: "oklch(0.94 0.025 75)" }}>
             Let's Talk <span style={{ color: "var(--accent)" }}>Biltong</span>
           </h1>
           <p className="text-lg md:text-xl leading-relaxed" style={{ color: "oklch(0.80 0.020 75)" }}>
@@ -94,12 +94,12 @@ export default function Contact() {
             <div
               className="p-6 rounded-lg text-center"
               style={{
-                backgroundColor: "oklch(0.21 0.006 285.885)",
+                backgroundColor: "var(--card)",
                 border: "2px solid #25D366",
               }}
             >
               <div className="text-4xl mb-3">💬</div>
-              <h3 className="font-bold text-lg mb-2" style={{ color: "oklch(0.97 0.005 260)" }}>
+              <h3 className="font-bold text-lg mb-2" style={{ color: "oklch(0.94 0.025 75)" }}>
                 WhatsApp
               </h3>
               <p className="mb-4" style={{ color: "oklch(0.80 0.020 75)" }}>
@@ -126,12 +126,12 @@ export default function Contact() {
             <div
               className="p-6 rounded-lg text-center"
               style={{
-                backgroundColor: "oklch(0.21 0.006 285.885)",
+                backgroundColor: "var(--card)",
                 border: "2px solid var(--accent)",
               }}
             >
               <div className="text-4xl mb-3">📧</div>
-              <h3 className="font-bold text-lg mb-2" style={{ color: "oklch(0.97 0.005 260)" }}>
+              <h3 className="font-bold text-lg mb-2" style={{ color: "oklch(0.94 0.025 75)" }}>
                 Email
               </h3>
               <p className="mb-4" style={{ color: "oklch(0.80 0.020 75)" }}>
@@ -142,7 +142,7 @@ export default function Contact() {
                 className="w-full font-bold"
                 style={{
                   backgroundColor: "oklch(0.35 0.15 260)",
-                  color: "oklch(0.97 0.005 260)",
+                  color: "oklch(0.94 0.025 75)",
                 }}
               >
                 Send Email
@@ -153,12 +153,12 @@ export default function Contact() {
             <div
               className="p-6 rounded-lg text-center"
               style={{
-                backgroundColor: "oklch(0.21 0.006 285.885)",
+                backgroundColor: "var(--card)",
                 border: "2px solid oklch(0.35 0.15 260)",
               }}
             >
               <div className="text-4xl mb-3">📞</div>
-              <h3 className="font-bold text-lg mb-2" style={{ color: "oklch(0.97 0.005 260)" }}>
+              <h3 className="font-bold text-lg mb-2" style={{ color: "oklch(0.94 0.025 75)" }}>
                 Phone
               </h3>
               <p className="mb-4" style={{ color: "oklch(0.80 0.020 75)" }}>
@@ -169,7 +169,7 @@ export default function Contact() {
                 className="w-full font-bold"
                 style={{
                   backgroundColor: "oklch(0.50 0.18 260)",
-                  color: "oklch(0.97 0.005 260)",
+                  color: "oklch(0.94 0.025 75)",
                 }}
               >
                 Call Us
@@ -182,7 +182,7 @@ export default function Contact() {
       {/* Contact Form */}
       <section className="py-20 px-4" style={{ backgroundColor: "oklch(0.15 0.005 60)" }}>
         <div className="container max-w-2xl">
-          <h2 className="font-display text-3xl font-bold mb-8 text-center" style={{ color: "oklch(0.97 0.005 260)" }}>
+          <h2 className="font-display text-3xl font-bold mb-8 text-center" style={{ color: "oklch(0.94 0.025 75)" }}>
             Send Us a Message
           </h2>
 
@@ -190,12 +190,12 @@ export default function Contact() {
             <div
               className="p-8 rounded-lg text-center"
               style={{
-                backgroundColor: "oklch(0.21 0.006 285.885)",
+                backgroundColor: "var(--card)",
                 border: "2px solid #25D366",
               }}
             >
               <div className="text-5xl mb-4">✅</div>
-              <h3 className="font-bold text-2xl mb-2" style={{ color: "oklch(0.97 0.005 260)" }}>
+              <h3 className="font-bold text-2xl mb-2" style={{ color: "oklch(0.94 0.025 75)" }}>
                 Message Sent!
               </h3>
               <p style={{ color: "oklch(0.80 0.020 75)" }}>
@@ -207,7 +207,7 @@ export default function Contact() {
               onSubmit={handleSubmit}
               className="space-y-6"
               style={{
-                backgroundColor: "oklch(0.21 0.006 285.885)",
+                backgroundColor: "var(--card)",
                 padding: "2rem",
                 borderRadius: "0.5rem",
                 border: "2px dashed var(--accent)",
@@ -215,7 +215,7 @@ export default function Contact() {
             >
               {/* Name */}
               <div>
-                <label className="block text-sm font-bold mb-2" style={{ color: "oklch(0.97 0.005 260)" }}>
+                <label className="block text-sm font-bold mb-2" style={{ color: "oklch(0.94 0.025 75)" }}>
                   Name *
                 </label>
                 <input
@@ -226,7 +226,7 @@ export default function Contact() {
                   className="w-full px-4 py-3 rounded-lg text-sm"
                   style={{
                     backgroundColor: "oklch(0.13 0.005 60)",
-                    color: "oklch(0.97 0.005 260)",
+                    color: "oklch(0.94 0.025 75)",
                     border: "1px solid var(--accent)",
                   }}
                   required
@@ -235,7 +235,7 @@ export default function Contact() {
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-bold mb-2" style={{ color: "oklch(0.97 0.005 260)" }}>
+                <label className="block text-sm font-bold mb-2" style={{ color: "oklch(0.94 0.025 75)" }}>
                   Email *
                 </label>
                 <input
@@ -246,7 +246,7 @@ export default function Contact() {
                   className="w-full px-4 py-3 rounded-lg text-sm"
                   style={{
                     backgroundColor: "oklch(0.13 0.005 60)",
-                    color: "oklch(0.97 0.005 260)",
+                    color: "oklch(0.94 0.025 75)",
                     border: "1px solid var(--accent)",
                   }}
                   required
@@ -255,7 +255,7 @@ export default function Contact() {
 
               {/* Phone */}
               <div>
-                <label className="block text-sm font-bold mb-2" style={{ color: "oklch(0.97 0.005 260)" }}>
+                <label className="block text-sm font-bold mb-2" style={{ color: "oklch(0.94 0.025 75)" }}>
                   Phone *
                 </label>
                 <input
@@ -266,7 +266,7 @@ export default function Contact() {
                   className="w-full px-4 py-3 rounded-lg text-sm"
                   style={{
                     backgroundColor: "oklch(0.13 0.005 60)",
-                    color: "oklch(0.97 0.005 260)",
+                    color: "oklch(0.94 0.025 75)",
                     border: "1px solid var(--accent)",
                   }}
                   required
@@ -275,7 +275,7 @@ export default function Contact() {
 
               {/* Inquiry Type */}
               <div>
-                <label className="block text-sm font-bold mb-3" style={{ color: "oklch(0.97 0.005 260)" }}>
+                <label className="block text-sm font-bold mb-3" style={{ color: "oklch(0.94 0.025 75)" }}>
                   What's this about?
                 </label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -292,12 +292,12 @@ export default function Contact() {
                             : "oklch(0.13 0.005 60)",
                         color:
                           form.inquiryType === type.value
-                            ? "oklch(0.97 0.005 260)"
-                            : "oklch(0.70 0.015 65)",
+                            ? "oklch(0.94 0.025 75)"
+                            : "oklch(0.70 0.015 75)",
                         border:
                           form.inquiryType === type.value
                             ? "2px solid var(--accent)"
-                            : "1px solid oklch(0.70 0.015 65)",
+                            : "1px solid oklch(0.70 0.015 75)",
                       }}
                     >
                       <span className="block text-lg mb-1">{type.icon}</span>
@@ -309,7 +309,7 @@ export default function Contact() {
 
               {/* Message */}
               <div>
-                <label className="block text-sm font-bold mb-2" style={{ color: "oklch(0.97 0.005 260)" }}>
+                <label className="block text-sm font-bold mb-2" style={{ color: "oklch(0.94 0.025 75)" }}>
                   Message *
                 </label>
                 <textarea
@@ -320,7 +320,7 @@ export default function Contact() {
                   className="w-full px-4 py-3 rounded-lg text-sm"
                   style={{
                     backgroundColor: "oklch(0.13 0.005 60)",
-                    color: "oklch(0.97 0.005 260)",
+                    color: "oklch(0.94 0.025 75)",
                     border: "1px solid var(--accent)",
                   }}
                   required
@@ -339,7 +339,7 @@ export default function Contact() {
               >
                 💬 Send via WhatsApp
               </Button>
-              <p className="text-xs text-center" style={{ color: "oklch(0.70 0.015 65)" }}>
+              <p className="text-xs text-center" style={{ color: "oklch(0.70 0.015 75)" }}>
                 Your message will be sent to our WhatsApp for fastest response.
               </p>
             </form>

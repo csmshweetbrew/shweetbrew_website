@@ -56,10 +56,10 @@ export default function ProductsSection() {
       <div className="container">
         {/* Section Header */}
         <div className="mb-12 text-center">
-          <p className="text-sm font-bold mb-2 tracking-widest" style={{ color: "var(--accent)" }}>
+          <p className="section-eyebrow mb-3">
             — {translations.products.theRange[language]} —
           </p>
-          <h2 className="font-display text-4xl md:text-5xl font-bold mb-4" style={{ color: "oklch(0.97 0.005 260)" }}>
+          <h2 className="section-title mb-4">
             {translations.products.sectionTitle[language]}
           </h2>
           <p className="max-w-2xl mx-auto text-lg" style={{ color: "oklch(0.80 0.020 75)" }}>
@@ -87,7 +87,7 @@ export default function ProductsSection() {
                   {cat.label}
                 </span>
                 {idx < categories.length - 1 && (
-                  <span style={{ color: "oklch(0.70 0.015 65)" }}>|</span>
+                  <span style={{ color: "oklch(0.70 0.015 75)" }}>|</span>
                 )}
               </div>
             );

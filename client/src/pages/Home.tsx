@@ -30,27 +30,27 @@ export default function Home() {
       </section>
 
       {/* Delivery Section */}
-      <section id="delivery">
+      <section>
         <DeliverySection />
       </section>
 
       {/* Order Section */}
-      <section id="order">
+      <section>
         <OrderSection />
       </section>
 
       {/* Reviews Section */}
-      <section id="reviews">
+      <section>
         <ReviewsSection />
       </section>
 
       {/* About Section - PRIORITY */}
-      <section id="about">
+      <section>
         <AboutSection />
       </section>
 
       {/* FAQ Section */}
-      <section id="faq">
+      <section>
         <FAQSection />
       </section>
 

@@ -32,7 +32,7 @@ export default function ProductDetail() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "oklch(0.13 0.005 60)" }}>
         <div className="text-center">
-          <h1 className="text-3xl font-bold mb-4" style={{ color: "oklch(0.97 0.005 260)" }}>
+          <h1 className="text-3xl font-bold mb-4" style={{ color: "oklch(0.94 0.025 75)" }}>
             Product Not Found
           </h1>
           <Button onClick={() => navigate("/")} style={{ backgroundColor: "var(--accent)" }}>
@@ -82,7 +82,7 @@ export default function ProductDetail() {
             <span
               className="inline-block px-4 py-2 rounded-full text-sm font-bold mb-4"
               style={{
-                backgroundColor: "oklch(0.21 0.006 285.885)",
+                backgroundColor: "var(--card)",
                 color: "var(--accent)",
                 border: "1px solid var(--accent)",
               }}
@@ -91,7 +91,7 @@ export default function ProductDetail() {
             </span>
 
             {/* Product Name */}
-            <h1 className="font-display text-5xl font-bold mb-2" style={{ color: "oklch(0.97 0.005 260)" }}>
+            <h1 className="font-display text-5xl font-bold mb-2" style={{ color: "oklch(0.94 0.025 75)" }}>
               {product.name}
             </h1>
 
@@ -143,12 +143,12 @@ export default function ProductDetail() {
                     key={idx}
                     className="flex justify-between items-center p-4 rounded-lg"
                     style={{
-                      backgroundColor: "oklch(0.21 0.006 285.885)",
-                      border: "1px solid oklch(0.70 0.015 65)",
+                      backgroundColor: "var(--card)",
+                      border: "1px solid oklch(0.70 0.015 75)",
                     }}
                   >
                     <div>
-                      <p className="font-bold" style={{ color: "oklch(0.97 0.005 260)" }}>
+                      <p className="font-bold" style={{ color: "oklch(0.94 0.025 75)" }}>
                         {size.size}
                       </p>
                       <p className="text-sm" style={{ color: "oklch(0.80 0.020 75)" }}>
@@ -169,7 +169,7 @@ export default function ProductDetail() {
               className="w-full py-6 text-lg font-bold"
               style={{
                 backgroundColor: "var(--accent)",
-                color: "oklch(0.97 0.005 260)",
+                color: "oklch(0.94 0.025 75)",
               }}
             >
               🛒 Order on WhatsApp
@@ -181,11 +181,11 @@ export default function ProductDetail() {
         <div
           className="rounded-lg p-8"
           style={{
-            backgroundColor: "oklch(0.21 0.006 285.885)",
+            backgroundColor: "var(--card)",
             border: "2px solid var(--accent)",
           }}
         >
-          <h2 className="text-2xl font-bold mb-4" style={{ color: "oklch(0.97 0.005 260)" }}>
+          <h2 className="text-2xl font-bold mb-4" style={{ color: "oklch(0.94 0.025 75)" }}>
             About This Product
           </h2>
           <p className="text-lg leading-relaxed" style={{ color: "oklch(0.80 0.020 75)" }}>
@@ -223,14 +223,14 @@ export default function ProductDetail() {
 
         {/* Related Products */}
         <div className="mt-16">
-          <h2 className="text-3xl font-bold mb-8 text-center" style={{ color: "oklch(0.97 0.005 260)" }}>
+          <h2 className="text-3xl font-bold mb-8 text-center" style={{ color: "oklch(0.94 0.025 75)" }}>
             Explore More Products
           </h2>
           <Button
             onClick={() => navigate("/")}
             className="w-full py-4 text-lg font-bold"
             style={{
-              backgroundColor: "oklch(0.21 0.006 285.885)",
+              backgroundColor: "var(--card)",
               color: "var(--accent)",
               border: "2px solid var(--accent)",
             }}

@@ -112,14 +112,14 @@ export default function HeroSection() {
               fontSize: "clamp(1.5rem, 4vw, 3rem)",
               color: "var(--accent)",
               letterSpacing: "0.3em",
-              textShadow: "0 0 30px oklch(0.62 0.20 42 / 0.5)",
+              textShadow: "0 0 30px color-mix(in oklab, var(--accent) 50%, transparent)",
             }}
           >
             SHWEET BREW
           </div>
 
           {/* Subheadline */}
-          <p
+          <div
             className="font-body max-w-2xl mx-auto mb-10 leading-relaxed"
             style={{ color: "oklch(0.80 0.020 75)" }}
           >
@@ -139,7 +139,7 @@ export default function HeroSection() {
               </>
             )}
             <div className="text-lg md:text-xl">{translations.hero.taglineEnd[language]}</div>
-          </p>
+          </div>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

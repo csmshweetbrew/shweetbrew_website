@@ -6,13 +6,16 @@
 /*
  * SHWEETBREW DESIGN SYSTEM — "Braai Fire & Blue Star"
  * Design Movement: Industrial Braai Culture meets Israeli Modernism
- * Base: Deep charcoal (#1A1A1A) — braai coals
- * Primary: Israeli Blue (#003F8A)
- * Accent: Shweet Red (#cd2027) — brand primary color
- * Text: Cream (#F5EDD8)
- * Danger/Heat: Blood red (#C0392B)
+ * Dark-only site. Full reference: design-system.md in the repo root.
+ * Background: Charcoal  oklch(0.13 0.005 60)  #090706 — braai coals
+ * Cards:      Card      oklch(0.21 0.006 60)  #1a1816 (warm)
+ * Brand:      Shweet Red #cd2027 (--accent)
+ * Blue:       Israeli Blue oklch(0.50 0.18 260) #195cc7 for text/accents;
+ *             Israeli Blue Deep oklch(0.35 0.15 260) #003286 for fills/glows (--primary)
+ * Text:       Cream     oklch(0.94 0.025 75)  #f5e9d9 (--foreground)
+ * Danger:     oklch(0.48 0.20 25) #b30018 (--destructive)
  * Fonts: Bebas Neue (display), Lato (body), Playfair Display italic (quotes)
- * Color Config: See client/src/config/colors.ts for centralized color management
+ * Inline-style constants: client/src/config/colors.ts (keep in sync with this file)
  */
 
 @theme inline {
@@ -58,8 +61,8 @@
   --radius: 0.4rem;
 
   /* Shweet Brew Brand Palette */
-  --brand-charcoal: oklch(0.15 0.005 60);
-  --brand-charcoal-mid: oklch(0.20 0.005 60);
+  --brand-charcoal: oklch(0.13 0.005 60);
+  --brand-charcoal-mid: oklch(0.21 0.006 60);
   --brand-charcoal-light: oklch(0.28 0.008 60);
   --brand-israeli-blue: oklch(0.35 0.15 260);
   --brand-israeli-blue-light: oklch(0.50 0.18 260);
@@ -70,12 +73,12 @@
   --brand-red: #cd2027;
   --brand-gold: oklch(0.75 0.15 75);
 
-  /* Semantic tokens — dark theme by default */
+  /* Semantic tokens — the site is dark-only */
   --background: oklch(0.13 0.005 60);
   --foreground: oklch(0.94 0.025 75);
-  --card: oklch(0.18 0.006 60);
+  --card: oklch(0.21 0.006 60);
   --card-foreground: oklch(0.94 0.025 75);
-  --popover: oklch(0.18 0.006 60);
+  --popover: oklch(0.21 0.006 60);
   --popover-foreground: oklch(0.94 0.025 75);
   --primary: oklch(0.35 0.15 260);
   --primary-foreground: oklch(0.97 0.005 260);
@@ -84,7 +87,7 @@
   --muted: oklch(0.22 0.006 60);
   --muted-foreground: oklch(0.65 0.015 75);
   --accent: #cd2027;
-  --accent-foreground: oklch(0.10 0.005 60);
+  --accent-foreground: oklch(0.94 0.025 75);
   --destructive: oklch(0.48 0.20 25);
   --destructive-foreground: oklch(0.97 0.005 0);
   --border: oklch(1 0 0 / 12%);
@@ -95,7 +98,7 @@
   --chart-3: oklch(0.75 0.15 75);
   --chart-4: oklch(0.48 0.20 25);
   --chart-5: oklch(0.50 0.18 260);
-  --sidebar: oklch(0.15 0.005 60);
+  --sidebar: oklch(0.13 0.005 60);
   --sidebar-foreground: oklch(0.94 0.025 75);
   --sidebar-primary: oklch(0.35 0.15 260);
   --sidebar-primary-foreground: oklch(0.97 0.005 260);
@@ -105,40 +108,12 @@
   --sidebar-ring: #cd2027;
 }
 
-/* Light theme for system dark mode users */
-@media (prefers-color-scheme: light) {
-  :root:not(.dark) {
-    --background: oklch(0.98 0.001 60);
-    --foreground: oklch(0.15 0.005 60);
-    --card: oklch(0.95 0.002 60);
-    --card-foreground: oklch(0.15 0.005 60);
-    --popover: oklch(0.98 0.001 60);
-    --popover-foreground: oklch(0.15 0.005 60);
-    --primary: oklch(0.35 0.15 260);
-    --primary-foreground: oklch(0.97 0.005 260);
-    --secondary: oklch(0.85 0.008 60);
-    --secondary-foreground: oklch(0.20 0.005 60);
-    --muted: oklch(0.85 0.008 60);
-    --muted-foreground: oklch(0.45 0.015 75);
-    --accent: #cd2027;
-    --accent-foreground: oklch(0.98 0.001 60);
-    --destructive: oklch(0.48 0.20 25);
-    --destructive-foreground: oklch(0.97 0.005 0);
-    --border: oklch(0 0 0 / 12%);
-    --input: oklch(0 0 0 / 10%);
-    --sidebar: oklch(0.95 0.002 60);
-    --sidebar-foreground: oklch(0.15 0.005 60);
-    --sidebar-primary: oklch(0.35 0.15 260);
-    --sidebar-primary-foreground: oklch(0.97 0.005 260);
-    --sidebar-accent: oklch(0.85 0.008 60);
-    --sidebar-accent-foreground: oklch(0.15 0.005 60);
-    --sidebar-border: oklch(0 0 0 / 12%);
-  }
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+  html {
+    color-scheme: dark;
   }
   html, body {
     overflow-x: hidden;
@@ -151,6 +126,17 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Bebas Neue', sans-serif;
     letter-spacing: 0.04em;
+  }
+  /* Bebas Neue has a single weight: never let the browser fake a bold */
+  h1, h2, h3, h4, h5, h6, .font-display {
+    font-synthesis-weight: none;
+  }
+  /* Visible keyboard focus for form fields (their resting border is already red) */
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--accent) 60%, transparent);
+    outline-offset: 2px;
   }
   html[lang="he"] {
     font-family: 'Open Sans', sans-serif !important;
@@ -248,6 +234,26 @@
     font-family: 'Lato', sans-serif;
   }
 
+  /* Section heading pattern: optional eyebrow, then the title.
+     Accent words in a title are red; blue only for Israel-related words. */
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    color: var(--foreground);
+  }
+
+  .section-eyebrow {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+  }
+
   .font-quote {
     font-family: 'Playfair Display', serif;
     font-style: italic;
@@ -270,7 +276,7 @@
   }
 
   .bg-charcoal-mid {
-    background-color: oklch(0.18 0.006 60);
+    background-color: var(--card);
   }
 
   .bg-israeli-blue {
@@ -310,11 +316,15 @@
 
   /* Fire glow effect */
   .fire-glow {
-    box-shadow: 0 0 20px var(--accent) / 40%, 0 0 40px var(--accent) / 20%;
+    box-shadow:
+      0 0 20px color-mix(in oklab, var(--accent) 40%, transparent),
+      0 0 40px color-mix(in oklab, var(--accent) 20%, transparent);
   }
 
   .fire-glow-hover:hover {
-    box-shadow: 0 0 25px var(--accent) / 60%, 0 0 50px var(--accent) / 30%;
+    box-shadow:
+      0 0 25px color-mix(in oklab, var(--accent) 60%, transparent),
+      0 0 50px color-mix(in oklab, var(--accent) 30%, transparent);
     border-color: var(--accent) !important;
   }
 

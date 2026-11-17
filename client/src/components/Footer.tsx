@@ -68,7 +68,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="w-8 h-8 rounded flex items-center justify-center border transition-all hover:scale-110"
                   style={{
-                    backgroundColor: "oklch(0.18 0.006 60)",
+                    backgroundColor: "var(--card)",
                     borderColor: "oklch(1 0 0 / 0.12)",
                     color: "oklch(0.70 0.015 75)",
                   }}
@@ -85,7 +85,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="w-8 h-8 rounded flex items-center justify-center border transition-all hover:scale-110"
                   style={{
-                    backgroundColor: "oklch(0.18 0.006 60)",
+                    backgroundColor: "var(--card)",
                     borderColor: "oklch(1 0 0 / 0.12)",
                     color: "oklch(0.70 0.015 75)",
                   }}
@@ -102,7 +102,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="w-8 h-8 rounded flex items-center justify-center border transition-all hover:scale-110"
                   style={{
-                    backgroundColor: "oklch(0.18 0.006 60)",
+                    backgroundColor: "var(--card)",
                     borderColor: "oklch(1 0 0 / 0.12)",
                     color: "oklch(0.70 0.015 75)",
                   }}
@@ -119,7 +119,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="w-8 h-8 rounded flex items-center justify-center border transition-all hover:scale-110"
                   style={{
-                    backgroundColor: "oklch(0.18 0.006 60)",
+                    backgroundColor: "var(--card)",
                     borderColor: "oklch(1 0 0 / 0.12)",
                     color: "oklch(0.70 0.015 75)",
                   }}
