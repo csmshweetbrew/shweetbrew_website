@@ -6,13 +6,15 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { FILTER_GROUPS, SHOP_FILTER_EVENT } from "@/lib/shopFilter";
-import { PRODUCTS } from "@/config/products";
+import { getCategoryNameHebrew } from "@/config/products";
+import { useCatalog } from "@/contexts/CatalogContext";
 import ProductCard from "@/components/ProductCard";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/config/languages";
 
 export default function ProductsSection() {
   const { language } = useLanguage();
+  const { categories: catalog } = useCatalog();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   // The hero's range tiles open this section on a range (see lib/shopFilter.ts)
@@ -27,7 +29,7 @@ export default function ProductsSection() {
 
   // Memoize filtered variants to prevent unnecessary recalculations
   const filteredVariants = useMemo(() => {
-    const allVariantsWithCategory = PRODUCTS.flatMap((category) =>
+    const allVariantsWithCategory = catalog.flatMap((category) =>
       category.variants.map((variant) => ({
         variant,
         categoryName: category.name,
@@ -38,10 +40,10 @@ export default function ProductsSection() {
     if (selectedCategory === "all") return allVariantsWithCategory;
     const ids = FILTER_GROUPS[selectedCategory] ?? [selectedCategory];
     return allVariantsWithCategory.filter((item) => ids.includes(item.categoryId));
-  }, [selectedCategory]);
+  }, [selectedCategory, catalog]);
 
   // Category filter options - use translated category names
-  const getCategoryLabel = (categoryId: string): string => {
+  const getCategoryLabel = (categoryId: string, categoryName = categoryId): string => {
     const categoryTranslationMap: Record<string, Record<string, string>> = {
       "biltong": { en: "BILTONG", he: "בילטונג" },
       "boerewors": { en: "BOEREWORS", he: "בוארווורס" },
@@ -53,15 +55,16 @@ export default function ProductsSection() {
       "shots": { en: "SHOTS", he: "שוטות" },
       "sauces": { en: "SAUCES", he: "רטבים" },
     };
-    return categoryTranslationMap[categoryId]?.[language] || categoryId;
+    // Categories added in the admin app aren't in the map: use their (Hebrew) name
+    return categoryTranslationMap[categoryId]?.[language] || (language === "he" ? getCategoryNameHebrew(categoryName.toUpperCase()) : categoryName.toUpperCase());
   };
 
   const categories = useMemo(
     () => [
       { id: "all", label: translations.products.filterAll[language] },
-      ...PRODUCTS.map((cat) => ({ id: cat.id, label: getCategoryLabel(cat.id) })),
+      ...catalog.map((cat) => ({ id: cat.id, label: getCategoryLabel(cat.id, cat.name) })),
     ],
-    [language]
+    [language, catalog]
   );
 
   return (

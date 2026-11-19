@@ -16,9 +16,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useCart, type CartItem } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ShoppingBag, X, Plus, Minus, ChevronLeft, ChevronDown, Search, Check } from "lucide-react";
-import { PRODUCTS, getTranslatedProductName } from "@/config/products";
+import { getTranslatedProductName } from "@/config/products";
+import { useCatalog } from "@/contexts/CatalogContext";
+import { findVariant as findCatalogVariant, findVariantById } from "@/lib/catalog";
 import { deliveryZones, getNextDeliveryDate, formatDeliveryDate, zoneName, zoneDays, zoneNameBoth, zoneSearchTerms, type DeliveryZone } from "@/config/deliveryZones";
-import { makeReference, submitOrder, type Order } from "@/lib/orders";
+import { makeReference, submitOrder, orderWhatsAppLink, type Order, type OrderError } from "@/lib/orders";
 import { productThumb } from "@/lib/images";
 import { scrollToTarget, lockPageScroll } from "@/lib/smoothScroll";
 
@@ -26,11 +28,6 @@ const MIN_DELIVERY_ORDER = 80;
 const OTHER_ZONE = "zone_everywhere_else";
 
 type Step = 1 | 2 | 3;
-
-function findVariant(categoryName: string, productName: string) {
-  const category = PRODUCTS.find((c) => c.name === categoryName);
-  return category?.variants.find((v) => v.name === productName);
-}
 
 export default function CartPanel() {
   const { language } = useLanguage();
@@ -42,7 +39,12 @@ export default function CartPanel() {
     shippingDetails: address, setShippingDetails: setAddress,
   } = useCart();
 
+  const { categories, refresh: refreshCatalog } = useCatalog();
+  const findVariant = (categoryName: string, productName: string) => findCatalogVariant(categories, categoryName, productName);
+
   const [isOpen, setIsOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [orderError, setOrderError] = useState<{ error: OrderError; order: Order } | null>(null);
   const [step, setStep] = useState<Step>(1);
   const [tried, setTried] = useState(false);
   const [placed, setPlaced] = useState<Order | null>(null);
@@ -118,7 +120,10 @@ export default function CartPanel() {
       g.packs.sort((a: CartItem, b: CartItem) => sizes.indexOf(a.size) - sizes.indexOf(b.size));
     });
     return list;
-  }, [items]);
+  }, [items, categories]);
+
+  // A changed bag or area makes an old order error stale
+  useEffect(() => setOrderError(null), [items, selectedArea]);
 
   const addPack = (base: CartItem, size: string) => {
     const variant = findVariant(base.categoryName, base.productName);
@@ -160,7 +165,37 @@ export default function CartPanel() {
 
   const goToDetails = () => setStep(2);
 
-  const placeOrder = () => {
+  // Same logic as the Order section (OrderForm.tsx): only once an area is chosen
+  const nextDeliveryDate = zone ? getNextDeliveryDate(zone) : null;
+
+  /** What went wrong with the order, in the visitor's language */
+  const orderErrorText = (err: OrderError): string => {
+    const item = "productId" in err ? findVariantById(categories, err.productId) : null;
+    const what = item ? `${getTranslatedProductName(item.variant.id, language) || item.variant.name} ${err.code === "OUT_OF_STOCK" || err.code === "UNAVAILABLE" ? err.size : ""}`.trim() : "";
+    switch (err.code) {
+      case "OUT_OF_STOCK":
+        return err.left > 0
+          ? L(`Sorry, only ${err.left} left of ${what}. Lower the number to continue.`, `מצטערים, נשארו רק ${err.left} של ${what}. הורידו את הכמות כדי להמשיך.`)
+          : L(`Sorry, ${what} just sold out. Remove it to continue.`, `מצטערים, ${what} אזל הרגע. הסירו אותו כדי להמשיך.`);
+      case "UNAVAILABLE":
+        return what
+          ? L(`${what} isn't available right now. Remove it to continue.`, `${what} לא זמין כרגע. הסירו אותו כדי להמשיך.`)
+          : L("Something in your bag isn't available any more. Remove it to continue.", "משהו בסל כבר לא זמין. הסירו אותו כדי להמשיך.");
+      case "BELOW_MINIMUM":
+        return L(`Delivery starts at ₪${err.min}. Add a little more, or choose Modiin for pickup.`, `משלוח מ-₪${err.min}. הוסיפו עוד קצת, או בחרו איסוף במודיעין.`);
+      case "INVALID_INPUT":
+        return err.field === "phone"
+          ? L("Check the phone number and try again.", "בדקו את מספר הטלפון ונסו שוב.")
+          : L("Check your details and try again.", "בדקו את הפרטים ונסו שוב.");
+      case "TOO_MANY_ORDERS":
+        return L("You've just placed a few orders. Message us on WhatsApp if you need to change one.", "ביצעתם כמה הזמנות ממש עכשיו. כתבו לנו בוואטסאפ אם צריך לשנות משהו.");
+      default:
+        return L("We couldn't send your order. Try again, or send it to us on WhatsApp.", "לא הצלחנו לשלוח את ההזמנה. נסו שוב, או שלחו לנו אותה בוואטסאפ.");
+    }
+  };
+
+  const placeOrder = async () => {
+    if (submitting) return;
     if (hasErrors || belowMinimum) {
       setTried(true);
       requestAnimationFrame(() => panelRef.current?.querySelector<HTMLElement>("[aria-invalid='true']")?.focus());
@@ -171,26 +206,43 @@ export default function CartPanel() {
       name: name.trim(),
       phone: phone.trim(),
       address: [address.trim(), apartment.trim(), city.trim()].filter(Boolean).join(", "),
+      city: city.trim(),
+      street: address.trim(),
+      apartment: apartment.trim(),
       zoneId: zone!.id,
       zoneName: zone!.name,
       notes: notes.trim(),
-      lines: items.map((i) => ({ product: i.productName, category: i.categoryName, size: i.size, quantity: i.quantity, price: i.price })),
+      language: he ? "he" : "en",
+      requestedDeliveryDate: nextDeliveryDate && zone!.id !== OTHER_ZONE ? toIsoDate(nextDeliveryDate) : undefined,
+      lines: items.map((i) => ({
+        productId: findVariant(i.categoryName, i.productName)?.id,
+        product: i.productName,
+        category: i.categoryName,
+        size: i.size,
+        quantity: i.quantity,
+        price: i.price,
+      })),
       subtotal,
       deliveryFee: feeKnown ? deliveryFee : null,
       total,
       createdAt: new Date().toISOString(),
     };
-    submitOrder(order);
-    setPlaced(order);
+    setOrderError(null);
+    setSubmitting(true);
+    const result = await submitOrder(order);
+    setSubmitting(false);
+    if (!result.ok) {
+      setOrderError({ error: result.error, order });
+      if (result.error.code === "OUT_OF_STOCK" || result.error.code === "UNAVAILABLE") void refreshCatalog();
+      return;
+    }
+    setPlaced(result.order);
     setStep(3);
     setTried(false);
     clearCart();
     setCity("");
     setApartment("");
   };
-
-  // Same logic as the Order section (OrderForm.tsx): only once an area is chosen
-  const nextDeliveryDate = zone ? getNextDeliveryDate(zone) : null;
 
   const title = step === 3 ? L("Order placed", "ההזמנה התקבלה") : step === 2 ? L("Your details", "הפרטים שלכם") : L("Your bag", "הסל שלכם");
 
@@ -391,7 +443,22 @@ export default function CartPanel() {
               <button type="button" className="cart-primary" onClick={goToDetails}>{L("Continue", "המשך")}</button>
             ) : (
               <>
-                <button type="button" className="cart-primary" onClick={placeOrder}>{L("Place order", "ביצוע הזמנה")}</button>
+                {orderError && (
+                  <p className="cart-min cart-order-error" role="alert">
+                    {orderErrorText(orderError.error)}
+                    {orderError.error.code === "NETWORK" && (
+                      <>
+                        {" "}
+                        <a className="cart-link" href={orderWhatsAppLink(orderError.order)} target="_blank" rel="noopener noreferrer">
+                          {L("Send it on WhatsApp", "שליחה בוואטסאפ")}
+                        </a>
+                      </>
+                    )}
+                  </p>
+                )}
+                <button type="button" className="cart-primary" onClick={placeOrder} disabled={submitting} aria-busy={submitting}>
+                  {submitting ? L("Placing your order…", "שולחים את ההזמנה…") : L("Place order", "ביצוע הזמנה")}
+                </button>
                 <button type="button" className="cart-link cart-back" onClick={() => setStep(1)}>
                   <ChevronLeft className="w-4 h-4 rtl:rotate-180" /> {L("Back to bag", "חזרה לסל")}
                 </button>
@@ -568,4 +635,10 @@ function AreaPicker({ language, value, onChange, error }: {
       {error && <span id="cart-area-err" className="cart-err">{error}</span>}
     </div>
   );
+}
+
+/** yyyy-mm-dd in local time (what the delivery-date picker showed) */
+function toIsoDate(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }

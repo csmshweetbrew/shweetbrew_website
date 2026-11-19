@@ -17,6 +17,10 @@ export type SizeOption = {
   size: string;
   weight: string;
   price: number; // in NIS
+  /** Live catalogue only: the product_sizes row id in Supabase */
+  sizeId?: string;
+  /** Live catalogue only: packs left. null / undefined = not tracked (always orderable) */
+  stock?: number | null;
 };
 
 export type Nutrition = {
@@ -406,6 +410,29 @@ const PRODUCT_REGISTRY = [
 ];
 
 // ============================================================================
+// LIVE TEXT FROM THE DATABASE (lib/catalog.ts fills these when Supabase is on).
+// The helpers below check them first, so names and text edited in the admin
+// app show up on the site in both languages.
+// ============================================================================
+type Bilingual = { en?: string; he?: string };
+type LiveProductText = { name?: Bilingual; description?: Bilingual; tagline?: Bilingual; ingredients?: Bilingual; allergens?: Bilingual };
+const LIVE_TEXT = new Map<string, LiveProductText>();
+const LIVE_CATEGORY_HE = new Map<string, string>();
+
+export function setLiveProductText(variantId: string, text: LiveProductText) {
+  LIVE_TEXT.set(variantId, text);
+}
+export function setLiveCategoryHebrew(categoryName: string, hebrew: string) {
+  LIVE_CATEGORY_HE.set(categoryName.toUpperCase(), hebrew);
+}
+/** Database text for this language; Hebrew falls back to built-in Hebrew, then database English. */
+function liveText(variantId: string, field: keyof LiveProductText, language: Language, builtIn: string): string {
+  const t = LIVE_TEXT.get(variantId)?.[field];
+  if (!t) return builtIn;
+  return t[language] || builtIn || t.en || "";
+}
+
+// ============================================================================
 // AUTO-GENERATED PRODUCTS ARRAY - Do not edit manually
 // This is automatically generated from PRODUCT_REGISTRY
 // ============================================================================
@@ -454,7 +481,7 @@ export function getTranslatedProductName(variantId: string, language: Language):
     });
   });
 
-  return translationMap[variantId]?.[language] || "";
+  return liveText(variantId, "name", language, translationMap[variantId]?.[language] || "");
 }
 
 export function getTranslatedProductDescription(variantId: string, language: Language): string {
@@ -475,7 +502,7 @@ export function getTranslatedProductDescription(variantId: string, language: Lan
     "chilli-sauce": translations.products.chilliSauceDesc,
   };
   const fallback = PRODUCT_REGISTRY.flatMap((product) => product.variants).find((variant) => variant.id === variantId)?.description || "";
-  return translationMap[variantId]?.[language] || fallback;
+  return liveText(variantId, "description", language, translationMap[variantId]?.[language] || fallback);
 }
 
 export function getTranslatedProductTagline(variantId: string, language: Language): string {
@@ -496,7 +523,7 @@ export function getTranslatedProductTagline(variantId: string, language: Languag
     "chilli-sauce": translations.products.chilliSauceTagline,
   };
   const fallback = PRODUCT_REGISTRY.flatMap((product) => product.variants).find((variant) => variant.id === variantId)?.tagline || "";
-  return translationMap[variantId]?.[language] || fallback;
+  return liveText(variantId, "tagline", language, translationMap[variantId]?.[language] || fallback);
 }
 
 export function getCategoryNameHebrew(categoryName: string): string {
@@ -510,7 +537,7 @@ export function getCategoryNameHebrew(categoryName: string): string {
     "SAUCES": "רטבים",
     "SHOTS": "שוטס",
   };
-  return categoryMap[categoryName] || categoryName;
+  return LIVE_CATEGORY_HE.get(categoryName.toUpperCase()) || categoryMap[categoryName] || categoryName;
 }
 
 export function getTranslatedIngredients(variantId: string, language: Language): string {
@@ -530,7 +557,7 @@ export function getTranslatedIngredients(variantId: string, language: Language):
     "shweetbrew-shots": { en: "Vodka, chilli, cinnamon, vanilla, and natural flavors.", he: "וודקה, צ'ילי, קינמון, וניל וטעמים טבעיים." },
     "chilli-sauce": { en: "Red chillies, garlic, vinegar, salt, and spices.", he: "צ'ילי אדום, שום, חומץ, מלח ותבלינים." },
   };
-  return ingredientsMap[variantId]?.[language] || "";
+  return liveText(variantId, "ingredients", language, ingredientsMap[variantId]?.[language] || "");
 }
 
 export function getTranslatedAllergens(variantId: string, language: Language): string {
@@ -550,7 +577,7 @@ export function getTranslatedAllergens(variantId: string, language: Language): s
     "shweetbrew-shots": { en: "Contains alcohol. May contain traces of nuts.", he: "מכיל אלכוהול. עלול להכיל עקבות של אגוזים." },
     "chilli-sauce": { en: "May contain traces of nuts and soy.", he: "עלול להכיל עקבות של אגוזים וסויה." },
   };
-  return allergensMap[variantId]?.[language] || "";
+  return liveText(variantId, "allergens", language, allergensMap[variantId]?.[language] || "");
 }
 
 export function getAvailableSizes(categoryName: string, productName: string): string[] {

@@ -4,7 +4,7 @@ General knowledge for the next agent working on this site. Read this, then `desi
 
 ## What it is
 
-A single-page, bilingual (English / Hebrew, RTL) shop for **Shweet Brew**, a small Modiin-based maker of South African biltong, boerewors, drywors, the "Holy Land Jerky" range (beef + chicken), Shweet Brew Shots and sweet chilli sauce, delivered across Israel. Orders currently end in WhatsApp; the owner is moving to **in-website ordering** (a placeholder is in place, see "Ordering" below).
+A single-page, bilingual (English / Hebrew, RTL) shop for **Shweet Brew**, a small Modiin-based maker of South African biltong, boerewors, drywors, the "Holy Land Jerky" range (beef + chicken), Shweet Brew Shots and sweet chilli sauce, delivered across Israel. Orders currently end in WhatsApp; the owner is moving to **in-website ordering** on **Supabase** (database + auth), with admin phone apps for orders and stock to come. See "Backend (Supabase)" below.
 
 The owner (Caleb) works in short, casual messages ("yo fella", "chop chop"), often several numbered requests at once, and reviews in the browser. He likes to see **options as artifacts** (clickable prototype pages published with the Artifact tool) before picking one to build. He prefers less clutter, bigger photos, clear "what is this" labelling, and motion that is smooth but **not overdone** (he had animations toned down twice). He decided to **keep the original dark "Braai Fire & Blue Star" look** rather than a new visual identity.
 
@@ -36,12 +36,39 @@ The owner (Caleb) works in short, casual messages ("yo fella", "chop chop"), oft
 - `config/languages.ts` — UI translations. Many components also use an inline `L(en, he)` helper.
 - `contexts/LanguageContext.tsx` — language read synchronously from `localStorage["shweet-brew-language"]`; `index.html` also sets `<html lang dir>` before first paint to avoid an English flash.
 - `contexts/CartContext.tsx` — cart items keyed by id + size; `shippingDetails` holds the street address.
-- `lib/orders.ts` — **ordering placeholder**: `submitOrder()` builds an order with an `SB-####` reference; while `ORDER_BACKEND_READY = false` it also opens WhatsApp with the full order so no order is lost. Plug the real API in there.
+- `lib/orders.ts` — `submitOrder()`: with Supabase configured it calls the `place_order` database function and returns the real `SB-####` reference (or a typed error: out of stock, below minimum…); without Supabase it opens WhatsApp as before. See "Backend (Supabase)".
+- `lib/supabase.ts` (lazy-loaded client), `lib/catalog.ts` + `contexts/CatalogContext.tsx` (live products/prices/stock; use `useCatalog()` instead of importing `PRODUCTS` in components).
 - `lib/shopFilter.ts` — `openShop(filter)` lets the hero open the products section on a range (groups `wors`, `extras`).
 - `lib/smoothScroll.ts` — Lenis smooth wheel scrolling; `scrollToTarget()` for all in-page jumps (one continuous ease-in-out glide, 0.9–1.8s); `lockPageScroll()` while the cart / popups are open; scrollable boxes carry `data-lenis-prevent`.
 - `lib/reveal.ts` — scroll reveal (IntersectionObserver). Variants by `data-reveal`: heading, text, zoom, wipe, fade, default. Below-the-fold elements are tagged **by selector** in `AUTO_TARGETS` (components don't need attributes); the hero uses attributes in JSX. `revealInstantly()` shows everything on a menu jump's path so nothing replays.
 - `lib/parallax.ts` — gentle hero parallax/fade while scrolling away.
 - `lib/images.ts` — self-hosted photo helpers (`productSrcSet`, `productThumb`).
+
+## Backend (Supabase)
+
+Added 2026-11-19. The website talks to Supabase directly with the public anon key; Row Level Security and database functions do the protecting, so there is no server of our own.
+
+**Files**
+- `.env.example` → copy to `.env` (git-ignored) in the project root. `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` switch the backend on. `VITE_ORDER_WHATSAPP_COPY` (default on) also opens each order in WhatsApp until the admin app is used. `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_DB_URL` are secret: scripts and the admin side only, never `VITE_`. Restart the dev server after editing `.env` (Vite doesn't pick it up live).
+- `supabase/migrations/` — the schema as numbered steps, run in order (each file sets up the security rules for its own tables):
+  `0001_foundation` (helpers, plus an index of all files) · `0002_users` · `0003_delivery_zones` · `0004_catalog` · `0005_orders` · `0006_stock` · `0007_order_workflow` · `0008_place_order` · `0009_admin_views` · `0010_realtime` · `0011_product_images` (public `product-images` storage bucket; only admins upload). **New changes go in a new file with the next number (`0012_…`); never edit a file already applied to the live database.** The Supabase CLI accepts these plain numbers as versions.
+- `supabase/seed.sql` — generated from `config/products.ts` + `config/deliveryZones.ts` by `npx tsx scripts/generate-supabase-seed.ts`. Insert-only (`on conflict do nothing`), so re-running never overwrites admin edits. Stock starts NULL = not tracked.
+
+**Tables**
+- Users: `profiles` (1:1 with `auth.users`, created by a signup trigger; `role` customer/admin). Users can edit only their own name/phone/address/language columns, never `role`. First admin: sign up, then in the SQL editor `update public.profiles set role = 'admin' where email = '…';`. After that admins use `admin_set_role()`.
+- Products + stock: `categories` → `products` (id = the variant id used by the site) → `product_sizes` (label, price, `stock` in packs; NULL = untracked). Every stock change, from any source, writes a `stock_movements` row via a trigger (reason: order / order_cancelled / order_restored / restock / adjustment / correction). Admin functions: `admin_adjust_stock(size_id, ±n, reason, note)`, `admin_set_stock(size_id, n|null, note)`. View `stock_overview` (with a `stock_state` of ok / low / out / untracked).
+- Orders: `orders` (reference `SB-1001`…, status new → confirmed → preparing → ready_for_pickup / out_for_delivery → delivered, or cancelled; payment status; `source` website/whatsapp/phone/admin), `order_items` (name/price snapshots), `order_status_history` (trigger). Cancelling an order gives its stock back; reopening takes it again (fails if gone). View `order_overview` (adds `item_count`).
+- `delivery_zones` holds fee (NULL = to arrange) and minimum order (₪80, Modiin 0). Delivery days and towns stay in `deliveryZones.ts`. **When a zone's fee or minimum changes, update both** (or regenerate the seed for new zones).
+
+**`place_order(p_order jsonb)`** is the only way to create an order from the browser: it ignores browser prices, checks availability and stock (row locks, so two buyers can't take the last pack), applies the zone fee/minimum, takes stock and returns `{reference, subtotal, delivery_fee, total}`. Errors are `INVALID_INPUT:<field>`, `OUT_OF_STOCK:<id>:<size>:<left>`, `UNAVAILABLE:<id>:<size>`, `BELOW_MINIMUM:<min>`, `TOO_MANY_ORDERS` (more than 5 orders per phone in 10 min); `parseOrderError` in `lib/orders.ts` maps them and the cart shows them in both languages. Admins can call it with `source: 'whatsapp'` to log a phone/WhatsApp order (no minimum).
+
+**Security summary**: everyone reads the catalogue; only admins write it. Guests can't read any orders; signed-in customers read only their own. Nobody inserts orders directly. Tested on PGlite (48 checks over the numbered files: RLS, pricing, stock, cancel/restore, flood guard, photo uploads) on 2026-11-19, not yet on a live project.
+
+**Realtime**: `orders`, `order_items`, `products`, `product_sizes` are in the `supabase_realtime` publication. The site refreshes the catalogue on product/stock changes (debounced 400ms); the admin app should subscribe to `orders` (RLS limits what each user receives).
+
+**Not built yet**: the customer login UI (Log in button is still a placeholder; auth backend is ready), the admin phone apps (orders, stock), order notifications (Database Webhook → Edge Function → WhatsApp/email would replace `VITE_ORDER_WHATSAPP_COPY`), payments. The Order *section* form (`OrderForm.tsx`) still sends to WhatsApp only; the cart is the database path.
+
+**Testing without real credentials**: a PGlite-backed stand-in for the two REST calls the site makes worked well (point `VITE_SUPABASE_URL` at it in a temporary `.env.local`, restart the dev server, delete the file afterwards).
 
 ## Assets
 
@@ -65,7 +92,7 @@ The owner (Caleb) works in short, casual messages ("yo fella", "chop chop"), oft
 
 - Several Hebrew product *flavour* names still fall back to English (the lookup keys don't match the ids); category names are translated.
 - Boerewors and Drywors variants are both called "Classic".
-- The Log in button is a placeholder that shows a "coming soon" toast.
+- The Log in button is a placeholder that shows a "coming soon" toast (Supabase auth is ready behind it).
 
 ## Previous design artifacts (private, owner's account)
 

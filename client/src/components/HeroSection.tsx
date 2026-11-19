@@ -12,7 +12,8 @@
 import { ArrowRight, MessageCircle, ShoppingCart } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/config/languages";
-import { PRODUCTS } from "@/config/products";
+import type { ProductCategory } from "@/config/products";
+import { useCatalog } from "@/contexts/CatalogContext";
 import { productSrcSet } from "@/lib/images";
 import { FILTER_GROUPS, openShop } from "@/lib/shopFilter";
 import { scrollToTarget } from "@/lib/smoothScroll";
@@ -35,13 +36,14 @@ const RANGES: Range[] = [
 ];
 
 /** Lowest price across the categories a filter covers, with its size */
-function startingPrice(filter: string): { price: number; size: string } | null {
+function startingPrice(products: ProductCategory[], filter: string): { price: number; size: string } | null {
   const ids = FILTER_GROUPS[filter] ?? [filter];
   let best: { price: number; size: string } | null = null;
-  for (const cat of PRODUCTS.filter((c) => ids.includes(c.id))) {
+  for (const cat of products.filter((c) => ids.includes(c.id))) {
     for (const v of cat.variants) {
       if (v.isAvailable === false) continue;
       for (const s of v.sizes) {
+        if (s.stock === 0) continue;
         if (!best || s.price < best.price) best = { price: s.price, size: s.size };
       }
     }
@@ -51,6 +53,7 @@ function startingPrice(filter: string): { price: number; size: string } | null {
 
 export default function HeroSection() {
   const { language } = useLanguage();
+  const { categories: products } = useCatalog();
   const he = language === "he";
   const L = (en: string, hebrew: string) => (he ? hebrew : en);
 
@@ -100,8 +103,8 @@ export default function HeroSection() {
         {/* 2. Four ranges */}
         <div className="hero-ranges">
           {RANGES.map((r, i) => {
-            const img = PRODUCTS.find((c) => c.id === r.imageFrom)?.image;
-            const from = startingPrice(r.filter);
+            const img = products.find((c) => c.id === r.imageFrom)?.image;
+            const from = startingPrice(products, r.filter);
             return (
               <button key={r.filter} type="button" className="hero-range" onClick={() => openShop(r.filter)} data-reveal="zoom" style={{ ["--reveal-delay" as string]: `${260 + i * 80}ms` }}>
                 <span className="hero-range-bar" style={{ backgroundColor: r.color }} />

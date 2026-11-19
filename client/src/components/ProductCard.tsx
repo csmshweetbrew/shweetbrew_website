@@ -142,17 +142,21 @@ const ProductCardComponent = ({ variant, categoryName, index = 0 }: ProductCardP
           <div className="product-tray" aria-hidden={!isTrayOpen} id={`sizes-${variant.id}`}>
             <span className="product-tray-label">{t.pickSize[language]}</span>
             <div className="grid grid-cols-2 gap-1.5">
-              {variant.sizes.map((s) => (
-                <button
-                  key={s.size}
-                  type="button"
-                  className="size-chip"
-                  tabIndex={isTrayOpen ? 0 : -1}
-                  onClick={(e) => handleAdd(s.size, s.price, e.currentTarget)}
-                >
-                  {s.size} · ₪{s.price}
-                </button>
-              ))}
+              {variant.sizes.map((s) => {
+                const soldOut = s.stock === 0;
+                return (
+                  <button
+                    key={s.size}
+                    type="button"
+                    className="size-chip"
+                    tabIndex={isTrayOpen ? 0 : -1}
+                    disabled={soldOut}
+                    onClick={(e) => handleAdd(s.size, s.price, e.currentTarget)}
+                  >
+                    {s.size} · {soldOut ? (language === "he" ? "אזל" : "Sold out") : `₪${s.price}`}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
