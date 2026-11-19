@@ -20,7 +20,7 @@ No single group dominates, so the site must explain what biltong, boerewors and 
 
 ## Product Purpose
 
-Shweet Brew is a small Modiin-based maker of South African cured meats (biltong, boerewors, drywors), American-style beef and chicken jerky (the Holy Land Jerky line), Shweet Brew Shots and sauces, delivered across Israel. The website exists to make people want the product and then send an order on WhatsApp. Success is a visitor tapping through to WhatsApp with a clear idea of what they want.
+Shweet Brew is a small Modiin-based maker of South African cured meats (biltong, boerewors, drywors), American-style beef and chicken jerky (the Holy Land Jerky line), Shweet Brew Shots and sauces, delivered across Israel. The website exists to make people want the product and then order it on the site. Success is a visitor placing an order in the cart with a clear idea of what they bought.
 
 ## Positioning
 
@@ -28,7 +28,7 @@ South African cured-meat craft made in Israel by a South African–Israeli maker
 
 ## Operating Context
 
-- Ordering happens on WhatsApp (+972 58 413 2576). The on-site cart and order form exist but are secondary; they hand off to WhatsApp.
+- Ordering happens on the website: the cart saves orders in Supabase, tracked in the admin app (owner, 2026-11-19). WhatsApp (+972 58 413 2576) is for contacting us only, not for orders.
 - Production day is Wednesday 12:00. Delivery days depend on the zone; Modiin (HQ) is free pickup or same day. Zones and prices live in `client/src/config/deliveryZones.ts`.
 - Payment: cash, bank transfer, Bit. Minimum order applies for delivery.
 - Product data (variants, sizes, prices in NIS, spice level 1–5, kosher flag, nutrition, availability) lives in `client/src/config/products.ts`.
@@ -55,7 +55,7 @@ South African cured-meat craft made in Israel by a South African–Israeli maker
 
 ## Product Principles
 
-1. WhatsApp is the finish line: every path should end in a ready-to-send WhatsApp message.
+1. The cart is the finish line: every path should lead to a placed order. WhatsApp is there for questions.
 2. Explain the meat, not just the mood: newcomers need to know what biltong is, gym-goers need the numbers, gift buyers need sizes.
 3. Small-maker truth over big-brand gloss: weekly batches, a real person on the other end.
 4. Hebrew is a first-class reader, not a translation.

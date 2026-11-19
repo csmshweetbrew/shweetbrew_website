@@ -49,7 +49,7 @@ The owner (Caleb) works in short, casual messages ("yo fella", "chop chop"), oft
 Added 2026-11-19. The website talks to Supabase directly with the public anon key; Row Level Security and database functions do the protecting, so there is no server of our own.
 
 **Files**
-- `.env.example` → copy to `.env` (git-ignored) in the project root. `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` switch the backend on. `VITE_ORDER_WHATSAPP_COPY` (default on) also opens each order in WhatsApp until the admin app is used. `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_DB_URL` are secret: scripts and the admin side only, never `VITE_`. Restart the dev server after editing `.env` (Vite doesn't pick it up live).
+- `.env` (git-ignored, template in `.env.example`) holds exactly four values from the owner: `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (public, used by the site), `SUPABASE_SECRET_KEY` and `SUPABASE_JWKS` (secret: admin scripts / admin app server side only, never `VITE_`). Keep it to these; don't add more config. Restart the dev server after editing `.env` (Vite doesn't pick it up live).
 - `supabase/migrations/` — the schema as numbered steps, run in order (each file sets up the security rules for its own tables):
   `0001_foundation` (helpers, plus an index of all files) · `0002_users` · `0003_delivery_zones` · `0004_catalog` · `0005_orders` · `0006_stock` · `0007_order_workflow` · `0008_place_order` · `0009_admin_views` · `0010_realtime` · `0011_product_images` (public `product-images` storage bucket; only admins upload). **New changes go in a new file with the next number (`0012_…`); never edit a file already applied to the live database.** The Supabase CLI accepts these plain numbers as versions.
 - `supabase/seed.sql` — generated from `config/products.ts` + `config/deliveryZones.ts` by `npx tsx scripts/generate-supabase-seed.ts`. Insert-only (`on conflict do nothing`), so re-running never overwrites admin edits. Stock starts NULL = not tracked.
@@ -66,7 +66,7 @@ Added 2026-11-19. The website talks to Supabase directly with the public anon ke
 
 **Realtime**: `orders`, `order_items`, `products`, `product_sizes` are in the `supabase_realtime` publication. The site refreshes the catalogue on product/stock changes (debounced 400ms); the admin app should subscribe to `orders` (RLS limits what each user receives).
 
-**Not built yet**: the customer login UI (Log in button is still a placeholder; auth backend is ready), the admin phone apps (orders, stock), order notifications (Database Webhook → Edge Function → WhatsApp/email would replace `VITE_ORDER_WHATSAPP_COPY`), payments. The Order *section* form (`OrderForm.tsx`) still sends to WhatsApp only; the cart is the database path.
+**Not built yet**: the customer login UI (Log in button is still a placeholder; auth backend is ready), the admin phone apps (orders, stock), payments. **WhatsApp is for contacting only, never part of ordering (owner, 2026-11-19).** Orders go only to Supabase; the cart shows an error if Supabase isn't configured. The Order *section* form (`OrderForm.tsx`) still opens WhatsApp and should be moved onto `submitOrder` or removed.
 
 **Testing without real credentials**: a PGlite-backed stand-in for the two REST calls the site makes worked well (point `VITE_SUPABASE_URL` at it in a temporary `.env.local`, restart the dev server, delete the file afterwards).
 

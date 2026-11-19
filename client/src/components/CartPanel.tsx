@@ -20,7 +20,7 @@ import { getTranslatedProductName } from "@/config/products";
 import { useCatalog } from "@/contexts/CatalogContext";
 import { findVariant as findCatalogVariant, findVariantById } from "@/lib/catalog";
 import { deliveryZones, getNextDeliveryDate, formatDeliveryDate, zoneName, zoneDays, zoneNameBoth, zoneSearchTerms, type DeliveryZone } from "@/config/deliveryZones";
-import { makeReference, submitOrder, orderWhatsAppLink, type Order, type OrderError } from "@/lib/orders";
+import { submitOrder, type Order, type OrderError } from "@/lib/orders";
 import { productThumb } from "@/lib/images";
 import { scrollToTarget, lockPageScroll } from "@/lib/smoothScroll";
 
@@ -188,9 +188,9 @@ export default function CartPanel() {
           ? L("Check the phone number and try again.", "בדקו את מספר הטלפון ונסו שוב.")
           : L("Check your details and try again.", "בדקו את הפרטים ונסו שוב.");
       case "TOO_MANY_ORDERS":
-        return L("You've just placed a few orders. Message us on WhatsApp if you need to change one.", "ביצעתם כמה הזמנות ממש עכשיו. כתבו לנו בוואטסאפ אם צריך לשנות משהו.");
+        return L("You've just placed a few orders. Contact us if you need to change one.", "ביצעתם כמה הזמנות ממש עכשיו. צרו איתנו קשר אם צריך לשנות משהו.");
       default:
-        return L("We couldn't send your order. Try again, or send it to us on WhatsApp.", "לא הצלחנו לשלוח את ההזמנה. נסו שוב, או שלחו לנו אותה בוואטסאפ.");
+        return L("We couldn't send your order. Please try again in a moment.", "לא הצלחנו לשלוח את ההזמנה. נסו שוב בעוד רגע.");
     }
   };
 
@@ -202,7 +202,7 @@ export default function CartPanel() {
       return;
     }
     const order: Order = {
-      reference: makeReference(),
+      reference: "",
       name: name.trim(),
       phone: phone.trim(),
       address: [address.trim(), apartment.trim(), city.trim()].filter(Boolean).join(", "),
@@ -446,14 +446,6 @@ export default function CartPanel() {
                 {orderError && (
                   <p className="cart-min cart-order-error" role="alert">
                     {orderErrorText(orderError.error)}
-                    {orderError.error.code === "NETWORK" && (
-                      <>
-                        {" "}
-                        <a className="cart-link" href={orderWhatsAppLink(orderError.order)} target="_blank" rel="noopener noreferrer">
-                          {L("Send it on WhatsApp", "שליחה בוואטסאפ")}
-                        </a>
-                      </>
-                    )}
                   </p>
                 )}
                 <button type="button" className="cart-primary" onClick={placeOrder} disabled={submitting} aria-busy={submitting}>

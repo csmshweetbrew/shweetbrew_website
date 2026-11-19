@@ -26,8 +26,7 @@
 -- Each file sets up the security rules for its own tables, so a table is never
 -- left open between steps.
 --
--- Apply: Supabase SQL editor (paste each file in order), or the CLI:
---   npx supabase db push --db-url "$SUPABASE_DB_URL"
+-- Apply: Supabase SQL editor, paste each file in order.
 -- New changes go in a new file with the next number; never edit a file that
 -- has already been applied to the live database.
 -- ===========================================================================
