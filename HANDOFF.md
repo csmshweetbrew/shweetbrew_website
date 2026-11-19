@@ -15,7 +15,7 @@ The owner (Caleb) works in short, casual messages ("yo fella", "chop chop"), oft
 - Package manager is **pnpm** (lockfile), but pnpm isn't installed globally: use `npx -y pnpm@10.4.1 add <pkg>`.
 - Dev server: the Browser tool's `preview_start` with name `shweetbrew-dev` (launch.json in the parent folder runs `vite --config shweetbrew_website/vite.config.ts`). It usually lands on port 3001.
 - Checks: `npx tsc --noEmit` and `npx vite build` from the project root.
-- Deploy: `netlify.toml` builds `client` with pnpm and publishes `dist/public`. There is also a GitHub Pages workflow (`.github/workflows/static.yml`) that uploads the raw `client` folder (unbuilt) — be aware if touching deployment.
+- Deploy: **Netlify only**, built from `main` (`netlify.toml` → `dist/public`). `npm run deploy` (`scripts/deploy.sh`) checks, builds, lists migrations to run, asks, then fast-forwards `main`. Full steps in `README.md`. The old GitHub Pages workflow was deleted on 2026-11-19 (it published the unbuilt source); the owner unpublishes Pages in repo Settings. `.gitattributes` keeps `*.sh` at LF so bash works on Windows.
 - Git: branch `docs/design-system`. A large amount of work in this session is **uncommitted** (see `git status`); commit only when the owner asks.
 
 ## Page structure (top to bottom)
