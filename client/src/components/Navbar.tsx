@@ -1,12 +1,13 @@
 /*
  * SHWEETBREW NAVBAR
  * Design: "Braai Fire & Blue Star" — dark charcoal base, Israeli blue accents, fire orange CTA
- * Sticky navigation: logo left, links centred, language + log-in placeholder right
+ * Sticky navigation: logo left, links centred, language + log in / account right
  */
 
-import { useState, useEffect } from "react";
-import { Menu, X, Globe, UserRound } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Menu, X, Globe, UserRound, LogOut } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/config/languages";
@@ -35,6 +36,34 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [, navigate] = useLocation();
   const { language, setLanguage } = useLanguage();
+  const { user, firstName, enabled: accountsOn, ready, openAuth, signOut } = useAuth();
+  const [accountOpen, setAccountOpen] = useState(false);
+  const accountRef = useRef<HTMLDivElement>(null);
+  const he = language === "he";
+  const L = (en: string, hebrew: string) => (he ? hebrew : en);
+  const logIn = () => (accountsOn ? openAuth() : toast(translations.navbar.logInSoon[language]));
+  const logOut = async () => {
+    setAccountOpen(false);
+    setMenuOpen(false);
+    await signOut();
+    toast(L("You're logged out.", "התנתקתם."));
+  };
+  const initial = (Array.from(firstName || user?.email || "")[0] || "").toLocaleUpperCase();
+
+  // Account menu: closes on a press outside it or Escape (capture phase, see HANDOFF gotchas)
+  useEffect(() => {
+    if (!accountOpen) return;
+    const onDown = (e: PointerEvent) => {
+      if (accountRef.current && !e.composedPath().includes(accountRef.current)) setAccountOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setAccountOpen(false);
+    document.addEventListener("pointerdown", onDown, true);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onDown, true);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [accountOpen]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -120,15 +149,43 @@ export default function Navbar() {
             >
               <Globe className="w-5 h-5" />
             </button>
-            <button
-              type="button"
-              onClick={() => toast(translations.navbar.logInSoon[language])}
-              className="flex items-center gap-2 px-4 py-2 rounded font-body font-bold text-[0.8rem] tracking-wide transition-colors hover:bg-white/10 border"
-              style={{ color: "var(--foreground)", borderColor: "oklch(0.94 0.025 75 / 0.4)" }}
-            >
-              <UserRound className="w-4 h-4" aria-hidden="true" />
-              {translations.navbar.logIn[language]}
-            </button>
+            {user ? (
+              <div ref={accountRef} className="relative">
+                <button
+                  type="button"
+                  onClick={() => setAccountOpen((o) => !o)}
+                  aria-expanded={accountOpen}
+                  aria-haspopup="menu"
+                  className="flex items-center gap-2 ps-1.5 pe-3 py-1.5 rounded font-body font-bold text-[0.8rem] tracking-wide transition-colors hover:bg-white/10 border"
+                  style={{ color: "var(--foreground)", borderColor: "oklch(0.94 0.025 75 / 0.4)" }}
+                >
+                  <span className="account-initial" aria-hidden="true">{initial}</span>
+                  {firstName || L("Account", "החשבון")}
+                </button>
+                {accountOpen && (
+                  <div className="account-menu" role="menu">
+                    <div className="account-menu-who">
+                      <strong>{firstName || L("Signed in", "מחוברים")}</strong>
+                      <span dir="ltr">{user.email}</span>
+                    </div>
+                    <button type="button" role="menuitem" onClick={logOut}>
+                      <LogOut className="w-4 h-4 rtl:rotate-180" aria-hidden="true" />
+                      {L("Log out", "התנתקות")}
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={logIn}
+                className="flex items-center gap-2 px-4 py-2 rounded font-body font-bold text-[0.8rem] tracking-wide transition-colors hover:bg-white/10 border"
+                style={{ color: "var(--foreground)", borderColor: "oklch(0.94 0.025 75 / 0.4)", visibility: ready ? "visible" : "hidden" }}
+              >
+                <UserRound className="w-4 h-4" aria-hidden="true" />
+                {translations.navbar.logIn[language]}
+              </button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -170,15 +227,33 @@ export default function Navbar() {
                 {translations.navbar[link.key as keyof typeof translations.navbar][language]}
               </button>
             ))}
-            <button
-              type="button"
-              onClick={() => { setMenuOpen(false); toast(translations.navbar.logInSoon[language]); }}
-              className="mt-3 flex items-center justify-center gap-2 py-3 rounded font-body font-bold text-sm tracking-wide border"
-              style={{ color: "var(--foreground)", borderColor: "oklch(0.94 0.025 75 / 0.4)" }}
-            >
-              <UserRound className="w-4 h-4" aria-hidden="true" />
-              {translations.navbar.logIn[language]}
-            </button>
+            {user ? (
+              <div className="mt-3 flex items-center justify-between gap-3 py-2 px-2">
+                <span className="flex items-center gap-2 min-w-0 font-body font-bold text-sm" style={{ color: "var(--foreground)" }}>
+                  <span className="account-initial" aria-hidden="true">{initial}</span>
+                  <span className="truncate">{firstName || user.email}</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={logOut}
+                  className="flex items-center gap-2 px-3 py-2 rounded font-body font-bold text-sm border shrink-0"
+                  style={{ color: "var(--foreground)", borderColor: "oklch(0.94 0.025 75 / 0.4)" }}
+                >
+                  <LogOut className="w-4 h-4 rtl:rotate-180" aria-hidden="true" />
+                  {L("Log out", "התנתקות")}
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => { setMenuOpen(false); logIn(); }}
+                className="mt-3 flex items-center justify-center gap-2 py-3 rounded font-body font-bold text-sm tracking-wide border"
+                style={{ color: "var(--foreground)", borderColor: "oklch(0.94 0.025 75 / 0.4)" }}
+              >
+                <UserRound className="w-4 h-4" aria-hidden="true" />
+                {translations.navbar.logIn[language]}
+              </button>
+            )}
           </div>
         </div>
       )}

@@ -17,3 +17,9 @@ export function openShop(filter: string) {
   window.dispatchEvent(new CustomEvent(SHOP_FILTER_EVENT, { detail: { filter } }));
   scrollToTarget("#products");
 }
+
+/** Opens the cart drawer on the bag (e.g. "Edit bag" in the Order section). CartPanel listens. */
+export const OPEN_CART_EVENT = "shweet:open-cart";
+export function openCart() {
+  window.dispatchEvent(new CustomEvent(OPEN_CART_EVENT));
+}

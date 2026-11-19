@@ -1,0 +1,21 @@
+<!-- Supabase → Authentication → Emails → Templates → "Confirm signup"
+     Subject: Your Shweet Brew code: {{ .Token }} | הקוד שלך
+     Sent when someone signs up with a password, and to new addresses confirming an order at checkout. -->
+<div style="margin:0;padding:24px 12px;background:#f5efe6;font-family:Arial,Helvetica,sans-serif;color:#1a1816">
+  <div style="max-width:480px;margin:0 auto;background:#ffffff;border-radius:8px;overflow:hidden;border:1px solid #e8dfd2">
+    <div style="background:#cd2027;padding:18px 24px;text-align:center">
+      <span style="font-size:24px;letter-spacing:3px;font-weight:900;color:#f5e9d9">SHWEET BREW</span>
+    </div>
+    <div style="padding:28px 24px;text-align:center">
+      <p style="margin:0 0 6px;font-size:18px;font-weight:700">Confirm your email</p>
+      <p style="margin:0 0 20px;font-size:15px;color:#5a534c">Enter this code on the Shweet Brew site:</p>
+      <p style="margin:0 0 20px;font-size:36px;font-weight:900;letter-spacing:10px;color:#cd2027">{{ .Token }}</p>
+      <p style="margin:0 0 24px;font-size:13px;color:#867f77">It works once and expires soon. If you didn't ask for it, ignore this email.</p>
+      <hr style="border:none;border-top:1px solid #eee5d8;margin:0 0 24px">
+      <div dir="rtl" style="text-align:center">
+        <p style="margin:0 0 6px;font-size:18px;font-weight:700">אימות כתובת המייל</p>
+        <p style="margin:0 0 12px;font-size:15px;color:#5a534c">הזינו את הקוד הזה באתר של Shweet Brew. הוא תקף לזמן קצר ולשימוש אחד. אם לא ביקשתם אותו, אפשר להתעלם מהמייל.</p>
+      </div>
+    </div>
+  </div>
+</div>

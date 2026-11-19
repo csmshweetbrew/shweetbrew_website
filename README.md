@@ -67,6 +67,55 @@ Netlify → your site → **Site configuration**:
 2. **Environment variables**: add `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (same values as your `.env`). Only these two. Then **Deploys → Trigger deploy** once so the site picks them up.
 3. **Domain management**: your domain should be listed here, and its DNS should point to Netlify.
 
+### Logins and emails
+
+How customers get in:
+- **Password:** sign up with name + password, confirm the email with a **6-digit code**.
+- **Code only:** "Email me a login code instead", no password needed.
+- **Ordering without signing up:** the cart asks for an email and sends a 6-digit code. Confirming it creates a password-free account, so they can log back in later with a code to track the order. Every order has a confirmed email (migration `0014`).
+- **Google:** "Continue with Google", once you switch it on (below).
+
+#### 1. Supabase basics (Authentication)
+
+1. **URL Configuration:** Site URL = your live domain (e.g. `https://shweetbrew.co.il`). Redirect URLs: the same domain with `/**`, plus `http://localhost:3000/**` and `http://localhost:4173/**` for testing.
+2. **Sign In / Providers → Email:** "Confirm email" **on**, **Email OTP Length = 6**, **Email OTP Expiration = 600** seconds (10 minutes).
+3. Run migrations `0013` and `0014` in the SQL editor if you haven't.
+
+#### 2. Your own email sender (do this before launch)
+
+Supabase's built-in sender is for testing only: a few emails an hour, often in spam. Use a real one. Resend is the simplest (free: 3,000 emails a month, 100 a day).
+
+1. **Resend:** sign up at resend.com → **Domains → Add domain** → your domain (e.g. `shweetbrew.co.il`).
+2. **DNS:** Resend shows 3–4 records (TXT for SPF, TXT for DKIM, MX). Add them where you bought the domain (DNS settings), then press **Verify** in Resend. It can take a few minutes to an hour.
+3. **API key:** Resend → **API Keys → Create** (sending access). Copy it.
+4. **Supabase → Authentication → Emails → SMTP Settings → Enable custom SMTP:**
+   - Sender email: `hello@your-domain` (any address on the verified domain)
+   - Sender name: `Shweet Brew`
+   - Host `smtp.resend.com`, port `465`, username `resend`, password = the API key
+5. **Authentication → Rate Limits:** raise "Emails sent per hour" (e.g. to 100). With custom SMTP the default is low.
+6. **Emails → Templates:** paste our branded, bilingual templates from `supabase/email-templates/`:
+
+   | Supabase template | File | Subject |
+   |---|---|---|
+   | Confirm signup | `confirm-signup.html` | `Your Shweet Brew code: {{ .Token }}` |
+   | Magic link | `magic-link.html` | `Your Shweet Brew login code: {{ .Token }}` |
+   | Reset password | `reset-password.html` | `Reset your Shweet Brew password` |
+
+   The code templates **must** contain `{{ .Token }}` (that's the 6-digit code); Supabase's defaults only have a link.
+7. **Test:** on the site, Log in → your email → "Email me a login code instead". The code should arrive within a minute, not in spam.
+
+#### 3. Google login
+
+1. **Google Cloud:** go to console.cloud.google.com → create a project ("Shweet Brew").
+2. **Google Auth Platform → Branding:** app name `Shweet Brew`, your support email, optionally the logo. **Audience:** External. **Data access:** the default `email`, `profile`, `openid` are enough. Then **Publish app** (otherwise only listed test users can log in).
+3. **Clients → Create client → Web application:**
+   - Authorized JavaScript origins: `https://your-domain` and `http://localhost:3000`
+   - Authorized redirect URIs: `https://<your-project-ref>.supabase.co/auth/v1/callback` (your project URL from `.env` + `/auth/v1/callback`)
+4. Copy the **Client ID** and **Client secret** → Supabase → **Authentication → Sign In / Providers → Google** → enable, paste both → Save.
+5. Reload the site: **Continue with Google** appears in the login popup by itself.
+
+Google's screen will say "continue to <your-project-ref>.supabase.co" unless you add a custom domain to Supabase (a paid add-on). It works the same either way.
+
 ### First admin
 
 Sign up on the site (or Supabase → Authentication → Add user), then in the SQL editor:

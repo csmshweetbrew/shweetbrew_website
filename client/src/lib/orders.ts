@@ -46,12 +46,14 @@ export type OrderError =
   | { code: "BELOW_MINIMUM"; min: number }
   | { code: "INVALID_INPUT"; field: string }
   | { code: "TOO_MANY_ORDERS" }
+  | { code: "EMAIL_NOT_CONFIRMED" }
   | { code: "NETWORK"; message: string };
 
 export type SubmitResult = { ok: true; order: Order } | { ok: false; error: OrderError };
 
 /** Turns the database's error message ("OUT_OF_STOCK:biltong-traditional:250g:3") into something typed. */
 export function parseOrderError(message: string): OrderError {
+  if (/EMAIL_NOT_CONFIRMED|permission denied for function place_order/.test(message)) return { code: "EMAIL_NOT_CONFIRMED" };
   const m = message.match(/(OUT_OF_STOCK|UNAVAILABLE|BELOW_MINIMUM|INVALID_INPUT|TOO_MANY_ORDERS)(?::([^\s]*))?/);
   if (!m) return { code: "NETWORK", message };
   const parts = (m[2] ?? "").split(":");

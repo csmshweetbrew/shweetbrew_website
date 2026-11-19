@@ -15,6 +15,9 @@ const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | u
 
 export const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_KEY);
 
+/** For the few plain fetches that don't go through the client (e.g. which login providers are on) */
+export const supabasePublic = { url: SUPABASE_URL ?? "", key: SUPABASE_KEY ?? "" };
+
 let clientPromise: Promise<SupabaseClient | null> | null = null;
 
 export function getSupabase(): Promise<SupabaseClient | null> {

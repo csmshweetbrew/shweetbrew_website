@@ -56,15 +56,18 @@ let observer: IntersectionObserver | null = null;
 const watched = new WeakSet<Element>();
 
 function watch(el: Element) {
-  if (watched.has(el) || el.classList.contains("is-revealed")) return;
+  if (watched.has(el) || el.hasAttribute("data-revealed")) return;
   watched.add(el);
   observer?.observe(el);
 }
 
 const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+// Revealed state is a data attribute, not a class: React rewrites `className` whenever a
+// component re-renders (e.g. a product card opening its size tray), which used to wipe a
+// class and hide the card again. React never touches attributes it didn't set.
 function show(el: Element) {
-  el.classList.add("is-revealed");
+  el.setAttribute("data-revealed", "");
   observer?.unobserve(el);
 }
 
@@ -109,7 +112,7 @@ function tag(root: ParentNode) {
  */
 export function revealInstantly(top: number, bottom: number) {
   const y = window.scrollY;
-  document.querySelectorAll("[data-reveal]:not(.is-revealed)").forEach((el) => {
+  document.querySelectorAll("[data-reveal]:not([data-revealed])").forEach((el) => {
     const r = el.getBoundingClientRect();
     const elTop = r.top + y;
     if (elTop < bottom && elTop + r.height > top) {

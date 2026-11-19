@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { useAuth } from "./AuthContext";
 
 export type CartItem = {
   id: string; // variant ID
@@ -27,8 +28,13 @@ type CartContextType = {
   setName: (name: string) => void;
   phone: string;
   setPhone: (phone: string) => void;
+  /** street and number */
   shippingDetails: string;
   setShippingDetails: (details: string) => void;
+  city: string;
+  setCity: (city: string) => void;
+  apartment: string;
+  setApartment: (apartment: string) => void;
   notes: string;
   setNotes: (notes: string) => void;
 };
@@ -42,6 +48,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [selectedArea, setSelectedArea] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
+  const [city, setCity] = useState<string>("");
+  const [apartment, setApartment] = useState<string>("");
+
+  // Checkout details are shared by the cart drawer and the Order section, so typing in one
+  // fills the other. Signed in: fill them from the profile (only fields still empty).
+  const { profile } = useAuth();
+  useEffect(() => {
+    if (!profile) return;
+    if (profile.full_name) setName((v) => v || profile.full_name || "");
+    if (profile.phone) setPhone((v) => v || profile.phone || "");
+    if (profile.city) setCity((v) => v || profile.city || "");
+    if (profile.street) setShippingDetails((v) => v || profile.street || "");
+    if (profile.apartment) setApartment((v) => v || profile.apartment || "");
+    if (profile.default_zone_id) setSelectedArea((v) => v || profile.default_zone_id || "");
+  }, [profile]);
 
   const addItem = (newItem: CartItem) => {
     setItems((prev) => {
@@ -88,6 +109,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setSelectedArea("");
     setName("");
     setPhone("");
+    setCity("");
+    setApartment("");
   };
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -113,6 +136,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setPhone,
         shippingDetails,
         setShippingDetails,
+        city,
+        setCity,
+        apartment,
+        setApartment,
         notes,
         setNotes,
       }}
