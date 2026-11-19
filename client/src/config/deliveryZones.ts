@@ -152,6 +152,77 @@ export const deliveryZones: DeliveryZone[] = [
   },
 ];
 
+// ---------------------------------------------------------------------------
+// HEBREW NAMES
+// Area names, towns (same order as `cities` above) and delivery days in Hebrew.
+// When you add a zone or a town above, add its Hebrew name here too.
+// ---------------------------------------------------------------------------
+const ZONES_HE: Record<string, { name: string; cities: string[] }> = {
+  modiin: { name: "מודיעין (מטה)", cities: ["מודיעין"] },
+  zone_1_tel_aviv: {
+    name: "אזור תל אביב",
+    cities: ["תל אביב", "רמת גן", "גבעתיים", "פתח תקווה", "חולון", "בת ים", "יפו", "ראשון לציון", "לוד", "רחובות", "יבנה"],
+  },
+  zone_2_hasharon: {
+    name: "אזור השרון",
+    cities: ["רעננה", "כפר סבא", "הוד השרון", "הרצליה", "תל מונד", "אבן יהודה", "נתניה", "כפר יונה"],
+  },
+  zone_3_shfela: { name: "שפלה", cities: ["שוהם", "ראש העין", "גדרה"] },
+  zone_4_jerusalem: { name: "אזור ירושלים", cities: ["ירושלים", "בית שמש", "חשמונאים", "אפרת", "גוש עציון"] },
+  zone_5_north: {
+    name: "צפון",
+    cities: ["תל מונד", "אבן יהודה", "נתניה", "זכרון יעקב", "חדרה", "פרדס חנה", "בנימינה", "קיסריה", "חריש", "חיפה", "יקנעם"],
+  },
+  zone_6_south: { name: "דרום", cities: ["אשדוד", "אשקלון", "יד בנימין", "גדרה"] },
+  zone_7_kiryat_gat: { name: "קריית גת", cities: ["קריית גת"] },
+  zone_everywhere_else: { name: "מקום אחר", cities: [] },
+};
+
+const DAYS_HE: Record<string, string> = {
+  Today: "היום",
+  Sunday: "ראשון",
+  Monday: "שני",
+  Tuesday: "שלישי",
+  Wednesday: "רביעי",
+  Thursday: "חמישי",
+  Friday: "שישי",
+  "Every second Monday": "שני, פעם בשבועיים",
+};
+
+type Lang = "en" | "he";
+
+/** Area name in the visitor's language */
+export function zoneName(zone: DeliveryZone, lang: Lang): string {
+  return lang === "he" ? ZONES_HE[zone.id]?.name ?? zone.name : zone.name;
+}
+
+/** Towns in the visitor's language (falls back to English per town) */
+export function zoneCities(zone: DeliveryZone, lang: Lang): string[] {
+  if (lang !== "he") return zone.cities;
+  const he = ZONES_HE[zone.id]?.cities ?? [];
+  return zone.cities.map((c, i) => he[i] ?? c);
+}
+
+/** All town names in both languages, for search */
+export function zoneSearchTerms(zone: DeliveryZone): { en: string; he: string }[] {
+  const he = ZONES_HE[zone.id]?.cities ?? [];
+  return zone.cities.map((c, i) => ({ en: c, he: he[i] ?? c }));
+}
+
+export function zoneNameBoth(zone: DeliveryZone): string[] {
+  return [zone.name, ZONES_HE[zone.id]?.name ?? ""];
+}
+
+/** One delivery day in the visitor's language */
+export function dayName(day: string, lang: Lang): string {
+  return lang === "he" ? DAYS_HE[day] ?? day : day;
+}
+
+/** All delivery days of a zone, joined for display */
+export function zoneDays(zone: DeliveryZone, lang: Lang): string {
+  return zone.deliveryDays.map((d) => dayName(d, lang)).join(", ");
+}
+
 // Create a city-to-zone mapping for quick lookup
 export const cityToZoneMap: Record<string, string> = {};
 deliveryZones.forEach((zone) => {
@@ -327,7 +398,12 @@ function getNextSecondMonday(startDate: Date): Date {
 /**
  * Format delivery date for display
  */
-export function formatDeliveryDate(date: Date): string {
+export function formatDeliveryDate(date: Date, lang: "en" | "he" = "en"): string {
+  // Next delivery is today (e.g. same-day Modiin): just say so
+  const now = new Date();
+  if (date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth() && date.getDate() === now.getDate()) {
+    return lang === "he" ? "היום" : "Today";
+  }
   const options: Intl.DateTimeFormatOptions = {
     weekday: "long",
     year: "numeric",

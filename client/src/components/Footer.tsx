@@ -9,6 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/config/languages";
 import { SOCIAL_LINKS, CONTACT_INFO, NAV_LINKS } from "@/config/constants";
 import { getPrimaryColor } from "@/config/colors";
+import { scrollToTarget } from "@/lib/smoothScroll";
 
 export default function Footer() {
   const { language } = useLanguage();
@@ -16,7 +17,7 @@ export default function Footer() {
 
   const handleNavClick = (href: string) => {
     const el = document.querySelector(href);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
+    if (el) scrollToTarget(el);
   };
 
   return (

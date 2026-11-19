@@ -127,29 +127,11 @@ export default function ContactSection() {
             </div>
 
             <div>
-              <p
-                className="text-sm font-bold tracking-widest mb-4"
-                style={{ color: "var(--accent)", letterSpacing: "0.15em" }}
-              >
-                {translations.contact.inquiryTypes[language]}
+              <p className="text-lg leading-relaxed" style={{ color: "var(--brand-cream-dim)" }}>
+                {language === "en"
+                  ? "Message us for orders, questions about the products, or wholesale for shops and events."
+                  : "כתבו לנו להזמנות, לשאלות על המוצרים, או להזמנות סיטונאיות לחנויות ולאירועים."}
               </p>
-              <div className="space-y-2">
-                {inquiryTypes.map((type) => (
-                  <div
-                    key={type.value}
-                    className="flex items-center gap-3 p-3 rounded"
-                    style={{
-                      backgroundColor: "var(--card)",
-                      borderLeft: "3px solid var(--accent)",
-                    }}
-                  >
-                    <span className="text-xl">{type.icon}</span>
-                    <span style={{ color: "oklch(0.80 0.020 75)" }}>
-                      {language === "en" ? type.label : (type.value === "order" ? "הזמנה" : type.value === "question" ? "שאלה" : type.value === "wholesale" ? "סיטונאות" : "אחר")}
-                    </span>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
 
@@ -162,7 +144,6 @@ export default function ContactSection() {
             }}
           >
             <div className="text-center py-12">
-              <div className="text-6xl mb-6">💬</div>
               <h3
                 className="text-3xl font-bold mb-4"
                 style={{ color: "oklch(0.94 0.025 75)" }}

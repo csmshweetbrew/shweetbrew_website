@@ -1,230 +1,97 @@
 /*
  * SHWEETBREW DELIVERY SECTION
- * Design: Dark background with Israeli blue delivery zone cards
- * Comprehensive delivery zones with pricing and delivery days
+ * A delivery timetable: one row per zone (towns, days, fee), Modiin HQ first and
+ * tinted Israeli blue. Practical details (minimum, cutoff, payment, pickup) sit
+ * beside it as a short definition list instead of a grid of identical cards.
  */
 
-import { MapPin, Truck, Clock, CreditCard } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/config/languages";
-import { deliveryZones } from "@/config/deliveryZones";
-
-// Get all zones for the display (excluding "Everywhere Else")
-const getFeaturedZones = (language: string) => {
-  const featured = deliveryZones.filter((z) => z.id !== "zone_everywhere_else");
-
-  return featured.map((zone) => {
-    let fee: string;
-    if (zone.price === -1) {
-      fee = language === "en" ? "Please contact us" : "אנא צור איתנו קשר";
-    } else if (zone.price === 0) {
-      fee = language === "en" ? "FREE" : "חינם";
-    } else {
-      fee = `₪${zone.price}`;
-    }
-
-    return {
-      id: zone.id,
-      name: typeof zone.name === "string" ? zone.name : zone.name,
-      fee,
-      days: zone.deliveryDays.join(" & "),
-      cities: zone.cities,
-      highlight: zone.id === "modiin",
-      icon: zone.icon,
-    };
-  });
-};
+import { deliveryZones, zoneName, zoneCities, zoneDays } from "@/config/deliveryZones";
 
 export default function DeliverySection() {
   const { language } = useLanguage();
-  const zones = getFeaturedZones(language);
+  const he = language === "he";
+  const t = translations.delivery;
+
+  const zones = deliveryZones
+    .filter((z) => z.id !== "zone_everywhere_else")
+    .map((z) => ({
+      id: z.id,
+      name: zoneName(z, language),
+      towns: zoneCities(z, language).join(", "),
+      days: zoneDays(z, language),
+      fee: z.price === 0 ? (he ? "חינם" : "Free") : z.price === -1 ? "—" : `₪${z.price}`,
+      hq: z.id === "modiin",
+    }));
+
+  const facts = [
+    { title: t.cutoffTitle[language], desc: he
+        ? "הזמינו עד יום רביעי כדי להיכנס לסבב המשלוחים הקרוב באזורכם. הזמנות אחרי רביעי עוברות לשבוע הבא."
+        : "Order by Wednesday to make your area's next delivery run. Orders after Wednesday go out the following week." },
+    { title: t.minimumOrderTitle[language], desc: t.minimumOrderDesc[language] },
+    { title: t.paymentTitle[language], desc: t.paymentDesc[language] },
+    { title: t.pickupTitle[language], desc: t.pickupDesc[language] },
+    { title: he ? "צריכים את זה מהר?" : "Need it sooner?", desc: he
+        ? "אפשר לתאם משלוח דחוף בתוספת תשלום. כתבו לנו ב-WhatsApp."
+        : "Rush delivery is possible for an extra fee. Message us on WhatsApp to arrange it." },
+  ];
 
   return (
-    <section
-      id="delivery"
-      className="py-20 md:py-28"
-      style={{ backgroundColor: "oklch(0.13 0.005 60)" }}
-    >
+    <section id="delivery" className="py-20 md:py-28" style={{ backgroundColor: "var(--background)" }}>
       <div className="container">
-        {/* Header */}
-        <div className="mb-12 text-center">
-          <div
-            className="section-eyebrow mb-3"
-          >
-            — {translations.delivery.sectionTitle[language]} —
-          </div>
+        <div className="mb-12 max-w-3xl">
           <h2 className="section-title mb-4">
-            {language === "en" ? "We Deliver" : "אנחנו משלחים"}{" "}
-            <span style={{ color: "oklch(0.50 0.18 260)" }}>{translations.delivery.sectionSubtitle[language]}</span>
+            {he ? "משלוחים לכל הארץ" : "We deliver across Israel"}
           </h2>
-          <p
-            className="font-body text-base max-w-xl mx-auto"
-            style={{ color: "oklch(0.65 0.015 75)" }}
-          >
-            {translations.delivery.description[language]}
+          <p className="text-lg" style={{ color: "var(--brand-cream-dim)" }}>
+            {he
+              ? "מכינים במודיעין, שולחים לכל הארץ. מצאו את האזור שלכם כדי לראות מתי ההזמנה מגיעה וכמה עולה המשלוח."
+              : "Made in Modiin, sent all over the country. Find your area to see which days we deliver and what it costs."}
           </p>
         </div>
 
-        {/* South Delivery Banner */}
-
-
-        {/* Delivery zones grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-12">
-          {zones.map((zone) => (
-            <div
-              key={zone.id}
-              className="p-5 rounded-lg border transition-all"
-              style={{
-                backgroundColor: zone.highlight ? "oklch(0.35 0.15 260 / 0.15)" : "var(--card)",
-                borderColor: zone.highlight ? "oklch(0.50 0.18 260)" : "oklch(1 0 0 / 0.10)",
-                boxShadow: zone.highlight ? "0 0 20px oklch(0.35 0.15 260 / 0.2)" : "none",
-              }}
-            >
-              <div className="mb-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-2xl">{zone.icon}</span>
-                  <div className="flex-1">
-                    <div
-                      className="font-body font-bold text-sm"
-                      style={{ color: "oklch(0.94 0.025 75)" }}
-                    >
-                      {zone.name}
-                      {zone.highlight && (
-                        <span
-                          className="ml-2 text-xs px-1.5 py-0.5 rounded font-semibold"
-                          style={{
-                            backgroundColor: "oklch(0.50 0.18 260)",
-                            color: "oklch(0.94 0.025 75)",
-                          }}
-                        >
-                          {language === "en" ? "HQ" : "מטה"}
-                        </span>
-                      )}
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] lg:gap-16 items-start">
+          {/* Timetable */}
+          <div className="delivery-table" role="table" aria-label={he ? "אזורי משלוח" : "Delivery areas"}>
+            <div className="delivery-row delivery-head" role="row">
+              <span role="columnheader">{he ? "אזור" : "Area"}</span>
+              <span role="columnheader">{he ? "ימי משלוח" : "Delivery days"}</span>
+              <span role="columnheader" className="delivery-fee">{he ? "משלוח" : "Fee"}</span>
+            </div>
+            {zones.map((z) => (
+              <div key={z.id} role="row" className={`delivery-row ${z.hq ? "is-hq" : ""}`}>
+                <div role="cell" className="min-w-0">
+                  <div className="delivery-zone">
+                    {z.name}
+                  </div>
+                  {!z.hq && <div className="delivery-towns">{z.towns}</div>}
+                  {z.hq && (
+                    <div className="delivery-towns">
+                      {he ? "איסוף עצמי או משלוח באותו יום" : "Free pickup or same-day delivery"}
                     </div>
-                  </div>
+                  )}
                 </div>
-                <div
-                  className="font-body text-xs"
-                  style={{ color: "oklch(0.55 0.015 75)" }}
-                >
-                  {language === "en" ? "Delivery: " : "משלוח: "}{zone.days}
-                </div>
+                <div role="cell" className="delivery-days">{z.days}</div>
+                <div role="cell" className="delivery-fee delivery-price">{z.fee}</div>
               </div>
-              {zone.cities && zone.cities.length > 0 && (
-                <div
-                  className="font-body text-xs mb-3 pb-3 border-b"
-                  style={{ color: "oklch(0.70 0.015 75)", borderColor: "color-mix(in oklab, var(--accent) 30%, transparent)" }}
-                >
-                  <div style={{ color: "oklch(0.80 0.020 75)", marginBottom: "0.25rem", fontWeight: "600" }}>
-                    {language === "en" ? "Cities:" : "ערים:"}
-                  </div>
-                  <div>{zone.cities.join(", ")}</div>
-                </div>
-              )}
-              <div
-                className="font-display text-2xl"
-                style={{
-                  fontFamily: "'Bebas Neue', sans-serif",
-                  color: zone.highlight ? "oklch(0.50 0.18 260)" : "var(--accent)",
-                  letterSpacing: "0.04em",
-                }}
-              >
-                {zone.fee}
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+            <p className="delivery-other">
+              {he
+                ? "לא רואים את האזור שלכם? כתבו לנו ב-WhatsApp ונמצא פתרון."
+                : "Don't see your area? Message us on WhatsApp and we'll work it out."}
+            </p>
+          </div>
 
-        {/* Delivery Schedule Notice */}
-        <div
-          className="p-6 rounded-lg border mb-8"
-          style={{
-            backgroundColor: "var(--card)",
-            borderColor: "color-mix(in oklab, var(--accent) 50%, transparent)",
-          }}
-        >
-          <h3
-            className="font-body font-bold mb-3"
-            style={{ color: "oklch(0.94 0.025 75)", fontSize: "1.125rem" }}
-          >
-            {language === "en" ? "Delivery Schedule Notice" : "הודעה על לוחות זמנים למשלוחים"}
-          </h3>
-          <p
-            className="font-body text-sm mb-3"
-            style={{ color: "oklch(0.80 0.020 75)" }}
-          >
-            {language === "en"
-              ? "Delivery days vary by city and region. Please place your order before Wednesday to ensure it is included in your area's next delivery cycle. Orders received after Wednesday will be scheduled for the following week."
-              : "ימי המשלוח משתנים לפי עיר ואזור. אנא בצעו את ההזמנה לפני יום רביעי כדי לוודא שהיא תיכלל בסבב המשלוחים הבא באזורכם. הזמנות שיתקבלו אחרי יום רביעי יסודרו לשבוע הבא."
-            }
-          </p>
-          <p
-            className="font-body text-sm"
-            style={{ color: "oklch(0.65 0.15 120)" }}
-          >
-            {language === "en"
-              ? "Need it sooner? Urgent deliveries can be accommodated for an additional fee. Please contact us directly to arrange a rush order."
-              : "צריכים את זה מהר יותר? ניתן לתאם משלוחים דחופים בתוספת תשלום. אנא צרו איתנו קשר ישירות כדי לתאם הזמנה דחופה."
-            }
-          </p>
-        </div>
-
-        {/* Info cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            {
-              icon: <Truck className="w-6 h-6" />,
-              title: translations.delivery.minimumOrderTitle[language],
-              desc: translations.delivery.minimumOrderDesc[language],
-            },
-            {
-              icon: <Clock className="w-6 h-6" />,
-              title: translations.delivery.cutoffTitle[language],
-              desc: translations.delivery.cutoffDesc[language],
-            },
-            {
-              icon: <CreditCard className="w-6 h-6" />,
-              title: translations.delivery.paymentTitle[language],
-              desc: translations.delivery.paymentDesc[language],
-            },
-            {
-              icon: <MapPin className="w-6 h-6" />,
-              title: translations.delivery.pickupTitle[language],
-              desc: translations.delivery.pickupDesc[language],
-            },
-          ].map((item) => (
-            <div
-              key={item.title}
-              className="p-5 rounded-lg border"
-              style={{
-                backgroundColor: "var(--card)",
-                borderColor: "oklch(1 0 0 / 0.08)",
-              }}
-            >
-              <div
-                className="mb-3"
-                style={{ color: "var(--accent)" }}
-              >
-                {item.icon}
+          {/* Practical details */}
+          <dl className="grid gap-6">
+            {facts.map((f) => (
+              <div key={f.title} className="grid gap-1">
+                <dt className="font-bold" style={{ color: "var(--foreground)" }}>{f.title}</dt>
+                <dd className="text-[0.95rem] leading-relaxed" style={{ color: "var(--brand-cream-dim)" }}>{f.desc}</dd>
               </div>
-              <h3
-                className="font-display font-bold text-sm mb-2"
-                style={{
-                  fontFamily: "'Bebas Neue', sans-serif",
-                  color: "oklch(0.94 0.025 75)",
-                  letterSpacing: "0.04em",
-                }}
-              >
-                {item.title}
-              </h3>
-              <p
-                className="font-body text-xs leading-relaxed"
-                style={{ color: "oklch(0.65 0.015 75)" }}
-              >
-                {item.desc}
-              </p>
-            </div>
-          ))}
+            ))}
+          </dl>
         </div>
       </div>
     </section>

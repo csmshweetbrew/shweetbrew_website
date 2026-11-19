@@ -10,22 +10,22 @@ type LanguageContextType = {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>("en");
-
-  // Load language from localStorage on mount, default to English
-  useEffect(() => {
-    const saved = localStorage.getItem("shweet-brew-language") as Language | null;
-    if (saved && (saved === "en" || saved === "he")) {
-      setLanguageState(saved);
-      document.documentElement.lang = saved;
-      document.documentElement.dir = saved === "he" ? "rtl" : "ltr";
-    } else {
-      // Default to English
-      setLanguageState("en");
-      document.documentElement.lang = "en";
-      document.documentElement.dir = "ltr";
+  // Read the saved language synchronously so the first render is already in the right
+  // language (index.html sets lang/dir before paint too), instead of rendering English
+  // and then switching.
+  const [language, setLanguageState] = useState<Language>(() => {
+    try {
+      const saved = localStorage.getItem("shweet-brew-language");
+      return saved === "he" ? "he" : "en";
+    } catch {
+      return "en";
     }
-  }, []);
+  });
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+    document.documentElement.dir = language === "he" ? "rtl" : "ltr";
+  }, [language]);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);

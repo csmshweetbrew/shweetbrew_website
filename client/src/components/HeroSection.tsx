@@ -1,222 +1,144 @@
 /*
- * SHWEETBREW HERO SECTION
- * Design: Full-bleed dark braai fire background, bold Bebas Neue headline
- * Israeli flag colours in headline, fire orange CTA
- * Diagonal clip-path bottom edge for section transition
+ * SHWEETBREW HERO — "Four ranges" quick-shop landing
+ *
+ * Goal: within a second a visitor knows what we sell, and can jump straight to it.
+ *  1. Headline + one sentence saying exactly what the shop sells.
+ *  2. Four big photo tiles, one per range (Biltong, Jerky, Boerewors, Sauces & Shots),
+ *     each with its starting price. A tap opens the products section on that range.
+ *  3. Shop all products / Contact us (scrolls to the contact section).
+ *  4. Trust row: Made in Israel · SA roots · Kosher ingredients.
  */
 
-import { useEffect, useRef } from "react";
+import { ArrowRight, MessageCircle, ShoppingCart } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/config/languages";
-import { getWhatsAppLink } from "@/config/site";
+import { PRODUCTS } from "@/config/products";
+import { productSrcSet } from "@/lib/images";
+import { FILTER_GROUPS, openShop } from "@/lib/shopFilter";
+import { scrollToTarget } from "@/lib/smoothScroll";
+import { FlagIsrael, FlagSouthAfrica, KosherStar } from "./Flags";
 
-const WHATSAPP_URL = getWhatsAppLink("Hi Shweet Brew! I'd like to place an order 🥩");
 
-const HERO_IMAGE = "https://i.postimg.cc/6QQDk6vP/shweetbrew-hero-page.webp";
+type Range = {
+  filter: string;
+  name: { en: string; he: string };
+  line: { en: string; he: string };
+  color: string;
+  imageFrom: string; // category id whose photo the tile uses
+};
+
+const RANGES: Range[] = [
+  { filter: "biltong", name: { en: "Biltong", he: "בילטונג" }, line: { en: "Air-dried SA beef", he: "בקר מיובש בסגנון דרום אפריקאי" }, color: "var(--brand-israeli-blue-light)", imageFrom: "biltong" },
+  { filter: "HOLY LAND JERKY", name: { en: "Jerky", he: "ג'רקי" }, line: { en: "Beef & chicken jerky", he: "ג'רקי בקר ועוף" }, color: "var(--accent)", imageFrom: "HOLY LAND JERKY" },
+  { filter: "wors", name: { en: "Boerewors", he: "בוארווורס" }, line: { en: "Fresh wors & drywors", he: "בוארווורס טרי ודרייוורס" }, color: "var(--brand-gold)", imageFrom: "boerewors" },
+  { filter: "extras", name: { en: "Sauces & Shots", he: "רטבים ושוטס" }, line: { en: "Sweet chilli & shots", he: "צ'ילי מתוק ושוטס" }, color: "oklch(0.70 0.18 50)", imageFrom: "sauces" },
+];
+
+/** Lowest price across the categories a filter covers, with its size */
+function startingPrice(filter: string): { price: number; size: string } | null {
+  const ids = FILTER_GROUPS[filter] ?? [filter];
+  let best: { price: number; size: string } | null = null;
+  for (const cat of PRODUCTS.filter((c) => ids.includes(c.id))) {
+    for (const v of cat.variants) {
+      if (v.isAvailable === false) continue;
+      for (const s of v.sizes) {
+        if (!best || s.price < best.price) best = { price: s.price, size: s.size };
+      }
+    }
+  }
+  return best;
+}
 
 export default function HeroSection() {
   const { language } = useLanguage();
-  const headlineRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = headlineRef.current;
-    if (!el) return;
-    el.style.opacity = "0";
-    el.style.transform = "translateY(40px)";
-    const timer = setTimeout(() => {
-      el.style.transition = "opacity 0.9s ease-out, transform 0.9s ease-out";
-      el.style.opacity = "1";
-      el.style.transform = "translateY(0)";
-    }, 200);
-    return () => clearTimeout(timer);
-  }, []);
+  const he = language === "he";
+  const L = (en: string, hebrew: string) => (he ? hebrew : en);
 
   return (
-    <section
-      id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
-      style={{ backgroundColor: "oklch(0.10 0.005 60)" }}
-    >
-      {/* Subtle background texture */}
-      <div
-        className="absolute inset-0 opacity-20"
-        style={{
-          backgroundImage: "url('https://d2xsxph8kpxj0f.cloudfront.net/310519663491314336/GHvX6FS9zEwj9cBKkXQgeg/hero-bg-subtle-LxfzDrKkZY4bEMHcpHWW5T.webp')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
+    <section id="hero" className="hero-shop relative overflow-hidden" style={{ backgroundColor: "oklch(0.10 0.005 60)" }}>
+      {/* Background photo + warm darkening */}
+      <img
+        src="/images/hero-1280.webp"
+        srcSet="/images/hero-960.webp 960w, /images/hero-1280.webp 1280w"
+        sizes="100vw"
+        alt=""
+        fetchPriority="high"
+        decoding="async"
+        className="hero-photo absolute inset-0 w-full h-full object-cover"
       />
-
-      {/* Background image */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${HERO_IMAGE})` }}
-      />
-
-      {/* Dark overlay gradient */}
       <div
         className="absolute inset-0"
         style={{
-          background: "linear-gradient(to bottom, oklch(0.10 0.005 60 / 0.55) 0%, oklch(0.10 0.005 60 / 0.75) 60%, oklch(0.10 0.005 60 / 0.95) 100%)",
+          background:
+            "radial-gradient(ellipse 80% 60% at 50% 35%, oklch(0.10 0.02 40 / 0.45) 0%, oklch(0.08 0.01 50 / 0.82) 100%), linear-gradient(to bottom, oklch(0.08 0.01 50 / 0.35) 0%, oklch(0.08 0.01 50 / 0.6) 50%, oklch(0.13 0.005 60) 100%)",
         }}
       />
 
-      {/* Content */}
-      <div className="relative z-10 container text-center pt-24 pb-32">
-        <div ref={headlineRef}>
-          {/* Badges row */}
-          <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mb-6 md:mb-8">
-            <span
-              className="stamp-badge text-xs md:text-sm"
-              style={{ color: "oklch(0.50 0.18 260)", borderColor: "oklch(0.50 0.18 260)" }}
-            >
-              {translations.hero.madeInIsrael[language]}
-            </span>
-            <span
-              className="stamp-badge text-xs md:text-sm"
-              style={{ color: "var(--accent)", borderColor: "var(--accent)" }}
-            >
-              {translations.hero.saRoots[language]}
-            </span>
-            <span
-              className="stamp-badge text-xs md:text-sm"
-              style={{ color: "oklch(0.75 0.15 75)", borderColor: "oklch(0.75 0.15 75)" }}
-            >
-              {translations.hero.kosherOptions[language]}
-            </span>
+      <div className="relative z-10 container hero-shop-inner">
+        {/* 1. What this is */}
+        <h1 className="hero-shop-title" data-reveal="heading" style={{ ["--reveal-delay" as string]: "60ms" }}>
+          <span style={{ color: "var(--accent)" }}>{translations.hero.title1Word1[language]}</span>{" "}
+          {translations.hero.title1Word2[language]}
+          <br />
+          <span style={{ color: "var(--brand-israeli-blue-light)" }}>{translations.hero.title2Word1[language]}</span>{" "}
+          {translations.hero.title2Word2[language]}
+        </h1>
+        <p className="hero-shop-what" data-reveal="text" style={{ ["--reveal-delay" as string]: "160ms" }}>
+          {/* Product words highlighted in their range tile colours (biltong blue, boerewors gold, jerky red) */}
+          {he ? (
+            <strong className="block">
+              <span className="hero-word is-biltong">בילטונג</span> ו<span className="hero-word is-wors">בוארווורס</span> דרום אפריקאיים ו<span className="hero-word is-jerky">ג'רקי</span> בסגנון אמריקאי.
+            </strong>
+          ) : (
+            <strong className="block">
+              South African <span className="hero-word is-biltong">biltong</span>, <span className="hero-word is-wors">boerewors</span> and American{"\u2011"}style <span className="hero-word is-jerky">jerky</span>.
+            </strong>
+          )}
+          <span className="block">{L("Made in Modiin and delivered across Israel.", "מיוצרים במודיעין ונשלחים לכל הארץ.")}</span>
+        </p>
 
-          </div>
-
-          {/* Main headline */}
-          <h1
-            className="font-display leading-none mb-4"
-            style={{
-              fontFamily: "'Bebas Neue', sans-serif",
-              fontSize: "clamp(3.5rem, 10vw, 9rem)",
-              textShadow: "0 4px 30px oklch(0 0 0 / 0.8)",
-              letterSpacing: "0.04em",
-            }}
-          >
-            <span style={{ color: "var(--accent)" }}>{translations.hero.title1Word1[language]}</span>{" "}
-            <span style={{ color: "oklch(0.94 0.025 75)" }}>{translations.hero.title1Word2[language]}</span>
-            <br />
-            <span style={{ color: "oklch(0.50 0.18 260)" }}>{translations.hero.title2Word1[language]}</span>{" "}
-            <span style={{ color: "oklch(0.94 0.025 75)" }}>{translations.hero.title2Word2[language]}</span>
-          </h1>
-
-          {/* Brand name */}
-          <div
-            className="font-display mb-6"
-            style={{
-              fontFamily: "'Bebas Neue', sans-serif",
-              fontSize: "clamp(1.5rem, 4vw, 3rem)",
-              color: "var(--accent)",
-              letterSpacing: "0.3em",
-              textShadow: "0 0 30px color-mix(in oklab, var(--accent) 50%, transparent)",
-            }}
-          >
-            SHWEET BREW
-          </div>
-
-          {/* Subheadline */}
-          <div
-            className="font-body max-w-2xl mx-auto mb-10 leading-relaxed"
-            style={{ color: "oklch(0.80 0.020 75)" }}
-          >
-            {language === "en" ? (
-              <>
-                <div className="text-xl md:text-2xl" style={{ fontSize: "1.2em" }}>Authentic South African <span style={{ color: "var(--accent)", fontWeight: 700 }}>Biltong and Boerewors</span>.</div>
-                <div className="text-xl md:text-2xl" style={{ fontSize: "1.2em" }}>Mouthwatering American <span style={{ color: "var(--accent)", fontWeight: 700 }}>Jerky</span>.</div>
-                <div className="h-4"></div>
-                <div className="text-lg md:text-xl">And more — crafted with <span style={{ color: "oklch(0.50 0.18 260)", fontWeight: 700 }}>Israeli pride</span> and <span style={{ color: "oklch(0.50 0.18 260)", fontWeight: 700 }}>SA soul</span>.</div>
-              </>
-            ) : (
-              <>
-                <div className="text-xl md:text-2xl" style={{ fontSize: "1.2em" }}><span style={{ color: "var(--accent)", fontWeight: 700 }}>בילטונג ובוארווורס</span> דרום אפריקאיים אותנטיים.</div>
-                <div className="text-xl md:text-2xl" style={{ fontSize: "1.2em" }}><span style={{ color: "var(--accent)", fontWeight: 700 }}>ג'רקי</span> אמריקאי מפתה.</div>
-                <div className="h-4"></div>
-                <div className="text-lg md:text-xl">ועוד — עשוי מתוך <span style={{ color: "oklch(0.50 0.18 260)", fontWeight: 700 }}>גאווה ישראלית</span> ו<span style={{ color: "oklch(0.50 0.18 260)", fontWeight: 700 }}>נשמה דרום אפריקאית</span>.</div>
-              </>
-            )}
-            <div className="text-lg md:text-xl">{translations.hero.taglineEnd[language]}</div>
-          </div>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 px-8 py-4 rounded font-body font-bold text-lg tracking-wide transition-all hover:scale-105 whatsapp-pulse"
-              style={{
-                backgroundColor: "#25D366",
-                color: "#fff",
-                boxShadow: "0 0 30px rgba(37,211,102,0.4), 0 4px 20px rgba(0,0,0,0.4)",
-                minWidth: "220px",
-                justifyContent: "center",
-              }}
-            >
-              <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current flex-shrink-0" xmlns="http://www.w3.org/2000/svg">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-              </svg>
-              {translations.hero.orderOnWhatsApp[language]}
-            </a>
-
-            <button
-              onClick={() => {
-                const el = document.querySelector("#products");
-                if (el) el.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="flex items-center gap-2 px-8 py-4 rounded font-body font-bold text-lg tracking-wide transition-all hover:scale-105 border-2"
-              style={{
-                backgroundColor: "transparent",
-                color: "oklch(0.94 0.025 75)",
-                borderColor: "oklch(0.94 0.025 75 / 0.5)",
-                minWidth: "220px",
-                justifyContent: "center",
-              }}
-            >
-              {translations.hero.browseProducts[language]}
-            </button>
-          </div>
-
-          {/* Stats row */}
-          <div className="mt-16 flex flex-wrap items-center justify-center gap-8 md:gap-16">
-            {[
-              { num: "7+", label: translations.hero.products[language] },
-              { num: "100%", label: translations.hero.beef[language] },
-              { num: "🇮🇱", label: translations.hero.israelWideDelivery[language] },
-              { num: "SA", label: translations.hero.authenticRecipes[language] },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div
-                  className="font-display text-3xl md:text-4xl"
-                  style={{ fontFamily: "'Bebas Neue', sans-serif", color: "var(--accent)" }}
-                >
-                  {stat.num}
-                </div>
-                <div
-                  className="font-body text-xs tracking-widest uppercase mt-1"
-                  style={{ color: "oklch(0.65 0.015 75)", letterSpacing: "0.15em" }}
-                >
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
+        {/* 2. Four ranges */}
+        <div className="hero-ranges">
+          {RANGES.map((r, i) => {
+            const img = PRODUCTS.find((c) => c.id === r.imageFrom)?.image;
+            const from = startingPrice(r.filter);
+            return (
+              <button key={r.filter} type="button" className="hero-range" onClick={() => openShop(r.filter)} data-reveal="zoom" style={{ ["--reveal-delay" as string]: `${260 + i * 80}ms` }}>
+                <span className="hero-range-bar" style={{ backgroundColor: r.color }} />
+                {img && <img src={img} srcSet={productSrcSet(img)} sizes="(min-width: 768px) 260px, 46vw" alt="" loading="eager" decoding="async" />}
+                <span className="hero-range-go" style={{ backgroundColor: r.color }}>
+                  <ArrowRight className="w-4 h-4 rtl:rotate-180" strokeWidth={2.6} aria-hidden="true" />
+                </span>
+                <span className="hero-range-name">{r.name[language]}</span>
+                <span className="hero-range-line">
+                  {r.line[language]}
+                  {from && <> · {L("from", "החל מ-")} <strong>₪{from.price}</strong> / {from.size}</>}
+                </span>
+              </button>
+            );
+          })}
         </div>
+
+        {/* 3. Main actions */}
+        <div className="hero-actions" data-reveal="" style={{ ["--reveal-delay" as string]: "600ms" }}>
+          <button type="button" className="hero-btn hero-btn-red" onClick={() => openShop("all")}>
+            <ShoppingCart className="w-5 h-5" aria-hidden="true" />
+            {L("Shop all products", "לכל המוצרים")}
+          </button>
+          <button type="button" className="hero-btn hero-btn-green" onClick={() => scrollToTarget("#contact")}>
+            <MessageCircle className="w-5 h-5" aria-hidden="true" />
+            {L("Contact us", "צרו קשר")}
+          </button>
+        </div>
+
+        {/* 4. Trust row */}
+        <ul className="hero-trust" data-reveal="fade" style={{ ["--reveal-delay" as string]: "720ms" }}>
+          <li><FlagIsrael className="hero-flag" /><span>{L("Made in Israel", "תוצרת הארץ")}</span></li>
+          <li><FlagSouthAfrica className="hero-flag" /><span>{L("SA roots", "שורשים דרום אפריקאיים")}</span></li>
+          <li><KosherStar className="hero-star" /><span>{L("Kosher ingredients", "רכיבים כשרים")}</span></li>
+        </ul>
+
       </div>
-
-      {/* Diagonal bottom edge */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
-        style={{
-          background: "oklch(0.13 0.005 60)",
-          clipPath: "polygon(0 60%, 100% 0, 100% 100%, 0 100%)",
-        }}
-      />
-
-
     </section>
   );
 }

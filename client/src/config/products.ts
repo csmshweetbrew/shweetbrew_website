@@ -51,15 +51,15 @@ export type ProductCategory = {
 };
 
 // ============================================================================
-// PRODUCT IMAGES - Define all product images here
+// PRODUCT IMAGES - self-hosted WebP in client/public/images (360 + 720 wide; see lib/images.ts)
 // ============================================================================
-const BILTONG_IMG = "https://i.postimg.cc/DZTwQbD4/Gemini-Generated-Image-gchvregchvregchv.png";
-const BOEREWORS_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663491314336/GHvX6FS9zEwj9cBKkXQgeg/shweetbrew-boerewors-HH3YRHnsYSGBPy5kcrdoBT.webp";
-const SHOTS_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663491314336/GHvX6FS9zEwj9cBKkXQgeg/shweetbrew-shots-Hb6gfTMf6mhbGddvFT325c.webp";
-const DRYWORS_IMG = "https://i.postimg.cc/B6Vw9x0B/shweetbrew-drywors.png";
+const BILTONG_IMG = "/images/biltong-720.webp";
+const BOEREWORS_IMG = "/images/boerewors-720.webp";
+const SHOTS_IMG = "/images/shots-720.webp";
+const DRYWORS_IMG = "/images/drywors-720.webp";
 const CHILLI_BITES_IMG = "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=600&q=80";
-const CHILLI_SAUCE_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663491314336/GHvX6FS9zEwj9cBKkXQgeg/shweetbrew_sweet_chili_sauce_1_fec07e64.jpeg";
-const HOLY_LAND_JERKY_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663491314336/GHvX6FS9zEwj9cBKkXQgeg/shweetbrew_jerky_8e61172e.jpeg";
+const CHILLI_SAUCE_IMG = "/images/sauce-720.webp";
+const HOLY_LAND_JERKY_IMG = "/images/jerky-720.webp";
 
 // ============================================================================
 // PRODUCT REGISTRY - Add/remove products here
@@ -508,6 +508,7 @@ export function getCategoryNameHebrew(categoryName: string): string {
     "CHILLI BITES": "ביטות צ'ילי",
     "DOPPE": "שטיות",
     "SAUCES": "רטבים",
+    "SHOTS": "שוטס",
   };
   return categoryMap[categoryName] || categoryName;
 }

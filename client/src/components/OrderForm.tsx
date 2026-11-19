@@ -10,6 +10,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/config/languages";
 import { deliveryZones, getNextDeliveryDate, formatDeliveryDate } from "@/config/deliveryZones";
 import { ArrowUp } from "lucide-react";
+import { scrollToTarget } from "@/lib/smoothScroll";
 
 export default function OrderForm() {
   const { language } = useLanguage();
@@ -78,7 +79,7 @@ export default function OrderForm() {
   const handleAddProducts = () => {
     const productsSection = document.getElementById("products");
     if (productsSection) {
-      productsSection.scrollIntoView({ behavior: "smooth" });
+      scrollToTarget(productsSection);
     }
   };
 
@@ -292,7 +293,7 @@ export default function OrderForm() {
                 {selectedZone && nextDeliveryDate && selectedZone.id !== "zone_everywhere_else" && (
                   <p style={{ color: "oklch(0.65 0.15 120)", fontSize: "0.875rem" }} className="mt-2">
                     {language === "en" ? "Next available delivery: " : "משלוח זמין הבא: "}
-                    <strong>{formatDeliveryDate(nextDeliveryDate)}</strong>
+                    <strong>{formatDeliveryDate(nextDeliveryDate, language)}</strong>
                   </p>
                 )}
                 {selectedZone && selectedZone.id === "zone_everywhere_else" && (

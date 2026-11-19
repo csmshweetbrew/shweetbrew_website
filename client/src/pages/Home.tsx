@@ -13,6 +13,7 @@ import AboutSection from "@/components/AboutSection";
 import FAQSection from "@/components/FAQSection";
 import ContactSection from "@/components/ContactSection";
 import CartPanel from "@/components/CartPanel";
+import ProductTicker from "@/components/ProductTicker";
 
 export default function Home() {
   return (
@@ -23,6 +24,8 @@ export default function Home() {
       <section id="landing">
         <HeroSection />
       </section>
+
+      <ProductTicker />
 
       {/* Products Section */}
       <section id="products">

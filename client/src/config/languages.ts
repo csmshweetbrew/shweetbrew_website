@@ -22,6 +22,8 @@ export const translations = {
     delivery: { en: "DELIVERY", he: "משלוח" },
     contact: { en: "CONTACT", he: "יצירת קשר" },
     orderOnWhatsApp: { en: "Order on WhatsApp", he: "הזמן ב-WhatsApp" },
+    logIn: { en: "Log in", he: "התחברות" },
+    logInSoon: { en: "Accounts are coming soon. For now, order on WhatsApp.", he: "חשבונות משתמש יגיעו בקרוב. בינתיים אפשר להזמין ב-WhatsApp." },
   },
 
   // Hero Section
@@ -145,6 +147,11 @@ export const translations = {
     // Common product UI
     addToCart: { en: "Add to Cart", he: "הוסף לעגלה" },
     selectSize: { en: "Select size", he: "בחר גודל" },
+    pickSize: { en: "Pick a size", he: "בחרו גודל" },
+    priceFrom: { en: "from", he: "החל מ-" },
+    info: { en: "Info", he: "מידע" },
+    addProduct: { en: "Add", he: "הוסף" },
+    added: { en: "Added", he: "נוסף" },
     spiceLevel: { en: "SPICE LEVEL", he: "רמת תבל" },
     spiceMild: { en: "No Heat", he: "ללא חריפות" },
     kosher: { en: "✡ KOSHER", he: "✡ כשר" },

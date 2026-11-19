@@ -4,7 +4,8 @@
  * Design: "Braai Fire & Blue Star" — dark theme with fire orange accents
  */
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { FILTER_GROUPS, SHOP_FILTER_EVENT } from "@/lib/shopFilter";
 import { PRODUCTS } from "@/config/products";
 import ProductCard from "@/components/ProductCard";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -13,6 +14,16 @@ import { translations } from "@/config/languages";
 export default function ProductsSection() {
   const { language } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+
+  // The hero's range tiles open this section on a range (see lib/shopFilter.ts)
+  useEffect(() => {
+    const onFilter = (e: Event) => {
+      const filter = (e as CustomEvent<{ filter: string }>).detail?.filter;
+      if (filter) setSelectedCategory(filter);
+    };
+    window.addEventListener(SHOP_FILTER_EVENT, onFilter);
+    return () => window.removeEventListener(SHOP_FILTER_EVENT, onFilter);
+  }, []);
 
   // Memoize filtered variants to prevent unnecessary recalculations
   const filteredVariants = useMemo(() => {
@@ -24,9 +35,9 @@ export default function ProductsSection() {
       }))
     );
 
-    return selectedCategory === "all"
-      ? allVariantsWithCategory
-      : allVariantsWithCategory.filter((item) => item.categoryId === selectedCategory);
+    if (selectedCategory === "all") return allVariantsWithCategory;
+    const ids = FILTER_GROUPS[selectedCategory] ?? [selectedCategory];
+    return allVariantsWithCategory.filter((item) => ids.includes(item.categoryId));
   }, [selectedCategory]);
 
   // Category filter options - use translated category names
@@ -36,6 +47,8 @@ export default function ProductsSection() {
       "boerewors": { en: "BOEREWORS", he: "בוארווורס" },
       "drywors": { en: "DRYWORS", he: "דרייוורס" },
       "jerky": { en: "JERKY", he: "ג'רקי" },
+      "HOLY LAND JERKY": { en: "HOLY LAND JERKY", he: "ג'רקי ארץ הקודש" },
+      "SHOTS": { en: "SHOTS", he: "שוטס" },
       "chilli-bites": { en: "CHILLI BITES", he: "ביטות צ'ילי" },
       "shots": { en: "SHOTS", he: "שוטות" },
       "sauces": { en: "SAUCES", he: "רטבים" },
@@ -56,9 +69,6 @@ export default function ProductsSection() {
       <div className="container">
         {/* Section Header */}
         <div className="mb-12 text-center">
-          <p className="section-eyebrow mb-3">
-            — {translations.products.theRange[language]} —
-          </p>
           <h2 className="section-title mb-4">
             {translations.products.sectionTitle[language]}
           </h2>
@@ -68,44 +78,34 @@ export default function ProductsSection() {
         </div>
 
         {/* Category Filter - Pure Text with Orange Highlight */}
-        <div className="flex flex-wrap gap-0 justify-center mb-12 text-sm">
-          {categories.map((cat, idx) => {
+        <div className="flex flex-wrap gap-x-6 gap-y-2 md:gap-x-9 justify-center mb-12">
+          {categories.map((cat) => {
             const isSelected = selectedCategory === cat.id;
             return (
-              <div key={cat.id} className="flex items-center">
-                <span
-                  onClick={() => setSelectedCategory(cat.id)}
-                  style={{
-                    color: isSelected ? "var(--accent)" : "oklch(0.80 0.020 75)",
-                    fontWeight: isSelected ? "700" : "400",
-                    cursor: "pointer",
-                    padding: "0.75rem",
-                    userSelect: "none",
-                    transition: "color 0.2s ease, font-weight 0.2s ease",
-                  }}
-                >
-                  {cat.label}
-                </span>
-                {idx < categories.length - 1 && (
-                  <span style={{ color: "oklch(0.70 0.015 75)" }}>|</span>
-                )}
-              </div>
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setSelectedCategory(cat.id)}
+                aria-pressed={isSelected}
+                className="category-tab"
+              >
+                {cat.label}
+              </button>
             );
           })}
         </div>
 
         {/* Products Grid with Fade Animation */}
         <div
-          className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 px-2 md:px-0"
-          style={{
-            animation: "fadeIn 0.6s ease-in-out",
-          }}
+          key={selectedCategory}
+          className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8 md:gap-x-6 md:gap-y-10 max-w-[1200px] mx-auto px-1 sm:px-4 lg:px-6"
         >
-          {filteredVariants.map((item) => (
+          {filteredVariants.map((item, index) => (
             <ProductCard
               key={item.variant.id}
               variant={item.variant}
               categoryName={item.categoryName}
+              index={index}
             />
           ))}
         </div>

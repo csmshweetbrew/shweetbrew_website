@@ -16,7 +16,6 @@ export default function NotFound() {
         className="w-full max-w-lg p-8 md:p-12 rounded-lg text-center shadow-lg"
         style={{ backgroundColor: "var(--card)", borderLeft: "4px solid var(--accent)" }}
       >
-        <p className="section-eyebrow mb-3">— {he ? "אופס" : "Oops"} —</p>
         <h1
           className="font-display leading-none mb-2"
           style={{ fontSize: "clamp(5rem, 15vw, 8rem)", color: "var(--accent)" }}

@@ -111,9 +111,6 @@ export default function FAQSection() {
       <div className="container">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <p className="section-eyebrow mb-3">
-            — {language === "en" ? "COMMON QUESTIONS" : "שאלות נפוצות"} —
-          </p>
           <h2 className="section-title mb-4">
             {language === "en" ? "Frequently Asked Questions" : "שאלות ותשובות"}
           </h2>

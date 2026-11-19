@@ -1,14 +1,16 @@
 /*
  * SHWEETBREW REVIEWS SECTION
  * Design: Dark background, gold star ratings, Playfair Display italic quotes
- * Marquee/ticker animation for reviews, plus static featured reviews
+ * A scrollable row of reviews: swipe, drag, scroll or use the arrows.
+ * It drifts slowly on its own and pauses as soon as the visitor touches it.
  */
 
 import { useRef, useEffect } from "react";
-import { Star } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/config/languages";
 import { getWhatsAppLink } from "@/config/site";
+import { scrollToTarget } from "@/lib/smoothScroll";
 
 type Review = {
   id: number;
@@ -118,9 +120,11 @@ function ReviewCard({ review }: { review: Review }) {
   return (
     <a
       href={review.link}
+      draggable={false}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex-shrink-0 w-72 sm:w-80 md:w-96 p-4 sm:p-6 rounded-lg border mx-2 sm:mx-3 block transition-all hover:scale-105 hover:shadow-lg cursor-pointer"
+      aria-label={`${review.name}'s review on Google Maps (opens in a new tab)`}
+      className="review-card flex-shrink-0 w-72 sm:w-80 md:w-96 p-4 sm:p-6 rounded-lg border mx-2 sm:mx-3 flex flex-col cursor-pointer"
       style={{
         backgroundColor: "var(--card)",
         borderColor: "oklch(1 0 0 / 0.10)",
@@ -138,7 +142,7 @@ function ReviewCard({ review }: { review: Review }) {
       >
         "{review.text}"
       </p>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-4">
         <div
           className="font-body font-bold text-sm"
           style={{ color: "oklch(0.94 0.025 75)" }}
@@ -157,6 +161,10 @@ function ReviewCard({ review }: { review: Review }) {
           </span>
         )}
       </div>
+      <span className="review-card-link">
+        Read on Google Maps
+        <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+      </span>
     </a>
   );
 }
@@ -169,42 +177,120 @@ export default function ReviewsSection() {
     // Smooth scroll to products section
     const productsSection = document.getElementById("products");
     if (productsSection) {
-      productsSection.scrollIntoView({ behavior: "smooth" });
+      scrollToTarget(productsSection);
     }
   };
 
+  // Native horizontal scrolling (swipe, trackpad, wheel+shift, drag, arrows) with a slow
+  // auto-drift that stops while the visitor is interacting and resumes a few seconds later.
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    let pos = 0;
-    const speed = 0.5;
-    let paused = false;
-    let raf: number;
+    let pos = track.scrollLeft;
+    let pausedUntil = 0;
+    let hovering = false;
+    let raf = 0;
+    const speed = 0.4; // px per frame
 
-    const animate = () => {
-      if (!paused) {
-        pos -= speed;
-        const halfWidth = track.scrollWidth / 2;
-        if (Math.abs(pos) >= halfWidth) pos = 0;
-        track.style.transform = `translateX(${pos}px)`;
+    const holdOff = (ms = 4000) => { pausedUntil = performance.now() + ms; };
+
+    // Cache the loop width (reading scrollWidth every frame forces layout work)
+    let half = track.scrollWidth / 2;
+    const ro = new ResizeObserver(() => { half = track.scrollWidth / 2; });
+    ro.observe(track);
+
+    // Only animate while the row is on screen; no frames are spent while it's scrolled away
+    let onScreen = false;
+
+    const tick = (t: number) => {
+      raf = 0;
+      if (!onScreen) return;
+      if (!reduced && !hovering && t > pausedUntil && document.visibilityState === "visible") {
+        pos += speed;
+        if (pos >= half) pos -= half; // seamless loop over the duplicated list
+        track.scrollLeft = pos;
+      } else {
+        pos = track.scrollLeft;
+        if (pos >= half) { pos -= half; track.scrollLeft = pos; }
       }
-      raf = requestAnimationFrame(animate);
+      raf = requestAnimationFrame(tick);
     };
+    const io = new IntersectionObserver(([entry]) => {
+      onScreen = entry.isIntersecting;
+      if (onScreen && !raf) { pos = track.scrollLeft; raf = requestAnimationFrame(tick); }
+    });
+    io.observe(track);
 
-    raf = requestAnimationFrame(animate);
+    // Mouse drag to scroll (touch already scrolls natively). The pointer is only captured once
+    // the mouse has actually moved, so a plain click still reaches the review link.
+    let dragX = 0, dragStart = 0, pressed = false, dragging = false, moved = false, pointerId = -1;
+    const down = (e: PointerEvent) => {
+      holdOff();
+      if (e.pointerType !== "mouse" || e.button !== 0) return;
+      pressed = true; dragging = false; moved = false; dragX = e.clientX; dragStart = track.scrollLeft; pointerId = e.pointerId;
+    };
+    const move = (e: PointerEvent) => {
+      if (!pressed) return;
+      const dx = e.clientX - dragX;
+      if (!dragging && Math.abs(dx) > 5) {
+        dragging = true; moved = true;
+        track.setPointerCapture(pointerId);
+        track.classList.add("is-dragging");
+      }
+      if (!dragging) return;
+      track.scrollLeft = dragStart - dx;
+      holdOff();
+    };
+    const up = () => {
+      pressed = false;
+      if (dragging && track.hasPointerCapture(pointerId)) track.releasePointerCapture(pointerId);
+      dragging = false;
+      track.classList.remove("is-dragging");
+    };
+    const clickGuard = (e: MouseEvent) => { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } };
+    const wheel = () => holdOff();
+    const enter = () => { hovering = true; };
+    const leave = () => { hovering = false; holdOff(1500); };
 
-    const pause = () => { paused = true; };
-    const resume = () => { paused = false; };
-    track.addEventListener("mouseenter", pause);
-    track.addEventListener("mouseleave", resume);
+    track.addEventListener("pointerdown", down);
+    track.addEventListener("pointermove", move);
+    track.addEventListener("pointerup", up);
+    track.addEventListener("pointercancel", up);
+    track.addEventListener("click", clickGuard, true);
+    track.addEventListener("wheel", wheel, { passive: true });
+    track.addEventListener("touchstart", wheel, { passive: true });
+    track.addEventListener("focusin", enter);
+    track.addEventListener("focusout", leave);
+    track.addEventListener("mouseenter", enter);
+    track.addEventListener("mouseleave", leave);
 
     return () => {
       cancelAnimationFrame(raf);
-      track.removeEventListener("mouseenter", pause);
-      track.removeEventListener("mouseleave", resume);
+      io.disconnect();
+      ro.disconnect();
+      track.removeEventListener("pointerdown", down);
+      track.removeEventListener("pointermove", move);
+      track.removeEventListener("pointerup", up);
+      track.removeEventListener("pointercancel", up);
+      track.removeEventListener("click", clickGuard, true);
+      track.removeEventListener("wheel", wheel);
+      track.removeEventListener("touchstart", wheel);
+      track.removeEventListener("focusin", enter);
+      track.removeEventListener("focusout", leave);
+      track.removeEventListener("mouseenter", enter);
+      track.removeEventListener("mouseleave", leave);
     };
   }, []);
+
+  const scrollByCard = (dir: 1 | -1) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const card = track.firstElementChild as HTMLElement | null;
+    const step = card ? card.getBoundingClientRect().width + 16 : 320;
+    track.scrollBy({ left: dir * step, behavior: "smooth" });
+  };
 
   return (
     <section
@@ -213,11 +299,6 @@ export default function ReviewsSection() {
       style={{ backgroundColor: "oklch(0.13 0.005 60)" }}
     >
       <div className="container mb-12">
-        <div
-          className="section-eyebrow mb-3"
-        >
-          — {translations.reviews.subtitle[language]} —
-        </div>
         <div className="flex flex-col md:flex-row md:items-end gap-4 md:gap-8">
           <h2 className="section-title">
             {translations.reviews.title[language]}{" "}
@@ -235,8 +316,8 @@ export default function ReviewsSection() {
         </div>
       </div>
 
-      {/* Marquee */}
-      <div className="relative overflow-hidden px-2 sm:px-4 md:px-8" style={{ direction: "ltr" }}>
+      {/* Scrollable row */}
+      <div className="relative" style={{ direction: "ltr" }}>
         {/* Fade edges */}
         <div
           className="absolute left-0 top-0 bottom-0 w-12 sm:w-16 md:w-24 z-10 pointer-events-none"
@@ -247,7 +328,21 @@ export default function ReviewsSection() {
           style={{ background: "linear-gradient(to left, oklch(0.13 0.005 60), transparent)" }}
         />
 
-        <div ref={trackRef} className="flex" style={{ willChange: "transform", direction: "ltr" }}>
+        <button type="button" className="reviews-arrow left-2 md:left-6" onClick={() => scrollByCard(-1)} aria-label={language === "en" ? "Previous reviews" : "ביקורות קודמות"}>
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+        <button type="button" className="reviews-arrow right-2 md:right-6" onClick={() => scrollByCard(1)} aria-label={language === "en" ? "More reviews" : "עוד ביקורות"}>
+          <ChevronRight className="w-5 h-5" />
+        </button>
+
+        <div
+          ref={trackRef}
+          className="reviews-track flex px-2 sm:px-4 md:px-8"
+          style={{ direction: "ltr" }}
+          tabIndex={0}
+          role="region"
+          aria-label={language === "en" ? "Customer reviews, scroll sideways" : "ביקורות לקוחות, גללו הצידה"}
+        >
           {/* Duplicate for seamless loop */}
           {[...reviews, ...reviews].map((review, i) => (
             <ReviewCard key={`${review.id}-${i}`} review={review} />
