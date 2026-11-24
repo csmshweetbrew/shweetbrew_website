@@ -840,6 +840,15 @@
   .cart-primary:active:not(:disabled) { transform: scale(0.98); }
   .cart-primary:disabled { opacity: 0.7; cursor: progress; }
   .cart-order-error { margin-bottom: 0.75rem; }
+  /* "Before you can order:" list above the Place order button (each item jumps to its field) */
+  .checkout-problems { margin-bottom: 0.75rem; animation: checkout-problems-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .checkout-problems ul { margin: 0.25rem 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 0.2rem 0.9rem; }
+  .checkout-problems .cart-link { font-weight: 700; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: color-mix(in oklab, var(--accent) 70%, transparent); text-align: start; }
+  @keyframes checkout-problems-in { from { opacity: 0; transform: translateY(4px); } }
+  @media (prefers-reduced-motion: reduce) { .checkout-problems { animation: none; } }
+  /* "Did you mean …@gmail.com?" under the email field */
+  .cart-suggest { font-size: 0.82rem; color: var(--brand-cream-dim); }
+  .cart-suggest .cart-link { font-weight: 700; color: var(--foreground); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: color-mix(in oklab, var(--accent) 70%, transparent); }
   .cart-order-error .cart-link { font-weight: 700; text-decoration: underline; }
   .cart-secondary {
     padding: 0.6rem 1rem;
@@ -912,78 +921,126 @@
   }
   .reviews-arrow:hover { background-color: var(--accent); transform: scale(1.06); }
 
-  /* ---------- Delivery timetable ---------- */
-  .delivery-table {
+  /* ---------- Delivery price board ---------- */
+  .delivery-inner { max-width: 70rem; margin-inline: auto; padding-inline: clamp(0.6rem, 4vw, 3rem); }
+
+  .delivery-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1.25rem 3rem;
+    align-items: end;
+    margin-bottom: 1.6rem;
+  }
+
+  .delivery-cutoff { text-align: end; }
+
+  .delivery-cutoff-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+  html[lang="he"] .delivery-cutoff-label { letter-spacing: 0; }
+
+  .delivery-cutoff-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.1rem, 4vw, 3rem);
+    line-height: 0.95;
+    letter-spacing: 0.03em;
+    color: var(--foreground);
+    white-space: nowrap;
+  }
+  .delivery-cutoff-value span { color: var(--accent); }
+
+  .delivery-board {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 3rem;
     border-top: 2px solid var(--foreground);
   }
 
   .delivery-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(7rem, auto) 4.5rem;
-    gap: 1rem;
-    align-items: baseline;
-    padding: 1rem 0.75rem;
-    border-bottom: 1px solid oklch(1 0 0 / 0.1);
-  }
-
-  .delivery-head {
-    padding-block: 0.6rem;
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--muted-foreground);
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1.25rem;
+    align-items: start;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid oklch(1 0 0 / 0.12);
   }
 
   .delivery-row.is-hq {
     background-color: oklch(0.35 0.15 260 / 0.22);
+    padding-inline: 0.9rem;
+  }
+
+  .delivery-name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.15rem 0.9rem;
   }
 
   .delivery-zone {
-    font-weight: 700;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    line-height: 1;
+    letter-spacing: 0.03em;
     color: var(--foreground);
-  }
-
-  .delivery-towns {
-    margin-top: 0.15rem;
-    font-size: 0.85rem;
-    line-height: 1.45;
-    color: var(--muted-foreground);
   }
 
   .delivery-days {
     font-size: 0.9rem;
+    font-weight: 700;
     color: var(--brand-cream-dim);
   }
 
-  .delivery-fee { text-align: end; }
+  .delivery-towns {
+    margin-top: 0.25rem;
+    font-size: 0.88rem;
+    line-height: 1.4;
+    color: var(--muted-foreground);
+  }
 
   .delivery-price {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.75rem;
-    line-height: 1;
-    letter-spacing: 0.03em;
+    font-size: 2.7rem;
+    line-height: 0.85;
+    letter-spacing: 0.01em;
     color: var(--accent);
+    text-align: end;
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
-
-  .delivery-row.is-hq .delivery-price { color: var(--brand-israeli-blue-light); }
+  .delivery-price small { font-size: 0.55em; vertical-align: top; margin-inline-end: 0.1em; }
+  .delivery-row.is-hq .delivery-price { color: var(--brand-israeli-blue-light); font-size: 2.3rem; }
 
   .delivery-other {
-    padding: 1rem 0.75rem 0;
-    font-size: 0.9rem;
+    padding-top: 0.9rem;
+    font-size: 0.95rem;
     color: var(--brand-cream-dim);
   }
 
+  .delivery-facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+    gap: 1.25rem 1.75rem;
+    margin-top: 1.9rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid oklch(1 0 0 / 0.12);
+  }
+
+  @media (max-width: 859px) {
+    .delivery-board { grid-template-columns: minmax(0, 1fr); }
+  }
+
   @media (max-width: 639px) {
-    .delivery-row {
-      grid-template-columns: minmax(0, 1fr) auto;
-      grid-template-areas: "zone fee" "days fee";
-      row-gap: 0.35rem;
-      padding-inline: 0.5rem;
-    }
-    .delivery-row > :nth-child(1) { grid-area: zone; }
-    .delivery-row > :nth-child(2) { grid-area: days; }
-    .delivery-row > :nth-child(3) { grid-area: fee; align-self: center; }
-    .delivery-head { display: none; }
+    .delivery-top { grid-template-columns: minmax(0, 1fr); }
+    .delivery-cutoff { text-align: start; }
+    .delivery-zone { font-size: 1.45rem; }
+    .delivery-price { font-size: 2.2rem; }
+    .delivery-row.is-hq .delivery-price { font-size: 1.9rem; }
+    .delivery-facts { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
   }
 
   /* ---------- Product card: "Big Picture" ---------- */
@@ -1418,8 +1475,8 @@
 
   /* Steps fade into each other while the panel eases to the new height */
   .auth-viewport { overflow: hidden; transition: height 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
-  /* Motion tokens for the login popup and the checkout code (adapted from neighbour-s) */
-  .auth-panel, .checkout-email {
+  /* Motion tokens for the login popup (adapted from neighbour-s) */
+  .auth-panel {
     --m-out: cubic-bezier(0.22, 1, 0.36, 1);
     --m-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
     --m-fast: 0.15s;
@@ -1794,64 +1851,18 @@
   .code-field.is-compact .code-tick { width: 2.5rem; height: 2.5rem; margin: -1.25rem 0 0 -1.25rem; }
   @media (max-width: 380px) { .code-cell { height: 2.9rem; font-size: 1.6rem; } .code-cells { gap: 0.3rem; } }
 
-  /* Checkout email (cart details step): order without signing up */
-  .checkout-email {
-    display: grid;
-    gap: 0.5rem;
-    margin: 0;
-    padding: 0.85rem;
-    border-radius: 6.4px;
-    border: 1px solid oklch(1 0 0 / 0.12);
-    background-color: color-mix(in oklab, var(--card) 60%, transparent);
-  }
-  .checkout-email legend { padding-inline: 0.3rem; font-size: 0.82rem; font-weight: 700; color: var(--brand-cream-dim); }
-  .checkout-email-row { display: flex; align-items: flex-end; gap: 0.5rem; }
-  .checkout-email-row > input {
-    flex: 1;
-    min-width: 0;
-    padding: 0.6rem 0.75rem;
-    border-radius: 4px;
-    border: 1px solid oklch(1 0 0 / 0.18);
-    background-color: var(--card);
-    color: var(--foreground);
-  }
-  .checkout-email-row > input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 25%, transparent); }
-  .checkout-email-row > input[aria-invalid="true"] { border-color: oklch(0.70 0.18 25); }
-  .checkout-email-row .code-field { flex: 1; }
-  .checkout-email-row .code-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .checkout-email-send {
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 6.5rem;
-    height: 2.65rem;
-    padding: 0 0.9rem;
-    border-radius: 4px;
-    background-color: var(--accent);
-    color: var(--accent-foreground);
-    font-weight: 900;
-    font-size: 0.85rem;
-    transition: filter 0.2s;
-  }
-  .checkout-email-send:hover:not(:disabled) { filter: brightness(1.08); }
-  .checkout-email-send:disabled { cursor: progress; opacity: 0.8; }
-  .checkout-email-hint { margin: 0; font-size: 0.8rem; line-height: 1.5; color: var(--muted-foreground); }
-  .checkout-email-hint strong { color: var(--foreground); }
-  .checkout-email-link {
-    font-size: 0.8rem;
+  /* Checkout account line (details step): guest by default, log in optional */
+  .checkout-account { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.55rem; margin: 0; font-size: 0.875rem; color: var(--brand-cream-dim); }
+  .checkout-account strong { color: var(--foreground); }
+  .checkout-account-link {
     font-weight: 700;
     color: var(--foreground);
     text-decoration: underline;
     text-underline-offset: 3px;
     text-decoration-color: color-mix(in oklab, var(--accent) 70%, transparent);
-    justify-self: start;
   }
-  .checkout-email-link:hover:not(:disabled) { color: var(--accent); }
-  .checkout-email-link:disabled { color: var(--muted-foreground); text-decoration: none; cursor: default; }
-  .checkout-email.is-confirmed { display: flex; align-items: center; gap: 0.55rem; font-size: 0.875rem; color: var(--brand-cream-dim); }
-  .checkout-email.is-confirmed strong { color: var(--foreground); }
-  .checkout-email-tick {
+  .checkout-account-link:hover { color: var(--accent); }
+  .checkout-account-tick {
     display: inline-grid;
     place-items: center;
     flex-shrink: 0;

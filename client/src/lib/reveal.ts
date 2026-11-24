@@ -35,7 +35,7 @@ const AUTO_TARGETS: { selector: string; stagger?: boolean; row?: number; variant
   { selector: "#products .category-tab", stagger: true, variant: "fade" },
   { selector: "#products .product-card", row: 4, variant: "zoom" },
   // delivery
-  { selector: "#delivery .delivery-row:not(.delivery-head)", stagger: true },
+  { selector: "#delivery .delivery-row", stagger: true },
   { selector: "#delivery dl > div", stagger: true, variant: "text" },
   // order
   { selector: "#order > div > *" },

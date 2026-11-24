@@ -1,17 +1,20 @@
 /*
  * The checkout details form, shared by the cart drawer and the Order section:
- * confirmed email, searchable delivery area (+ next delivery date), the minimum
- * note, name + phone, address and an optional note.
+ * the account line (guest by default, "Log in" optional), searchable delivery
+ * area (+ next delivery date), the minimum note, name + optional phone, the email
+ * (guests; required, typed twice, with a "did you mean gmail.com?" hint),
+ * address and an optional note. Errors show once a field is left; CheckoutProblems lists
+ * what's missing above the Place order button.
  *
  * `idPrefix` keeps field ids unique, since both copies can be on the page at once.
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ChevronDown, Search } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { deliveryZones, formatDeliveryDate, zoneDays, zoneName, zoneNameBoth, zoneSearchTerms, type DeliveryZone } from "@/config/deliveryZones";
-import CheckoutEmail from "../CheckoutEmail";
+import CheckoutAccount from "./CheckoutAccount";
 import { MIN_DELIVERY_ORDER, OTHER_ZONE, type Checkout } from "./useCheckout";
 
 export default function CheckoutFields({ checkout, idPrefix }: { checkout: Checkout; idPrefix: string }) {
@@ -20,15 +23,15 @@ export default function CheckoutFields({ checkout, idPrefix }: { checkout: Check
   const L = (en: string, hebrew: string) => (he ? hebrew : en);
   const {
     selectedArea, setSelectedArea, name, setName, phone, setPhone, notes, setNotes,
-    shippingDetails: street, setShippingDetails: setStreet, city, setCity, apartment, setApartment,
+    shippingDetails: street, setShippingDetails: setStreet, city, setCity, apartment, setApartment, email, setEmail, emailAgain, setEmailAgain,
   } = useCart();
-  const { zone, nextDeliveryDate, belowMinimum, subtotal, errors, tried } = checkout;
+  const { zone, nextDeliveryDate, belowMinimum, subtotal, show, touch, emailSuggestion, acceptSuggestion } = checkout;
   const id = (s: string) => `${idPrefix}-${s}`;
 
   return (
     <div className="cart-form">
-      <CheckoutEmail idPrefix={idPrefix} error={tried ? errors.email : ""} />
-      <AreaPicker idPrefix={idPrefix} language={language} value={selectedArea} onChange={setSelectedArea} error={tried ? errors.zone : ""} />
+      <CheckoutAccount />
+      <AreaPicker idPrefix={idPrefix} language={language} value={selectedArea} onChange={setSelectedArea} error={show("zone")} />
       {zone && nextDeliveryDate && zone.id !== OTHER_ZONE && (
         <p className="cart-next-delivery">
           {L("Next available delivery: ", "משלוח זמין הבא: ")}
@@ -49,9 +52,39 @@ export default function CheckoutFields({ checkout, idPrefix }: { checkout: Check
         </p>
       )}
       <div className="cart-row2">
-        <Field id={id("name")} label={L("Name", "שם")} value={name} onChange={setName} error={tried ? errors.name : ""} autoComplete="name" />
-        <Field id={id("phone")} label={L("Phone", "טלפון")} value={phone} onChange={setPhone} error={tried ? errors.phone : ""} type="tel" autoComplete="tel" />
+        <Field id={id("name")} label={L("Name", "שם")} value={name} onChange={setName} onBlur={() => touch("name")} error={show("name")} autoComplete="name" />
+        <Field id={id("phone")} label={<>{L("Phone", "טלפון")} <span className="cart-optional">{L("(optional)", "(לא חובה)")}</span></>} value={phone} onChange={setPhone} onBlur={() => touch("phone")} error={show("phone")} type="tel" autoComplete="tel" />
       </div>
+      {!checkout.signedIn && (<>
+        <Field
+          id={id("email")}
+          label={L("Email (for your order confirmation)", "אימייל (לאישור ההזמנה)")}
+          value={email}
+          onChange={setEmail}
+          onBlur={() => touch("email")}
+          error={show("email")}
+          hint={emailSuggestion && (
+            <span className="cart-suggest">
+              {L("Did you mean", "התכוונתם ל-")}{" "}
+              <button type="button" className="cart-link" dir="ltr" onClick={acceptSuggestion}>{emailSuggestion}</button>?
+            </span>
+          )}
+          type="email"
+          autoComplete="email"
+          dir="ltr"
+        />
+        <Field
+          id={id("emailAgain")}
+          label={L("Type your email again", "הקלידו את המייל שוב")}
+          value={emailAgain}
+          onChange={setEmailAgain}
+          onBlur={() => touch("emailAgain")}
+          error={show("emailAgain")}
+          type="email"
+          autoComplete="off"
+          dir="ltr"
+        />
+      </>)}
       <fieldset className="cart-address">
         <legend>
           {L("Delivery address", "כתובת למשלוח")}
@@ -81,8 +114,9 @@ export default function CheckoutFields({ checkout, idPrefix }: { checkout: Check
 }
 
 /* ---------- small field ---------- */
-function Field({ id, label, value, onChange, error, type = "text", autoComplete }: {
-  id: string; label: string; value: string; onChange: (v: string) => void; error?: string; type?: string; autoComplete?: string;
+function Field({ id, label, value, onChange, onBlur, error, hint, type = "text", autoComplete, dir }: {
+  id: string; label: ReactNode; value: string; onChange: (v: string) => void; onBlur?: () => void; error?: string; hint?: ReactNode;
+  type?: string; autoComplete?: string; dir?: "ltr" | "rtl";
 }) {
   return (
     <div className="cart-field">
@@ -90,13 +124,41 @@ function Field({ id, label, value, onChange, error, type = "text", autoComplete 
       <input
         id={id}
         type={type}
+        dir={dir}
         value={value}
         autoComplete={autoComplete}
         onChange={(e) => onChange(e.target.value)}
+        onBlur={onBlur}
         aria-invalid={error ? "true" : undefined}
         aria-describedby={error ? `${id}-err` : undefined}
       />
       {error && <span id={`${id}-err`} className="cart-err">{error}</span>}
+      {hint}
+    </div>
+  );
+}
+
+/* ---------- "Before you can order" list, shown above the button after a press with something missing ---------- */
+export function CheckoutProblems({ checkout, idPrefix }: { checkout: Checkout; idPrefix: string }) {
+  const { language } = useLanguage();
+  const L = (en: string, hebrew: string) => (language === "he" ? hebrew : en);
+  if (!checkout.tried || checkout.problems.length === 0) return null;
+  const jump = (field: string) => {
+    const el = document.getElementById(`${idPrefix}-${field}`);
+    if (!el) return;
+    el.scrollIntoView({ block: "center", behavior: "smooth" });
+    el.focus({ preventScroll: true });
+  };
+  return (
+    <div className="cart-min checkout-problems" role="alert">
+      <strong>{L("Before you can order:", "לפני שאפשר להזמין:")}</strong>
+      <ul>
+        {checkout.problems.map((p) => (
+          <li key={p.text}>
+            {p.field ? <button type="button" className="cart-link" onClick={() => jump(p.field)}>{p.text}</button> : p.text}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

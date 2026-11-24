@@ -23,7 +23,7 @@ import { openCart } from "@/lib/shopFilter";
 import { scrollToTarget } from "@/lib/smoothScroll";
 import type { Order } from "@/lib/orders";
 import { useCheckout } from "./checkout/useCheckout";
-import CheckoutFields from "./checkout/CheckoutFields";
+import CheckoutFields, { CheckoutProblems } from "./checkout/CheckoutFields";
 import OrderPlaced from "./checkout/OrderPlaced";
 
 export default function OrderForm() {
@@ -123,6 +123,7 @@ export default function OrderForm() {
                 <h3>{t.yourDetails[language]}</h3>
               </div>
               <CheckoutFields checkout={checkout} idPrefix="order" />
+              <CheckoutProblems checkout={checkout} idPrefix="order" />
               {checkout.orderError && (
                 <p className="cart-min cart-order-error order-error" role="alert">{checkout.orderError}</p>
               )}

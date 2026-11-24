@@ -64,6 +64,23 @@ async function asRole(role, uid, fn) {
   } catch (e) { await db.exec("rollback"); throw e; }
 }
 
+// Like Supabase's Database Webhook on orders/INSERT: after an order is saved,
+// POST it to the order-emails function if ORDER_WEBHOOK_URL is set
+// (see order-emails-local.mjs). Fire-and-forget, like pg_net.
+async function fireOrderWebhook(orderId) {
+  const target = process.env.ORDER_WEBHOOK_URL;
+  if (!target || !orderId) return;
+  try {
+    const record = (await db.query(`select * from public.orders where id = $1`, [orderId])).rows[0];
+    const r = await fetch(target, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-webhook-secret": process.env.ORDER_WEBHOOK_SECRET || "" },
+      body: JSON.stringify({ type: "INSERT", table: "orders", schema: "public", record, old_record: null }),
+    });
+    console.log("  order webhook →", r.status, await r.text());
+  } catch (e) { console.log("  order webhook failed:", e.message); }
+}
+
 http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://x");
   if (req.method === "OPTIONS") { res.writeHead(204, cors); return res.end(); }
@@ -133,12 +150,19 @@ http.createServer(async (req, res) => {
       const single = String(req.headers.accept || "").includes("vnd.pgrst.object");
       return single ? (rows[0] ? send(res, 200, rows[0]) : send(res, 406, { code: "PGRST116", message: "0 rows" })) : send(res, 200, rows);
     }
+    // Read by the order-emails function with the service key (no RLS)
+    if (url.pathname === "/rest/v1/order_items" && req.method === "GET") {
+      const id = (url.searchParams.get("order_id") || "").replace(/^eq\./, "");
+      const r = await db.query(`select product_name, category_name, size_label, unit_price, quantity, line_total from public.order_items where order_id = $1 order by id`, [id]);
+      return send(res, 200, r.rows);
+    }
     const rpc = url.pathname.match(/^\/rest\/v1\/rpc\/(\w+)$/);
     if (rpc) {
       try {
         const args = rpc[1] === "email_has_account" ? [json.p_email] : [JSON.stringify(json.p_order)];
         const sql = rpc[1] === "email_has_account" ? `select public.email_has_account($1) r` : `select public.place_order($1::jsonb) r`;
         const r = await asRole(uid ? "authenticated" : "anon", uid, () => db.query(sql, args));
+        if (rpc[1] === "place_order") fireOrderWebhook(r.rows[0].r.id);
         return send(res, 200, r.rows[0].r);
       } catch (e) { return send(res, 400, { code: "P0001", message: e.message }); }
     }

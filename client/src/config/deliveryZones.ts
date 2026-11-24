@@ -65,14 +65,11 @@ export const deliveryZones: DeliveryZone[] = [
       "Kfar Saba",
       "Hod HaSharon",
       "Herzliya",
-      "Tel Mond",
-      "Even Yehuda",
-      "Netanya",
       "Kfar Yona",
     ],
     price: 55,
     deliveryDays: ["Monday", "Tuesday", "Thursday", "Friday"],
-    specialRules: "Netanya: Monday. Others: Any day except Wednesday",
+    // Tel Mond, Even Yehuda and Netanya are North only (owner, 2026-11-23)
     icon: "🌊",
   },
 
@@ -122,7 +119,7 @@ export const deliveryZones: DeliveryZone[] = [
   {
     id: "zone_6_south",
     name: "South",
-    cities: ["Ashdod", "Ashkelon", "Yad Binyamin", "Gedera"],
+    cities: ["Ashdod", "Ashkelon", "Yad Binyamin"], // Gedera is Shfela only (owner, 2026-11-23)
     price: 90,
     deliveryDays: ["Every second Monday"],
     specialRules: "Bi-weekly delivery - Every second Monday",
@@ -165,7 +162,7 @@ const ZONES_HE: Record<string, { name: string; cities: string[] }> = {
   },
   zone_2_hasharon: {
     name: "אזור השרון",
-    cities: ["רעננה", "כפר סבא", "הוד השרון", "הרצליה", "תל מונד", "אבן יהודה", "נתניה", "כפר יונה"],
+    cities: ["רעננה", "כפר סבא", "הוד השרון", "הרצליה", "כפר יונה"],
   },
   zone_3_shfela: { name: "שפלה", cities: ["שוהם", "ראש העין", "גדרה"] },
   zone_4_jerusalem: { name: "אזור ירושלים", cities: ["ירושלים", "בית שמש", "חשמונאים", "אפרת", "גוש עציון"] },
@@ -173,7 +170,7 @@ const ZONES_HE: Record<string, { name: string; cities: string[] }> = {
     name: "צפון",
     cities: ["תל מונד", "אבן יהודה", "נתניה", "זכרון יעקב", "חדרה", "פרדס חנה", "בנימינה", "קיסריה", "חריש", "חיפה", "יקנעם"],
   },
-  zone_6_south: { name: "דרום", cities: ["אשדוד", "אשקלון", "יד בנימין", "גדרה"] },
+  zone_6_south: { name: "דרום", cities: ["אשדוד", "אשקלון", "יד בנימין"] },
   zone_7_kiryat_gat: { name: "קריית גת", cities: ["קריית גת"] },
   zone_everywhere_else: { name: "מקום אחר", cities: [] },
 };
@@ -326,21 +323,6 @@ function findNextDeliveryDay(startDate: Date, zone: DeliveryZone): Date {
         return checkDate;
       }
       checkDate.setDate(checkDate.getDate() + 1);
-    }
-  }
-
-  // Special handling for Hasharon Netanya (always Monday)
-  if (zone.id === "zone_2_hasharon") {
-    // Check if city is Netanya - for now, treat all Hasharon as flexible
-    // Find next valid day
-    for (let i = 0; i < 14; i++) {
-      const checkDate = new Date(startDate);
-      checkDate.setDate(checkDate.getDate() + i);
-      const dayName = dayNames[checkDate.getDay()];
-
-      if (zone.deliveryDays.includes(dayName)) {
-        return checkDate;
-      }
     }
   }
 

@@ -54,7 +54,7 @@ It only fast-forwards `main`; it never overwrites it. If someone else pushed to 
 
 ### Database changes (migrations)
 
-The database is built from the numbered files in `supabase/migrations/` (`0001_…` to `0012_…`, more later). To apply one: Supabase Dashboard → **SQL Editor** → paste the file → **Run**. Run new files in number order, each one once.
+The database is built from the numbered files in `supabase/migrations/` (`0001_…` to `0017_…`, more later). To apply one: Supabase Dashboard → **SQL Editor** → paste the file → **Run**. Run new files in number order, each one once.
 
 - Never edit a file that has already been run. Changes go in a new file with the next number.
 - `supabase/seed.sql` loads the starting products and delivery zones (`npx tsx scripts/generate-supabase-seed.ts` regenerates it from the site's product list). It only adds missing rows, so re-running it is safe.
@@ -72,14 +72,14 @@ Netlify → your site → **Site configuration**:
 How customers get in:
 - **Password:** sign up with name + password, confirm the email with a **6-digit code**.
 - **Code only:** "Email me a login code instead", no password needed.
-- **Ordering without signing up:** the cart asks for an email and sends a 6-digit code. Confirming it creates a password-free account, so they can log back in later with a code to track the order. Every order has a confirmed email (migration `0014`).
+- **Ordering as a guest (the default):** no account, no code. Name + email typed twice (+ address, + phone if they want); the email gets the order confirmation (required since migration `0016`; the site suggests a fix for typos like `gamil.com`). The phone is optional since migration `0017`. You call or message every customer to confirm anyway (migration `0015`).
 - **Google:** "Continue with Google", once you switch it on (below).
 
 #### 1. Supabase basics (Authentication)
 
 1. **URL Configuration:** Site URL = your live domain (e.g. `https://shweetbrew.co.il`). Redirect URLs: the same domain with `/**`, plus `http://localhost:3000/**` and `http://localhost:4173/**` for testing.
 2. **Sign In / Providers → Email:** "Confirm email" **on**, **Email OTP Length = 6**, **Email OTP Expiration = 600** seconds (10 minutes).
-3. Run migrations `0013` and `0014` in the SQL editor if you haven't.
+3. Run migrations `0013` to `0017` in the SQL editor if you haven't (`0015` lets guests order without a code, `0016` makes their email required, `0017` makes the phone optional: redeploy the `order-emails` function before `0017`).
 
 #### 2. Your own email sender (do this before launch)
 
@@ -115,6 +115,26 @@ Supabase's built-in sender is for testing only: a few emails an hour, often in s
 5. Reload the site: **Continue with Google** appears in the login popup by itself.
 
 Google's screen will say "continue to <your-project-ref>.supabase.co" unless you add a custom domain to Supabase (a paid add-on). It works the same either way.
+
+### Order emails
+
+Every new website order sends two emails: **"New order SB-1001 · ₪155 · Hasharon Area"** to you (customer, phone with a WhatsApp link, area, address, note, items, total; reply goes to the customer), and an **order confirmation** to the customer in their language (order number, items, total, next delivery day; reply comes to you). It's a Supabase Edge Function, `supabase/functions/order-emails/index.ts`, started by a Database Webhook. It sends through **Resend**, so do "Your own email sender" above first (same API key, same verified domain).
+
+1. **Secrets:** Supabase → **Edge Functions → Secrets** → add:
+   - `RESEND_API_KEY` = your Resend API key
+   - `OWNER_EMAIL` = where new-order alerts go (several: comma-separated)
+   - `ORDER_EMAIL_FROM` = `Shweet Brew <orders@your-domain>` (any address on the domain you verified in Resend)
+   - `ORDER_WEBHOOK_SECRET` = a long random password you make up (e.g. from a password generator). Keep it for step 3.
+   - `SITE_URL` = your live address, e.g. `https://shweetbrew.com`
+2. **Function:** **Edge Functions → Deploy a new function → Via Editor**. Name it exactly `order-emails`, delete the sample code, paste the whole of `supabase/functions/order-emails/index.ts`, **Deploy**. Then open the function → **Details** and switch **Enforce JWT verification** off (the webhook proves itself with the secret instead).
+3. **Webhook:** **Database → Webhooks → Create a new hook**:
+   - Name `order-emails`, table **orders**, events **Insert** only
+   - Type **Supabase Edge Functions**, function **order-emails**, method POST
+   - HTTP Headers → add `x-webhook-secret` = the same value as `ORDER_WEBHOOK_SECRET`
+   - Create.
+4. **Test:** place an order on the site with your own email. Both emails should arrive within a minute. If not: **Edge Functions → order-emails → Logs** shows the reason (wrong secret = 401; Resend refused = the Resend message).
+
+Orders you log by hand as an admin (WhatsApp/phone) only email the customer (if it has an email), not you.
 
 ### First admin
 

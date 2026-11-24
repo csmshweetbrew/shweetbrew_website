@@ -25,7 +25,7 @@ import { productThumb } from "@/lib/images";
 import { scrollToTarget, lockPageScroll } from "@/lib/smoothScroll";
 import { OPEN_CART_EVENT } from "@/lib/shopFilter";
 import { useCheckout } from "./checkout/useCheckout";
-import CheckoutFields from "./checkout/CheckoutFields";
+import CheckoutFields, { CheckoutProblems } from "./checkout/CheckoutFields";
 import OrderPlaced from "./checkout/OrderPlaced";
 
 type Step = 1 | 2 | 3;
@@ -298,6 +298,7 @@ export default function CartPanel() {
               <button type="button" className="cart-primary" onClick={goToDetails}>{L("Continue", "המשך")}</button>
             ) : (
               <>
+                <CheckoutProblems checkout={checkout} idPrefix="cart" />
                 {checkout.orderError && (
                   <p className="cart-min cart-order-error" role="alert">
                     {checkout.orderError}

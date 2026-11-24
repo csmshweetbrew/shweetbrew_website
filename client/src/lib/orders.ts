@@ -23,7 +23,8 @@ export type OrderLine = {
 export type Order = {
   reference: string; // filled in by the database
   name: string;
-  phone: string;
+  phone: string; // optional: "" when not given
+  email?: string; // guests, optional (signed-in orders get the account's email in the database)
   address: string; // one line, for display
   city?: string;
   street?: string;
@@ -83,7 +84,8 @@ export async function submitOrder(order: Order): Promise<SubmitResult> {
     const { data, error } = await sb.rpc("place_order", {
       p_order: {
         name: order.name,
-        phone: order.phone,
+        phone: order.phone || null,
+        email: order.email ?? null,
         zone_id: order.zoneId,
         city: order.city ?? "",
         street: order.street ?? "",

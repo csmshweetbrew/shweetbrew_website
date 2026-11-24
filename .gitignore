@@ -117,3 +117,6 @@ temp/
 # Manus version file (auto-generated, not part of source)
 client/public/__manus__/version.json
 .project-config.json
+
+# Local test emails from tools/supabase-standin/order-emails-local.mjs
+tools/supabase-standin/outbox/

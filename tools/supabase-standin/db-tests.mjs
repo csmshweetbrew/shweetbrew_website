@@ -48,7 +48,10 @@ ok(prof && prof.full_name === "Dana" && prof.preferred_language === "he" && prof
 await db.query(`update public.profiles set role='admin' where id=$1`, [admin]);
 
 // Helper to run as a role, in a transaction, then roll back or commit
+// Every step "happens an hour later", so the 5-orders-in-10-minutes guard only bites where it's tested
+let timePasses = true;
 async function as(role, uid, fn, { commit = true } = {}) {
+  if (timePasses) await db.exec("update public.orders set created_at = created_at - interval '1 hour'");
   await db.exec("begin");
   try {
     await db.query(`select set_config('request.jwt.claim.sub', $1, true), set_config('request.jwt.claim.role', $2, true)`, [uid ?? "", role]);
@@ -99,10 +102,43 @@ const r = placed.rows[0].r;
 ok(r.reference.startsWith("SB-") && Number(r.subtotal) === 250 && Number(r.delivery_fee) === 65 && Number(r.total) === 315, `guest order priced by DB, ignores browser price: ${JSON.stringify(r)}`);
 ok(await stockOf("biltong-traditional", "250g") === 3, "stock 5 - 2 = 3");
 
-// 0014: every order has a confirmed email
-await expectError("anon", null, `select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }]))], "permission denied", "a visitor who hasn't confirmed an email can't order");
-await expectError("authenticated", unconfirmed, `select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }]))], "EMAIL_NOT_CONFIRMED", "an unconfirmed email can't order");
-await expectError("authenticated", guest, `select public.place_order_core($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }]))], "permission denied", "nobody can skip the gate by calling the inner function");
+// 0015: guests order without an account; email optional and not confirmed
+const anonOrder = await as("anon", null, () => db.query(`select public.place_order($1::jsonb) r`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "0507770001", email: "visitor@example.test" }))]));
+const ao = (await db.query(`select email, user_id, total from public.orders where reference=$1`, [anonOrder.rows[0].r.reference])).rows[0];
+ok(ao.email === "visitor@example.test" && ao.user_id === null && Number(ao.total) === 260, "a guest (not logged in) can order; typed email kept, no account: " + JSON.stringify(ao));
+// 0016: a guest must give an email
+await expectError("anon", null, `select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "0507770002" }))], "INVALID_INPUT:email", "a guest without an email is refused");
+await expectError("anon", null, `select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "0507770002", email: "   " }))], "INVALID_INPUT:email", "a guest with a blank email is refused");
+await as("anon", null, () => db.query(`select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "0507770002", email: "second@example.test" }))]));
+await expectError("anon", null, `select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "0507770003", email: "not-an-email" }))], "INVALID_INPUT:email", "a guest's email must look like an email");
+// 0017: the phone is optional
+const noPhone = await as("anon", null, () => db.query(`select public.place_order($1::jsonb) r`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "", email: "nophone@example.test" }))]));
+const np = (await db.query(`select phone, email from public.orders where reference=$1`, [noPhone.rows[0].r.reference])).rows[0];
+ok(np.phone === null && np.email === "nophone@example.test", "an order with no phone is saved: " + JSON.stringify(np));
+await expectError("anon", null, `select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "hello", email: "nophone@example.test" }))], "INVALID_INPUT:phone", "a phone that is given must look like one");
+await expectError("authenticated", admin, `select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "", source: "whatsapp" }))], "INVALID_INPUT:email", "an order needs a phone or an email");
+timePasses = false;
+for (let i = 0; i < 5; i++) await as("anon", null, () => db.query(`select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: null, email: "NoPhone@example.test" }))]));
+await expectError("anon", null, `select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "", email: "nophone@example.test" }))], "TOO_MANY_ORDERS", "leaving the phone empty doesn't get around the 5-in-10-minutes limit");
+timePasses = true;
+await db.query(`delete from public.orders where lower(email) = 'nophone@example.test'`);
+const unconf = await as("authenticated", unconfirmed, () => db.query(`select public.place_order($1::jsonb) r`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "0507770004", email: "typed@example.test" }))]));
+ok((await db.query(`select email from public.orders where reference=$1`, [unconf.rows[0].r.reference])).rows[0].email === "typed@example.test", "logged in but unconfirmed orders like a guest (typed email)");
+ok((await db.query(`select count(*)::int c from public.profiles where id=$1 and phone = '0507770004'`, [unconfirmed])).rows[0].c === 0, "a guest order never writes to a profile");
+await expectError("anon", null, `select * from public.guest_order_log`, [], "permission denied", "the guest order log is not readable");
+await expectError("authenticated", guest, `select public.place_order_core($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }]))], "permission denied", "nobody can skip the checks by calling the inner function");
+// Per-visitor limit: 10 guest orders per IP per hour
+await db.exec("begin");
+let ipBlocked = "";
+try {
+  await db.query(`select set_config('request.jwt.claim.sub', '', true), set_config('request.jwt.claim.role', 'anon', true), set_config('request.headers', '{"x-forwarded-for":"203.0.113.9, 10.0.0.1"}', true)`);
+  await db.exec("set local role anon");
+  for (let i = 0; i < 11; i++) {
+    try { await db.query(`savepoint s`); await db.query(`select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "100g", quantity: 1 }], { zone_id: "modiin", phone: `05088800${String(i).padStart(2, "0")}`, email: `visitor${i}@example.test` }))]); await db.query(`release savepoint s`); }
+    catch (e) { await db.query(`rollback to savepoint s`); ipBlocked = `${i + 1}: ${e.message}`; break; }
+  }
+} finally { await db.exec("rollback"); }
+ok(ipBlocked.startsWith("11: TOO_MANY_ORDERS"), "11th guest order from one visitor in an hour is refused -> " + ipBlocked);
 const guestOrder = (await db.query(`select email, user_id from public.orders where reference=$1`, [r.reference])).rows[0];
 ok(guestOrder.email === "guest@example.test" && guestOrder.user_id === guest, "the order carries the confirmed email and the guest's account: " + JSON.stringify(guestOrder));
 const typed = await as("authenticated", guest, () => db.query(`select public.place_order($1::jsonb) r`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { email: "someone-else@example.test", phone: "0501112222" }))]));
@@ -136,7 +172,7 @@ ok(custHist.rows[0].c === 1, "customer sees own order history only");
 
 // Admin app flows
 const all = await as("authenticated", admin, () => db.query(`select count(*)::int c from public.order_overview`));
-ok(all.rows[0].c === 6, "admin sees all orders: " + all.rows[0].c);
+ok(all.rows[0].c === 9, "admin sees all orders (6 + 3 guest orders from 0015): " + all.rows[0].c);
 await as("authenticated", admin, () => db.query(`update public.orders set status='confirmed' where reference=$1`, [r.reference]));
 await as("authenticated", admin, () => db.query(`update public.orders set status='cancelled' where reference=$1`, [r.reference]));
 ok(await stockOf("biltong-traditional", "250g") === 5, "cancel gives stock back (3 + 2 = 5)");
@@ -166,9 +202,11 @@ const src = (await db.query(`select source from public.orders where reference=$1
 ok(src === "whatsapp", "admin can log a WhatsApp order below minimum");
 
 // Flood guard
+timePasses = false;
 for (let i = 0; i < 4; i++) await as("authenticated", guest, () => db.query(`select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "0539999999" }))]));
 await as("authenticated", guest, () => db.query(`select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "0539999999" }))]));
 await expectError("authenticated", guest, `select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "0539999999" }))], "TOO_MANY_ORDERS", "6th order in 10 minutes from one phone");
+timePasses = true;
 
 // Promote via RPC
 const other = (await db.query(`insert into auth.users (email) values ('helper@example.test') returning id`)).rows[0].id;

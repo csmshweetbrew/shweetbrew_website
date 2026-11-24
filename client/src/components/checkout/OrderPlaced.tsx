@@ -15,10 +15,15 @@ export default function OrderPlaced({ order, onDone }: { order: Order; onDone: (
       <span className="cart-placed-mark"><Check className="w-7 h-7" strokeWidth={3} /></span>
       <p className="cart-placed-ref">{order.reference}</p>
       <p>
-        {L(
-          `Thanks ${first}. We'll call or message ${order.phone} to confirm the delivery time and payment.`,
-          `תודה ${first}. ניצור קשר במספר ${order.phone} כדי לאשר זמן משלוח ותשלום.`
-        )}
+        {order.phone
+          ? L(
+              `Thanks ${first}. We'll call or message ${order.phone} to confirm the delivery time and payment.`,
+              `תודה ${first}. ניצור קשר במספר ${order.phone} כדי לאשר זמן משלוח ותשלום.`
+            )
+          : L(
+              `Thanks ${first}. We'll email you to confirm the delivery time and payment.`,
+              `תודה ${first}. נשלח לכם מייל כדי לאשר זמן משלוח ותשלום.`
+            )}
       </p>
       <p className="cart-placed-total">{L("Total", "סה\"כ")} ₪{order.total}</p>
       {user?.email && (

@@ -35,7 +35,7 @@ South African cured-meat craft made in Israel by a South African–Israeli maker
 
 ## Capabilities and Constraints
 
-- Single-page React + Vite + Tailwind v4 site, deployed as a static site (GitHub Pages workflow and Netlify config both present).
+- Single-page React + Vite + Tailwind v4 site, deployed as a static site on Netlify (GitHub Pages was dropped 2026-11-19).
 - Fully bilingual English / Hebrew with RTL; the language toggle must stay.
 - Cart, order form, product info modal, delivery-zone logic and FAQ are working features to keep.
 

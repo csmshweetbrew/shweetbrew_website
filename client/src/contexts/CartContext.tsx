@@ -37,6 +37,22 @@ type CartContextType = {
   setApartment: (apartment: string) => void;
   notes: string;
   setNotes: (notes: string) => void;
+  /** optional, guests only (signed-in orders use the account's email) */
+  email: string;
+  setEmail: (email: string) => void;
+  /** the email typed a second time (guests); must match */
+  emailAgain: string;
+  setEmailAgain: (email: string) => void;
+  /* Checkout state shared by the cart drawer and the Order section, so both always show
+     the same errors and an order being sent from one can't be sent again from the other */
+  tried: boolean;
+  setTried: (tried: boolean) => void;
+  touched: Record<string, boolean>;
+  touch: (field: string) => void;
+  submitting: boolean;
+  setSubmitting: (submitting: boolean) => void;
+  saveDetails: boolean;
+  setSaveDetails: (save: boolean) => void;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -50,6 +66,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [phone, setPhone] = useState<string>("");
   const [city, setCity] = useState<string>("");
   const [apartment, setApartment] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [emailAgain, setEmailAgain] = useState<string>("");
+  const [tried, setTried] = useState(false);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const touch = (field: string) => setTouched((t) => (t[field] ? t : { ...t, [field]: true }));
+  const [submitting, setSubmitting] = useState(false);
+  const [saveDetails, setSaveDetails] = useState(true);
+
+  // An empty bag (order placed, or everything removed) starts the next checkout without old errors
+  const bagEmpty = items.length === 0;
+  useEffect(() => {
+    if (!bagEmpty) return;
+    setTried(false);
+    setTouched({});
+  }, [bagEmpty]);
 
   // Checkout details are shared by the cart drawer and the Order section, so typing in one
   // fills the other. Signed in: fill them from the profile (only fields still empty).
@@ -111,6 +142,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setPhone("");
     setCity("");
     setApartment("");
+    setEmail("");
+    setEmailAgain("");
   };
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -142,6 +175,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setApartment,
         notes,
         setNotes,
+        email,
+        setEmail,
+        emailAgain,
+        setEmailAgain,
+        tried,
+        setTried,
+        touched,
+        touch,
+        submitting,
+        setSubmitting,
+        saveDetails,
+        setSaveDetails,
       }}
     >
       {children}

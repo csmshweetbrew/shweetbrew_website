@@ -1,8 +1,9 @@
 /*
  * SHWEETBREW DELIVERY SECTION
- * A delivery timetable: one row per zone (towns, days, fee), Modiin HQ first and
- * tinted Israeli blue. Practical details (minimum, cutoff, payment, pickup) sit
- * beside it as a short definition list instead of a grid of identical cards.
+ * A price board: one block per zone (name, delivery days, towns) with the fee
+ * in big red Bebas at the end of the block, two columns from 860px. Modiin HQ
+ * first, tinted Israeli blue. The order cutoff sits large beside the heading;
+ * practical details (cutoff, minimum, payment, pickup, rush) follow underneath.
  */
 
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -21,7 +22,7 @@ export default function DeliverySection() {
       name: zoneName(z, language),
       towns: zoneCities(z, language).join(", "),
       days: zoneDays(z, language),
-      fee: z.price === 0 ? (he ? "חינם" : "Free") : z.price === -1 ? "—" : `₪${z.price}`,
+      price: z.price,
       hq: z.id === "modiin",
     }));
 
@@ -38,62 +39,65 @@ export default function DeliverySection() {
   ];
 
   return (
-    <section id="delivery" className="py-20 md:py-28" style={{ backgroundColor: "var(--background)" }}>
-      <div className="container">
-        <div className="mb-12 max-w-3xl">
-          <h2 className="section-title mb-4">
-            {he ? "משלוחים לכל הארץ" : "We deliver across Israel"}
-          </h2>
-          <p className="text-lg" style={{ color: "var(--brand-cream-dim)" }}>
-            {he
-              ? "מכינים במודיעין, שולחים לכל הארץ. מצאו את האזור שלכם כדי לראות מתי ההזמנה מגיעה וכמה עולה המשלוח."
-              : "Made in Modiin, sent all over the country. Find your area to see which days we deliver and what it costs."}
-          </p>
-        </div>
-
-        <div className="grid gap-12 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] lg:gap-16 items-start">
-          {/* Timetable */}
-          <div className="delivery-table" role="table" aria-label={he ? "אזורי משלוח" : "Delivery areas"}>
-            <div className="delivery-row delivery-head" role="row">
-              <span role="columnheader">{he ? "אזור" : "Area"}</span>
-              <span role="columnheader">{he ? "ימי משלוח" : "Delivery days"}</span>
-              <span role="columnheader" className="delivery-fee">{he ? "משלוח" : "Fee"}</span>
-            </div>
-            {zones.map((z) => (
-              <div key={z.id} role="row" className={`delivery-row ${z.hq ? "is-hq" : ""}`}>
-                <div role="cell" className="min-w-0">
-                  <div className="delivery-zone">
-                    {z.name}
-                  </div>
-                  {!z.hq && <div className="delivery-towns">{z.towns}</div>}
-                  {z.hq && (
-                    <div className="delivery-towns">
-                      {he ? "איסוף עצמי או משלוח באותו יום" : "Free pickup or same-day delivery"}
-                    </div>
-                  )}
-                </div>
-                <div role="cell" className="delivery-days">{z.days}</div>
-                <div role="cell" className="delivery-fee delivery-price">{z.fee}</div>
-              </div>
-            ))}
-            <p className="delivery-other">
+    <section id="delivery" className="py-16 md:py-20" style={{ backgroundColor: "var(--background)" }}>
+      <div className="container"><div className="delivery-inner">
+        <h2 className="section-title mb-3">
+          {he ? (
+            <>משלוחים לכל <span style={{ color: "var(--brand-israeli-blue-light)" }}>הארץ</span></>
+          ) : (
+            <>We deliver across <span style={{ color: "var(--brand-israeli-blue-light)" }}>Israel</span></>
+          )}
+        </h2>
+        <div className="delivery-top">
+          <div className="max-w-xl">
+            <p className="text-lg" style={{ color: "var(--brand-cream-dim)" }}>
               {he
-                ? "לא רואים את האזור שלכם? כתבו לנו ב-WhatsApp ונמצא פתרון."
-                : "Don't see your area? Message us on WhatsApp and we'll work it out."}
+                ? "מכינים במודיעין, שולחים לכל הארץ. מצאו את האזור שלכם כדי לראות מתי ההזמנה מגיעה וכמה עולה המשלוח."
+                : "Made in Modiin, sent all over the country. Find your area to see which days we deliver and what it costs."}
             </p>
           </div>
-
-          {/* Practical details */}
-          <dl className="grid gap-6">
-            {facts.map((f) => (
-              <div key={f.title} className="grid gap-1">
-                <dt className="font-bold" style={{ color: "var(--foreground)" }}>{f.title}</dt>
-                <dd className="text-[0.95rem] leading-relaxed" style={{ color: "var(--brand-cream-dim)" }}>{f.desc}</dd>
-              </div>
-            ))}
-          </dl>
+          <div className="delivery-cutoff">
+            <div className="delivery-cutoff-label">{he ? "הזמינו עד" : "Order by"}</div>
+            <div className="delivery-cutoff-value">
+              {he ? "רביעי" : "Wednesday"} <span>12:00</span>
+            </div>
+          </div>
         </div>
-      </div>
+
+        <ul className="delivery-board" aria-label={he ? "אזורי משלוח" : "Delivery areas"}>
+          {zones.map((z) => (
+            <li key={z.id} className={`delivery-row ${z.hq ? "is-hq" : ""}`}>
+              <div className="min-w-0">
+                <div className="delivery-name">
+                  <span className="delivery-zone">{z.name}</span>
+                  <span className="delivery-days">{z.days}</span>
+                </div>
+                <div className="delivery-towns">
+                  {z.hq ? (he ? "איסוף עצמי או משלוח באותו יום" : "Free pickup or same-day delivery") : z.towns}
+                </div>
+              </div>
+              <div className="delivery-price" aria-label={he ? "מחיר משלוח" : "Delivery fee"}>
+                {z.price === 0 ? (he ? "חינם" : "Free") : z.price === -1 ? "—" : <><small>₪</small>{z.price}</>}
+              </div>
+            </li>
+          ))}
+        </ul>
+        <p className="delivery-other">
+          {he
+            ? "לא רואים את האזור שלכם? כתבו לנו ב-WhatsApp ונמצא פתרון."
+            : "Don't see your area? Message us on WhatsApp and we'll work it out."}
+        </p>
+
+        {/* Practical details */}
+        <dl className="delivery-facts">
+          {facts.map((f) => (
+            <div key={f.title}>
+              <dt className="font-bold" style={{ color: "var(--foreground)" }}>{f.title}</dt>
+              <dd className="mt-1 text-[0.95rem] leading-relaxed" style={{ color: "var(--brand-cream-dim)" }}>{f.desc}</dd>
+            </div>
+          ))}
+        </dl>
+      </div></div>
     </section>
   );
 }
