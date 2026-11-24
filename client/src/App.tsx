@@ -6,7 +6,6 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { CartProvider } from "./contexts/CartContext";
 import { CatalogProvider } from "./contexts/CatalogContext";
-import { AuthProvider } from "./contexts/AuthContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import Home from "./pages/Home";
 import Navbar from "./components/Navbar";
@@ -28,7 +27,6 @@ function App() {
       <ThemeProvider defaultTheme="dark">
         <LanguageProvider>
           <CatalogProvider>
-            <AuthProvider>
             <CartProvider>
               <TooltipProvider>
                 <Toaster />
@@ -37,7 +35,6 @@ function App() {
                 <Footer />
               </TooltipProvider>
             </CartProvider>
-            </AuthProvider>
           </CatalogProvider>
         </LanguageProvider>
       </ThemeProvider>

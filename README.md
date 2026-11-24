@@ -5,8 +5,8 @@ Bilingual (English / Hebrew) shop for Shweet Brew: South African biltong, boerew
 | Part | What | Where it runs |
 |---|---|---|
 | Website | React + Vite + Tailwind (static files) | **Netlify**, built from the `main` branch |
-| Database + logins | Products, stock, orders, users, all order checks | **Supabase** |
-| Payments (coming) | PayPlus payment link + confirmation | Supabase Edge Functions |
+| Database | Products, stock, orders, all order checks | **Supabase** |
+| Payments | Bit / PayBox, bank transfer, or cash in Modiin, outside the site | No service needed |
 
 There is no other hosting. GitHub Pages is switched off (see [Shutting down old deployments](#shutting-down-old-deployments)).
 
@@ -33,7 +33,7 @@ Restart `npx vite` after editing `.env` (it only reads it at start).
 | `SUPABASE_SECRET_KEY` | **Yes** | Admin scripts on your computer only |
 | `SUPABASE_JWKS` | No (public keys for checking logins) | Reference |
 
-`.env` is git-ignored: never commit it, never paste the secret key into Netlify. PayPlus keys, when we add them, go into Supabase (Dashboard → Edge Functions → Secrets), not here.
+`.env` is git-ignored: never commit it, never paste the secret key into Netlify.
 
 ---
 
@@ -54,7 +54,7 @@ It only fast-forwards `main`; it never overwrites it. If someone else pushed to 
 
 ### Database changes (migrations)
 
-The database is built from the numbered files in `supabase/migrations/` (`0001_…` to `0017_…`, more later). To apply one: Supabase Dashboard → **SQL Editor** → paste the file → **Run**. Run new files in number order, each one once.
+The database is built from the numbered files in `supabase/migrations/` (`0001_…` to `0019_…`, more later). To apply one: Supabase Dashboard → **SQL Editor** → paste the file → **Run**. Run new files in number order, each one once.
 
 - Never edit a file that has already been run. Changes go in a new file with the next number.
 - `supabase/seed.sql` loads the starting products and delivery zones (`npx tsx scripts/generate-supabase-seed.ts` regenerates it from the site's product list). It only adds missing rows, so re-running it is safe.
@@ -67,58 +67,24 @@ Netlify → your site → **Site configuration**:
 2. **Environment variables**: add `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (same values as your `.env`). Only these two. Then **Deploys → Trigger deploy** once so the site picks them up.
 3. **Domain management**: your domain should be listed here, and its DNS should point to Netlify.
 
-### Logins and emails
+### No customer accounts
 
-How customers get in:
-- **Password:** sign up with name + password, confirm the email with a **6-digit code**.
-- **Code only:** "Email me a login code instead", no password needed.
-- **Ordering as a guest (the default):** no account, no code. Name + email typed twice (+ address, + phone if they want); the email gets the order confirmation (required since migration `0016`; the site suggests a fix for typos like `gamil.com`). The phone is optional since migration `0017`. You call or message every customer to confirm anyway (migration `0015`).
-- **Google:** "Continue with Google", once you switch it on (below).
+Customers never log in (owner, 2026-11-24). They give a name and an email typed twice (the site suggests a fix for typos like `gamil.com`), an address, and a phone if they want. Migration `0019` removes the old login check from the database. In Supabase:
 
-#### 1. Supabase basics (Authentication)
+1. **Authentication → Sign In / Providers:** switch **off** "Allow new users to sign up". Google/Facebook off too, if they were on.
+2. Only admins have a login (for the admin app to come): add them under Authentication → Users → **Add user**.
 
-1. **URL Configuration:** Site URL = your live domain (e.g. `https://shweetbrew.co.il`). Redirect URLs: the same domain with `/**`, plus `http://localhost:3000/**` and `http://localhost:4173/**` for testing.
-2. **Sign In / Providers → Email:** "Confirm email" **on**, **Email OTP Length = 6**, **Email OTP Expiration = 600** seconds (10 minutes).
-3. Run migrations `0013` to `0017` in the SQL editor if you haven't (`0015` lets guests order without a code, `0016` makes their email required, `0017` makes the phone optional: redeploy the `order-emails` function before `0017`).
+### Your own email sender
 
-#### 2. Your own email sender (do this before launch)
+Order emails go out through **Resend** (free: 3,000 emails a month, 100 a day).
 
-Supabase's built-in sender is for testing only: a few emails an hour, often in spam. Use a real one. Resend is the simplest (free: 3,000 emails a month, 100 a day).
-
-1. **Resend:** sign up at resend.com → **Domains → Add domain** → your domain (e.g. `shweetbrew.co.il`).
-2. **DNS:** Resend shows 3–4 records (TXT for SPF, TXT for DKIM, MX). Add them where you bought the domain (DNS settings), then press **Verify** in Resend. It can take a few minutes to an hour.
-3. **API key:** Resend → **API Keys → Create** (sending access). Copy it.
-4. **Supabase → Authentication → Emails → SMTP Settings → Enable custom SMTP:**
-   - Sender email: `hello@your-domain` (any address on the verified domain)
-   - Sender name: `Shweet Brew`
-   - Host `smtp.resend.com`, port `465`, username `resend`, password = the API key
-5. **Authentication → Rate Limits:** raise "Emails sent per hour" (e.g. to 100). With custom SMTP the default is low.
-6. **Emails → Templates:** paste our branded, bilingual templates from `supabase/email-templates/`:
-
-   | Supabase template | File | Subject |
-   |---|---|---|
-   | Confirm signup | `confirm-signup.html` | `Your Shweet Brew code: {{ .Token }}` |
-   | Magic link | `magic-link.html` | `Your Shweet Brew login code: {{ .Token }}` |
-   | Reset password | `reset-password.html` | `Reset your Shweet Brew password` |
-
-   The code templates **must** contain `{{ .Token }}` (that's the 6-digit code); Supabase's defaults only have a link.
-7. **Test:** on the site, Log in → your email → "Email me a login code instead". The code should arrive within a minute, not in spam.
-
-#### 3. Google login
-
-1. **Google Cloud:** go to console.cloud.google.com → create a project ("Shweet Brew").
-2. **Google Auth Platform → Branding:** app name `Shweet Brew`, your support email, optionally the logo. **Audience:** External. **Data access:** the default `email`, `profile`, `openid` are enough. Then **Publish app** (otherwise only listed test users can log in).
-3. **Clients → Create client → Web application:**
-   - Authorized JavaScript origins: `https://your-domain` and `http://localhost:3000`
-   - Authorized redirect URIs: `https://<your-project-ref>.supabase.co/auth/v1/callback` (your project URL from `.env` + `/auth/v1/callback`)
-4. Copy the **Client ID** and **Client secret** → Supabase → **Authentication → Sign In / Providers → Google** → enable, paste both → Save.
-5. Reload the site: **Continue with Google** appears in the login popup by itself.
-
-Google's screen will say "continue to <your-project-ref>.supabase.co" unless you add a custom domain to Supabase (a paid add-on). It works the same either way.
+1. **Resend:** sign up at resend.com → **Domains → Add domain** → your domain (`shweetbrew.com` is done).
+2. **DNS:** Resend shows 3–4 records (TXT for SPF, TXT for DKIM, MX). Add them where your DNS is, then press **Verify** in Resend. It can take a few minutes to an hour.
+3. **API key:** Resend → **API Keys → Create** (sending access). It goes into Supabase → Edge Functions → Secrets (below).
 
 ### Order emails
 
-Every new website order sends two emails: **"New order SB-1001 · ₪155 · Hasharon Area"** to you (customer, phone with a WhatsApp link, area, address, note, items, total; reply goes to the customer), and an **order confirmation** to the customer in their language (order number, items, total, next delivery day; reply comes to you). It's a Supabase Edge Function, `supabase/functions/order-emails/index.ts`, started by a Database Webhook. It sends through **Resend**, so do "Your own email sender" above first (same API key, same verified domain).
+Every new website order sends two emails: **"New order SB-1001 · ₪155 · Hasharon Area"** to you (customer, phone with a WhatsApp link, area, address, note, items, total; reply goes to the customer), and **"We've got your order SB-1001: awaiting confirmation"** to the customer in their language, as soon as the order is placed, whether or not they press I've paid (order number, items, total, next delivery day; reply comes to you). It's a Supabase Edge Function, `supabase/functions/order-emails/index.ts`, started by a Database Webhook. It sends through **Resend**, so do "Your own email sender" above first (same API key, same verified domain).
 
 1. **Secrets:** Supabase → **Edge Functions → Secrets** → add:
    - `RESEND_API_KEY` = your Resend API key
@@ -128,17 +94,23 @@ Every new website order sends two emails: **"New order SB-1001 · ₪155 · Hash
    - `SITE_URL` = your live address, e.g. `https://shweetbrew.com`
 2. **Function:** **Edge Functions → Deploy a new function → Via Editor**. Name it exactly `order-emails`, delete the sample code, paste the whole of `supabase/functions/order-emails/index.ts`, **Deploy**. Then open the function → **Details** and switch **Enforce JWT verification** off (the webhook proves itself with the secret instead).
 3. **Webhook:** **Database → Webhooks → Create a new hook**:
-   - Name `order-emails`, table **orders**, events **Insert** only
+   - Name `order-emails`, table **orders**, events **Insert** and **Update** (Update is for "I've paid" and "Choose another way to pay"; every other change is ignored)
    - Type **Supabase Edge Functions**, function **order-emails**, method POST
    - HTTP Headers → add `x-webhook-secret` = the same value as `ORDER_WEBHOOK_SECRET`
    - Create.
 4. **Test:** place an order on the site with your own email. Both emails should arrive within a minute. If not: **Edge Functions → order-emails → Logs** shows the reason (wrong secret = 401; Resend refused = the Resend message).
 
+If a customer picks another way to pay after ordering you get **"SB-1001: now paying by Bank transfer"**. When they press **I've paid** you get **"SB-1001: customer says paid · ₪155 · Bit or PayBox"**. Nothing confirms a personal Bit or PayBox payment by itself: check the app, then mark the order paid (`update public.orders set payment_status = 'paid' where reference = 'SB-1001';` until there's an admin app).
+
+**Switching this on for an existing project** (needs migration `0018`): paste the new `order-emails` code and deploy, tick **Update** on the webhook, then run `0018_payment_method.sql` once. The site works before that too; the choice just isn't kept and "I've paid" and "Choose another way to pay" don't show.
+
+The number and the PayBox link are in `client/src/lib/payMethods.ts` (the number is also in `order-emails`). If you join PayBox for business, put your personal link in `PAYBOX_LINK` there.
+
 Orders you log by hand as an admin (WhatsApp/phone) only email the customer (if it has an email), not you.
 
 ### First admin
 
-Sign up on the site (or Supabase → Authentication → Add user), then in the SQL editor:
+Supabase → Authentication → Users → Add user, then in the SQL editor:
 
 ```sql
 update public.profiles set role = 'admin' where email = 'you@example.com';

@@ -224,16 +224,56 @@ await expectError("anon", null, `insert into storage.objects (bucket_id, name) v
 const seen = await as("anon", null, () => db.query(`select count(*)::int c from storage.objects where bucket_id='product-images'`));
 ok(seen.rows[0].c === 1, "guests can see product photos");
 
-// Email check (0013)
-const has = async (email) => (await as("anon", null, () => db.query(`select public.email_has_account($1) r`, [email]))).rows[0].r;
-ok(await has("Dana@Example.test") === true, "email check finds an account (any letter case)");
-ok(await has("nobody@example.test") === false, "email check says no for an unknown address");
-await expectError("anon", null, `select public.email_has_account('not-an-email')`, [], "INVALID_INPUT:email", "email check rejects a non-address");
-for (let i = 0; i < 9; i++) await has("dana@example.test"); // 1 above + 9 = the 10 allowed
-await expectError("anon", null, `select public.email_has_account('dana@example.test')`, [], "TOO_MANY_TRIES", "11th check of one address within an hour");
-await expectError("anon", null, `select * from public.auth_email_checks`, [], "permission denied", "the check log is not readable");
-const stored = (await db.query(`select count(*)::int c from public.auth_email_checks where email_hash like '%@%'`)).rows[0].c;
-ok(stored === 0, "the log stores hashes, never addresses");
+// No customer accounts (0019)
+await expectError("anon", null, `select public.email_has_account('dana@example.test')`, [], "does not exist", "nobody can ask whether an email has an account");
+ok((await db.query(`select to_regclass('public.auth_email_checks') r`)).rows[0].r === null, "its log is gone too");
+
+// How the customer will pay (0018)
+const pmOrder = (extra = {}) => order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { zone_id: "modiin", phone: "", email: "pm@example.test", ...extra });
+const pmPlace = async (extra = {}) => (await as("anon", null, () => db.query(`select public.place_order($1::jsonb) r`, [JSON.stringify(pmOrder(extra))]))).rows[0].r;
+const pmRow = async (id) => (await db.query(`select payment_method, payment_status, payment_claimed_at, payment_changes, status from public.orders where id = $1`, [id])).rows[0];
+const claim = async (id) => (await as("anon", null, () => db.query(`select public.claim_payment($1) r`, [id]))).rows[0].r;
+const switchTo = async (id, m) => (await as("anon", null, () => db.query(`select public.set_payment_method($1, $2) r`, [id, m]))).rows[0].r;
+for (const m of ["bit_paybox", "bank_transfer", "cash"]) {
+  const o = await pmPlace({ payment_method: m, email: `pm-${m}@example.test` });
+  ok(o.payment_method === m && (await pmRow(o.id)).payment_method === m, "the chosen way to pay is kept: " + m);
+}
+const noMethod = await pmPlace({ email: "pm-none@example.test" });
+ok((await pmRow(noMethod.id)).payment_method === null, "an order without one (an older page) still works");
+for (const m of ["gold", "bit", "paybox"]) await expectError("anon", null, `select public.place_order($1::jsonb)`, [JSON.stringify(pmOrder({ payment_method: m }))], "INVALID_INPUT:payment_method", "not a choice for customers: " + m);
+await expectError("anon", null, `select public.place_order($1::jsonb)`, [JSON.stringify(pmOrder({ payment_method: "cash", zone_id: "zone_1_tel_aviv" }))], "INVALID_INPUT:payment_method", "cash is refused outside Modiin");
+await expectError("anon", null, `select public.place_order($1::jsonb)`, [JSON.stringify(pmOrder({ payment_method: "cash", zone_id: "zone_everywhere_else" }))], "INVALID_INPUT:payment_method", "also for somewhere else");
+const adminCash = await as("authenticated", admin, () => db.query(`select public.place_order($1::jsonb) r`, [JSON.stringify(pmOrder({ payment_method: "cash", zone_id: "zone_1_tel_aviv", source: "phone" }))]));
+ok(adminCash.rows[0].r.payment_method === "cash", "an admin logging an order can use cash anywhere");
+const pb = await pmPlace({ payment_method: "bit_paybox", email: "pm-claim@example.test" });
+ok(await claim(pb.id) === true && !!(await pmRow(pb.id)).payment_claimed_at && (await pmRow(pb.id)).payment_status === "unpaid", "'I've paid' is recorded, but the order stays unpaid until an admin checks");
+const firstClaim = String((await pmRow(pb.id)).payment_claimed_at);
+ok(await claim(pb.id) === true && String((await pmRow(pb.id)).payment_claimed_at) === firstClaim, "pressing it twice changes nothing");
+ok(await switchTo(pb.id, "bank_transfer") === false && (await pmRow(pb.id)).payment_method === "bit_paybox", "no switching after 'I've paid'");
+ok(await claim("00000000-0000-4000-8000-000000000000") === false, "an unknown order can't be claimed");
+ok(await claim(noMethod.id) === false, "an order with nothing to pay ahead can't be claimed");
+const sw = await pmPlace({ payment_method: "bit_paybox", email: "pm-sw@example.test" });
+ok(await switchTo(sw.id, "cash") === true && (await pmRow(sw.id)).payment_method === "cash" && (await pmRow(sw.id)).payment_changes === 1, "switching to cash in Modiin");
+ok(await claim(sw.id) === false, "a cash order can't be claimed");
+ok(await switchTo(sw.id, "cash") === true && (await pmRow(sw.id)).payment_changes === 1, "switching to the same one changes nothing");
+for (const m of ["bank_transfer", "bit_paybox", "bank_transfer", "bit_paybox"]) await switchTo(sw.id, m);
+ok(await switchTo(sw.id, "cash") === false && (await pmRow(sw.id)).payment_method === "bit_paybox", "at most 5 switches");
+const tlv = await pmPlace({ payment_method: "bit_paybox", email: "pm-tlv@example.test", zone_id: "zone_1_tel_aviv" });
+ok(await switchTo(tlv.id, "cash") === false && (await pmRow(tlv.id)).payment_method === "bit_paybox", "can't switch to cash outside Modiin");
+ok(await switchTo(tlv.id, "bank_transfer") === true, "but can to a bank transfer");
+await expectError("anon", null, `select public.set_payment_method($1, 'gold')`, [tlv.id], "INVALID_INPUT:payment_method", "can't switch to something made up");
+ok(await switchTo("00000000-0000-4000-8000-000000000000", "cash") === false && await switchTo(noMethod.id, "cash") === false, "unknown orders and ones without a choice can't be switched");
+await db.query(`update public.orders set payment_status = 'paid' where id = $1`, [tlv.id]);
+ok(await switchTo(tlv.id, "bit_paybox") === false && await claim(tlv.id) === false, "a paid order can't be switched or claimed");
+const gone = await pmPlace({ payment_method: "bit_paybox", email: "pm-gone@example.test" });
+await as("authenticated", admin, () => db.query(`update public.orders set status = 'cancelled' where id = $1`, [gone.id]));
+ok(await claim(gone.id) === false && await switchTo(gone.id, "cash") === false, "nor can a cancelled one");
+const oldO = await pmPlace({ payment_method: "bit_paybox", email: "pm-old@example.test" });
+await db.query(`update public.orders set created_at = now() - interval '31 days' where id = $1`, [oldO.id]);
+ok(await claim(oldO.id) === false && await switchTo(oldO.id, "cash") === false, "nor a very old one");
+await expectError("anon", null, `update public.orders set payment_claimed_at = now(), payment_status = 'paid'`, [], "permission denied", "visitors still can't change orders themselves");
+const ov = await as("authenticated", admin, () => db.query(`select payment_method, payment_claimed_at, item_count from public.order_overview where id = $1`, [pb.id]));
+ok(ov.rows[0].payment_method === "bit_paybox" && !!ov.rows[0].payment_claimed_at && ov.rows[0].item_count === 1, "the admin list shows both");
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -106,7 +106,7 @@ export default function FAQSection() {
   return (
     <section
       id="faq"
-      className="py-20 md:py-28 bg-background"
+      className="py-20 md:py-28"
     >
       <div className="container">
         {/* Section Header */}

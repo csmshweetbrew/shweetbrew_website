@@ -39,7 +39,7 @@ export default function DeliverySection() {
   ];
 
   return (
-    <section id="delivery" className="py-16 md:py-20" style={{ backgroundColor: "var(--background)" }}>
+    <section id="delivery" className="py-16 md:py-20">
       <div className="container"><div className="delivery-inner">
         <h2 className="section-title mb-3">
           {he ? (

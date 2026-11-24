@@ -58,8 +58,9 @@ export default function HeroSection() {
   const L = (en: string, hebrew: string) => (he ? hebrew : en);
 
   return (
-    <section id="hero" className="hero-shop relative overflow-hidden" style={{ backgroundColor: "oklch(0.10 0.005 60)" }}>
-      {/* Background photo + warm darkening */}
+    <section id="hero" className="hero-shop relative overflow-hidden">
+      {/* Background photo + warm darkening, fading out into the fire background */}
+      <div className="hero-backdrop">
       <img
         src="/images/hero-1280.webp"
         srcSet="/images/hero-960.webp 960w, /images/hero-1280.webp 1280w"
@@ -76,6 +77,7 @@ export default function HeroSection() {
             "radial-gradient(ellipse 80% 60% at 50% 35%, oklch(0.10 0.02 40 / 0.45) 0%, oklch(0.08 0.01 50 / 0.82) 100%), linear-gradient(to bottom, oklch(0.08 0.01 50 / 0.35) 0%, oklch(0.08 0.01 50 / 0.6) 50%, oklch(0.13 0.005 60) 100%)",
         }}
       />
+      </div>
 
       <div className="relative z-10 container hero-shop-inner">
         {/* 1. What this is */}

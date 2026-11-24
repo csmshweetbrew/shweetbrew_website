@@ -1,6 +1,6 @@
 /*
  * SHWEETBREW FOOTER
- * Design: Dark charcoal background, red accents, horizontal layout
+ * Design: hero black (on the home page the fire's ground fades into it), red accents, horizontal layout
  * Logo left, description, social links, and two columns right
  */
 
@@ -22,7 +22,7 @@ export default function Footer() {
 
   return (
     <footer
-      style={{ backgroundColor: "oklch(0.10 0.005 60)", borderTop: "1px solid oklch(1 0 0 / 0.08)" }}
+      style={{ backgroundColor: "oklch(0.10 0.005 60)" }}
     >
       {/* Main footer */}
       <div className="container py-8 md:py-12">

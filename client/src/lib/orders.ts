@@ -10,6 +10,7 @@
  */
 
 import { getSupabase } from "./supabase";
+import type { PayMethod } from "./payMethods";
 
 export type OrderLine = {
   productId?: string; // products.id in the database (variant id)
@@ -21,10 +22,16 @@ export type OrderLine = {
 };
 
 export type Order = {
+  id?: string; // filled in by the database
+  payMethod?: PayMethod;
+  /** the database keeps how they pay, so "I've paid" and "Pay another way" work (migration 0018) */
+  payTracked?: boolean;
+  /** the customer pressed "I've paid" */
+  claimed?: boolean;
   reference: string; // filled in by the database
   name: string;
   phone: string; // optional: "" when not given
-  email?: string; // guests, optional (signed-in orders get the account's email in the database)
+  email: string;
   address: string; // one line, for display
   city?: string;
   street?: string;
@@ -72,7 +79,7 @@ export function parseOrderError(message: string): OrderError {
   }
 }
 
-type PlaceOrderResponse = { id: string; reference: string; subtotal: number; delivery_fee: number | null; total: number; created_at: string };
+type PlaceOrderResponse = { id: string; reference: string; subtotal: number; delivery_fee: number | null; total: number; created_at: string; payment_method?: string | null };
 
 export async function submitOrder(order: Order): Promise<SubmitResult> {
   try {
@@ -85,7 +92,7 @@ export async function submitOrder(order: Order): Promise<SubmitResult> {
       p_order: {
         name: order.name,
         phone: order.phone || null,
-        email: order.email ?? null,
+        email: order.email,
         zone_id: order.zoneId,
         city: order.city ?? "",
         street: order.street ?? "",
@@ -93,6 +100,7 @@ export async function submitOrder(order: Order): Promise<SubmitResult> {
         notes: order.notes,
         language: order.language ?? "en",
         requested_delivery_date: order.requestedDeliveryDate ?? null,
+        payment_method: order.payMethod ?? null,
         // prices are deliberately not sent: the database decides them
         items: order.lines.map((l) => ({ product_id: l.productId, size: l.size, quantity: l.quantity })),
       },
@@ -104,6 +112,8 @@ export async function submitOrder(order: Order): Promise<SubmitResult> {
       ok: true,
       order: {
         ...order,
+        id: r.id,
+        payTracked: !!r.payment_method,
         reference: r.reference,
         subtotal: Number(r.subtotal),
         deliveryFee: r.delivery_fee == null ? null : Number(r.delivery_fee),

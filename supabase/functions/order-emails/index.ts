@@ -1,12 +1,16 @@
 // ===========================================================================
 // order-emails · Supabase Edge Function
 //
-// Runs once for every new order (a Database Webhook on `orders`, INSERT) and
-// sends two emails through Resend:
+// Runs for every new order (a Database Webhook on `orders`, INSERT and UPDATE)
+// and sends two emails through Resend:
 //   1. to the owner: "New order SB-1001": customer, phone, area, items, total
 //      (website orders only; orders an admin logs by hand don't need it);
-//   2. to the customer: their order confirmation, in the order's language
-//      (English or Hebrew), when the order has an email.
+//   2. to the customer: "we've got your order, awaiting confirmation", in the order's language
+//      (English or Hebrew), when the order has an email. With Bit or PayBox
+//      it says where to send the money.
+// When a customer presses "I've paid" or picks another way to pay (an UPDATE),
+// the owner gets another one.
+// Every other update is ignored.
 //
 // One file with no imports, so it can be pasted into the Supabase dashboard
 // (Edge Functions → Deploy a new function → Via editor). Setup: README.md →
@@ -45,6 +49,9 @@ type Order = {
   total: number | string;
   requested_delivery_date: string | null;
   created_at: string;
+  payment_method?: string | null; // since migration 0018
+  payment_claimed_at?: string | null;
+  payment_changes?: number;
 };
 
 type Item = {
@@ -57,6 +64,18 @@ type Item = {
 };
 
 const WHATSAPP_DISPLAY = "058-413-2576";
+const PAY_NUMBER_DISPLAY = "058-413-2576"; // Bit and PayBox (same as client/src/lib/payMethods.ts)
+
+function methodText(m: string | null | undefined, he: boolean) {
+  switch (m) {
+    case "bit_paybox": return he ? "Bit או PayBox" : "Bit or PayBox";
+    case "bit": return "Bit";
+    case "paybox": return "PayBox";
+    case "bank_transfer": return he ? "העברה בנקאית" : "Bank transfer";
+    case "cash": return he ? "מזומן" : "Cash";
+    default: return "";
+  }
+}
 
 const ZONE_HE: Record<string, string> = {
   modiin: "מודיעין (מטה)",
@@ -175,6 +194,7 @@ export function ownerEmail(order: Order, items: Item[], siteUrl: string) {
     ${p(esc(zoneText(order, false)))}
     ${p(address ? esc(address) : `<span style="color:#867f77">No address (pickup?)</span>`)}
     ${order.notes ? p(`<span style="color:#5a534c">Note:</span> ${esc(order.notes)}`, "background:#f5efe6;padding:10px 12px;border-radius:6px") : ""}
+    ${order.payment_method ? h("Payment") + p(`<b>${esc(methodText(order.payment_method, false))}</b>${order.payment_method === "bank_transfer" ? " · send them the bank details" : ""}`) : ""}
     ${h("Items")}
     ${itemsTable(items, order, false)}
     <p style="margin:24px 0 0;font-size:13px;color:#867f77">Status: new, unpaid. Placed ${esc(new Date(order.created_at).toLocaleString("en-GB", { timeZone: "Asia/Jerusalem", dateStyle: "medium", timeStyle: "short" }))} on ${esc(siteUrl.replace(/^https?:\/\//, ""))}.</p>`;
@@ -191,17 +211,32 @@ export function customerEmail(order: Order, items: Item[], siteUrl: string) {
   const pickup = order.zone_id === "modiin" && !address;
   const date = order.zone_id === "zone_everywhere_else" ? "" : dateText(order.requested_delivery_date, he);
   const T = (en: string, hebrew: string) => (he ? hebrew : en);
+  // What happens next, by how they'll pay. The total isn't final while delivery is to be arranged.
+  const m = order.payment_method;
+  const payApp = m === "bit_paybox" && order.delivery_fee !== null ? methodText(m, he) : "";
+  const reach = (en: string, hebrew: string) => order.phone
+    ? T(`We'll call or message you to confirm ${en}`, `ניצור איתכם קשר בטלפון או בהודעה כדי לאשר ${hebrew}`)
+    : T(`We'll email you to confirm ${en}`, `נשלח לכם מייל כדי לאשר ${hebrew}`);
+  const next = !m
+    ? reach("it and arrange payment (Bit, PayBox, bank transfer, or cash in Modiin).", "אותה ולתאם תשלום (Bit, PayBox, העברה בנקאית, או מזומן במודיעין).")
+    : order.delivery_fee === null
+      ? reach("the delivery price and the final total.", "את מחיר המשלוח והסכום הסופי.")
+      : m === "bank_transfer"
+        ? reach("the delivery time and send the bank details.", "את זמן המשלוח ונשלח את פרטי הבנק.")
+        : m === "cash"
+          ? reach("the delivery time. You pay in cash when you get it.", "את זמן המשלוח. משלמים במזומן בקבלה.")
+          : reach("the delivery time.", "את זמן המשלוח.");
   const inner = `
     <p style="margin:0 0 4px;font-size:20px;font-weight:900">${esc(T(`Thanks${first ? `, ${first}` : ""}! We've got your order.`, `תודה${first ? `, ${first}` : ""}! קיבלנו את ההזמנה.`))}</p>
-    <p style="margin:0 0 16px;font-size:15px;color:#5a534c">${esc(order.phone
-      ? T("We'll call or message you to confirm it and arrange payment (cash, bank transfer or Bit).",
-          "ניצור איתכם קשר בטלפון או בהודעה כדי לאשר אותה ולתאם תשלום (מזומן, העברה בנקאית או Bit).")
-      : T("We'll email you to confirm it and arrange payment (cash, bank transfer or Bit).",
-          "נשלח לכם מייל כדי לאשר אותה ולתאם תשלום (מזומן, העברה בנקאית או Bit)."))}</p>
+    <p style="margin:0 0 4px;font-size:15px;font-weight:700">${T("It's awaiting confirmation.", "היא ממתינה לאישור.")}</p>
+    <p style="margin:0 0 16px;font-size:15px;color:#5a534c">${esc(next)}</p>
     <div style="background:#f5efe6;border-radius:6px;padding:14px 16px;margin:0 0 4px">
       <p style="margin:0;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#867f77">${T("Order number", "מספר הזמנה")}</p>
       <p style="margin:2px 0 0;font-size:28px;font-weight:900;letter-spacing:1px;color:#cd2027" dir="ltr">${esc(order.reference)}</p>
     </div>
+    ${payApp ? h(T("Payment", "תשלום")) + p(T(
+      `Send <b>${shekel(order.total)}</b> with <b>${payApp}</b> to <b dir="ltr">${PAY_NUMBER_DISPLAY}</b> and write <b dir="ltr">${esc(order.reference)}</b> in the note.`,
+      `שלחו <b>${shekel(order.total)}</b> ב-<b>${payApp}</b> למספר <b dir="ltr">${PAY_NUMBER_DISPLAY}</b> וכתבו <b dir="ltr">${esc(order.reference)}</b> בהערה.`)) : ""}
     ${h(T("Delivery", "משלוח"))}
     ${p(`<b>${esc(zoneText(order, he))}</b>`)}
     ${date ? p(`${T("Next available delivery", "המשלוח הקרוב")}: <b>${esc(date)}</b>`) : p(esc(T("We'll arrange the day with you.", "נתאם איתכם את היום.")))}
@@ -210,16 +245,35 @@ export function customerEmail(order: Order, items: Item[], siteUrl: string) {
     ${h(T("Your order", "ההזמנה שלכם"))}
     ${itemsTable(items, order, he)}
     <hr style="border:none;border-top:1px solid #eee5d8;margin:24px 0 16px">
-    <p style="margin:0 0 6px;font-size:14px;color:#5a534c">${T(
-      `Questions? Just reply to this email, or WhatsApp us on <b dir="ltr">${WHATSAPP_DISPLAY}</b>.`,
-      `שאלות? פשוט השיבו למייל הזה, או כתבו לנו ב-WhatsApp ל-<b dir="ltr">${WHATSAPP_DISPLAY}</b>.`)}</p>
     <p style="margin:0;font-size:14px;color:#5a534c">${T(
-      `To see your order, log in at <a href="${esc(siteUrl)}" style="color:#cd2027">${esc(siteUrl.replace(/^https?:\/\//, ""))}</a> with this email (a code is enough).`,
-      `כדי לראות את ההזמנה, התחברו ב-<a href="${esc(siteUrl)}" style="color:#cd2027">${esc(siteUrl.replace(/^https?:\/\//, ""))}</a> עם המייל הזה (מספיק קוד).`)}</p>`;
+      `Questions? Just reply to this email, or WhatsApp us on <b dir="ltr">${WHATSAPP_DISPLAY}</b>.`,
+      `שאלות? פשוט השיבו למייל הזה, או כתבו לנו ב-WhatsApp ל-<b dir="ltr">${WHATSAPP_DISPLAY}</b>.`)}</p>`;
   return {
-    subject: T(`Your Shweet Brew order ${order.reference}`, `ההזמנה שלך ב-Shweet Brew: ${order.reference}`),
+    subject: T(`We've got your order ${order.reference}: awaiting confirmation`, `קיבלנו את ההזמנה ${order.reference}: ממתינה לאישור`),
     html: frame(inner, he),
   };
+}
+
+/** The customer pressed "I've paid": the owner checks the app */
+export function claimedEmail(order: Order) {
+  const app = methodText(order.payment_method, false);
+  const inner = `
+    <p style="margin:0 0 4px;font-size:14px;color:#867f77">The customer says they've paid</p>
+    <p style="margin:0 0 12px;font-size:30px;font-weight:900">${esc(order.reference)} · ${shekel(order.total)}</p>
+    ${p(`Check <b>${esc(app)}</b> for <b>${shekel(order.total)}</b> from <b>${esc(order.customer_name)}</b>${order.phone ? ` (${esc(order.phone)})` : ""}. The note should say ${esc(order.reference)}.`)}
+    ${p(`<span style="color:#867f77">The order is still marked unpaid until you change it.</span>`)}`;
+  return { subject: `${order.reference}: customer says paid · ${shekel(order.total)} · ${app}`, html: frame(inner, false) };
+}
+
+/** The customer picked another way to pay after ordering */
+export function changedEmail(order: Order) {
+  const how = methodText(order.payment_method, false);
+  const inner = `
+    <p style="margin:0 0 4px;font-size:14px;color:#867f77">The customer changed how they'll pay</p>
+    <p style="margin:0 0 12px;font-size:30px;font-weight:900">${esc(order.reference)} · ${shekel(order.total)}</p>
+    ${p(`Now: <b>${esc(how)}</b>${order.payment_method === "bank_transfer" ? " · send them the bank details" : ""}`)}
+    ${p(`${esc(order.customer_name)}${order.phone ? ` · ${esc(order.phone)}` : ""}${order.email ? ` · ${esc(order.email)}` : ""}`)}`;
+  return { subject: `${order.reference}: now paying by ${how}`, html: frame(inner, false) };
 }
 
 // ---------------------------------------------------------------------------
@@ -266,15 +320,30 @@ export async function handleRequest(req: Request, env: Env, f: typeof fetch = fe
   }
   for (const k of ["RESEND_API_KEY", "SUPABASE_URL"]) if (!env[k]) return json(500, { error: `missing secret ${k}` });
 
-  let payload: { type?: string; table?: string; record?: Order };
+  let payload: { type?: string; table?: string; record?: Order; old_record?: Order | null };
   try { payload = await req.json(); } catch { return json(400, { error: "body is not JSON" }); }
-  if (payload.type !== "INSERT" || payload.table !== "orders" || !payload.record?.id) {
+  const order = payload.record;
+  const old = payload.type === "UPDATE" ? payload.old_record : null;
+  const justClaimed = !!old && !!order?.payment_claimed_at && !old.payment_claimed_at;
+  const justChanged = !!old && Number(order?.payment_changes ?? 0) > Number(old.payment_changes ?? 0);
+  if (payload.table !== "orders" || !order?.id || (payload.type !== "INSERT" && !justClaimed && !justChanged)) {
     return json(200, { skipped: "not a new order" });
   }
 
-  const order = payload.record;
   const siteUrl = (env.SITE_URL || "https://shweetbrew.com").replace(/\/$/, "");
   const owners = (env.OWNER_EMAIL || "").split(",").map((s) => s.trim()).filter(Boolean);
+
+  if (justClaimed || justChanged) {
+    if (!owners.length) return json(200, { skipped: "no OWNER_EMAIL" });
+    try {
+      const m = justClaimed ? claimedEmail(order) : changedEmail(order);
+      const sent = await sendEmail(env, f, { to: owners, subject: m.subject, html: m.html, reply_to: order.email ? [order.email] : undefined });
+      return json(200, { reference: order.reference, [justClaimed ? "claimed" : "changed"]: sent });
+    } catch (e) {
+      console.error(order.reference, justClaimed ? "claimed" : "changed", String(e));
+      return json(502, { error: String(e) });
+    }
+  }
 
   let items: Item[];
   try { items = await loadItems(env, order.id, f); } catch (e) {

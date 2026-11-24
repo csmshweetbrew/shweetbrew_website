@@ -1,8 +1,7 @@
 /*
  * The checkout details form, shared by the cart drawer and the Order section:
- * the account line (guest by default, "Log in" optional), searchable delivery
- * area (+ next delivery date), the minimum note, name + optional phone, the email
- * (guests; required, typed twice, with a "did you mean gmail.com?" hint),
+ * searchable delivery area (+ next delivery date), the minimum note, name +
+ * optional phone, the email (required, typed twice, with a "did you mean gmail.com?" hint),
  * address and an optional note. Errors show once a field is left; CheckoutProblems lists
  * what's missing above the Place order button.
  *
@@ -14,7 +13,7 @@ import { ChevronDown, Search } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { deliveryZones, formatDeliveryDate, zoneDays, zoneName, zoneNameBoth, zoneSearchTerms, type DeliveryZone } from "@/config/deliveryZones";
-import CheckoutAccount from "./CheckoutAccount";
+import PaymentChoice from "./PaymentChoice";
 import { MIN_DELIVERY_ORDER, OTHER_ZONE, type Checkout } from "./useCheckout";
 
 export default function CheckoutFields({ checkout, idPrefix }: { checkout: Checkout; idPrefix: string }) {
@@ -30,7 +29,6 @@ export default function CheckoutFields({ checkout, idPrefix }: { checkout: Check
 
   return (
     <div className="cart-form">
-      <CheckoutAccount />
       <AreaPicker idPrefix={idPrefix} language={language} value={selectedArea} onChange={setSelectedArea} error={show("zone")} />
       {zone && nextDeliveryDate && zone.id !== OTHER_ZONE && (
         <p className="cart-next-delivery">
@@ -55,7 +53,6 @@ export default function CheckoutFields({ checkout, idPrefix }: { checkout: Check
         <Field id={id("name")} label={L("Name", "שם")} value={name} onChange={setName} onBlur={() => touch("name")} error={show("name")} autoComplete="name" />
         <Field id={id("phone")} label={<>{L("Phone", "טלפון")} <span className="cart-optional">{L("(optional)", "(לא חובה)")}</span></>} value={phone} onChange={setPhone} onBlur={() => touch("phone")} error={show("phone")} type="tel" autoComplete="tel" />
       </div>
-      {!checkout.signedIn && (<>
         <Field
           id={id("email")}
           label={L("Email (for your order confirmation)", "אימייל (לאישור ההזמנה)")}
@@ -84,7 +81,6 @@ export default function CheckoutFields({ checkout, idPrefix }: { checkout: Check
           autoComplete="off"
           dir="ltr"
         />
-      </>)}
       <fieldset className="cart-address">
         <legend>
           {L("Delivery address", "כתובת למשלוח")}
@@ -96,19 +92,11 @@ export default function CheckoutFields({ checkout, idPrefix }: { checkout: Check
         </div>
         <Field id={id("apartment")} label={L("Apartment, floor, entrance (optional)", "דירה, קומה, כניסה (לא חובה)")} value={apartment} onChange={setApartment} autoComplete="address-line2" />
       </fieldset>
-      {checkout.signedIn && (
-        <label className="checkout-save" htmlFor={id("save")}>
-          <input id={id("save")} type="checkbox" checked={checkout.saveDetails} onChange={(e) => checkout.setSaveDetails(e.target.checked)} />
-          <span className="checkout-save-box" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 5 5 9-10" /></svg>
-          </span>
-          <span>{L("Save these details for next time", "שמרו את הפרטים לפעם הבאה")}</span>
-        </label>
-      )}
       <div className="cart-field">
         <label htmlFor={id("notes")}>{L("Note", "הערה")} <span className="cart-optional">{L("(optional)", "(לא חובה)")}</span></label>
         <textarea id={id("notes")} rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={L("Gate code, a time that suits you, a gift message…", "קוד שער, שעה נוחה, הקדשה…")} />
       </div>
+      <PaymentChoice checkout={checkout} idPrefix={idPrefix} />
     </div>
   );
 }

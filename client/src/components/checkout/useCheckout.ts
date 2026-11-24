@@ -2,13 +2,13 @@
  * The checkout rules, in one place. Used by the cart drawer (CartPanel) and the
  * Order section (OrderForm), so both check, price and place orders the same way:
  *
- *   - guest by default (owner, 2026-11-24): area, name and email required,
- *     the email typed twice (plus a "did you mean gmail.com?" typo hint);
- *     phone optional; signed-in orders use the account's email
+ *   - no accounts (owner, 2026-11-24): area, name and email required, the email
+ *     typed twice (plus a "did you mean gmail.com?" typo hint); phone optional
  *   - errors show as soon as a field is left, and "Place order" with
  *     something missing lists every problem above the button
  *   - ₪80 minimum for delivery, except Modiin pickup
  *   - delivery fee and total from the chosen area
+ *   - how they'll pay (Bit / PayBox, bank transfer, cash in Modiin only): kept on the order, nothing is charged
  *   - the order goes to the database (lib/orders.ts → place_order), which
  *     re-checks prices, stock and the minimum itself
  *
@@ -19,14 +19,13 @@
 import { useEffect, useState, type RefObject } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useCatalog } from "@/contexts/CatalogContext";
-import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslatedProductName } from "@/config/products";
 import { deliveryZones, getNextDeliveryDate, type DeliveryZone } from "@/config/deliveryZones";
 import { findVariant, findVariantById } from "@/lib/catalog";
 import { submitOrder, type Order, type OrderError } from "@/lib/orders";
-import { getSupabase } from "@/lib/supabase";
 import { suggestEmail } from "@/lib/emailTypos";
+import { payMethodsFor } from "@/lib/payMethods";
 
 export const MIN_DELIVERY_ORDER = 80;
 export const OTHER_ZONE = "zone_everywhere_else";
@@ -43,10 +42,9 @@ export function useCheckout(rootRef: RefObject<HTMLElement | null>) {
   const L = (en: string, hebrew: string) => (he ? hebrew : en);
 
   const { items, subtotal, selectedArea, name, phone, notes, shippingDetails: street, city, apartment, email, setEmail, emailAgain, setEmailAgain, clearCart,
-    tried, setTried, touched, touch, submitting, setSubmitting, saveDetails, setSaveDetails } = useCart();
+    tried, setTried, touched, touch, submitting, setSubmitting, payMethod: chosenMethod, setPlaced } = useCart();
   const { categories, refresh: refreshCatalog } = useCatalog();
-  const { user, refreshProfile } = useAuth();
-  const guestEmail = user ? "" : email.trim();
+  const typedEmail = email.trim();
 
   const [orderError, setOrderError] = useState<OrderError | null>(null);
 
@@ -54,31 +52,34 @@ export function useCheckout(rootRef: RefObject<HTMLElement | null>) {
   const feeKnown = zone ? zone.price >= 0 : false;
   const deliveryFee = zone && zone.price > 0 ? zone.price : 0;
   const total = subtotal + deliveryFee;
+  // Cash chosen and then another area picked: back to the first choice
+  const payMethods = payMethodsFor(zone?.id);
+  const payMethod = payMethods.includes(chosenMethod) ? chosenMethod : payMethods[0];
   const belowMinimum = !!zone && zone.id !== "modiin" && subtotal < MIN_DELIVERY_ORDER;
   const nextDeliveryDate = zone ? getNextDeliveryDate(zone) : null;
   const deliveryText = !zone ? "—" : zone.price === 0 ? L("Free", "חינם") : zone.price < 0 ? L("To arrange", "בתיאום") : `₪${zone.price}`;
 
-  // Guests must give an email (owner, 2026-11-24): every order gets a confirmation email
+  // The email is required (owner, 2026-11-24): every order gets a confirmation email
   const errors = {
     zone: !zone ? L("Choose where it's going.", "בחרו לאן לשלוח.") : "",
     name: !name.trim() ? L("Add your name.", "הוסיפו שם.") : "",
     // Optional, but a number that can't work is still pointed out (same rule as the database)
     phone: phone.trim() && !/^\+?[0-9][0-9 ()-]{6,24}$/.test(phone.trim()) ? L("Check the phone number, or leave it empty.", "בדקו את מספר הטלפון, או השאירו ריק.") : "",
-    email: user ? "" : !guestEmail
+    email: !typedEmail
       ? L("Add your email for the order confirmation.", "הוסיפו מייל לאישור ההזמנה.")
-      : !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(guestEmail) ? L("Check the email address.", "בדקו את כתובת המייל.") : "",
-    emailAgain: user ? "" : !emailAgain.trim()
+      : !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(typedEmail) ? L("Check the email address.", "בדקו את כתובת המייל.") : "",
+    emailAgain: !emailAgain.trim()
       ? L("Type your email again.", "הקלידו את המייל שוב.")
-      : emailAgain.trim().toLowerCase() !== guestEmail.toLowerCase() ? L("The two emails don't match.", "שני המיילים לא תואמים.") : "",
+      : emailAgain.trim().toLowerCase() !== typedEmail.toLowerCase() ? L("The two emails don't match.", "שני המיילים לא תואמים.") : "",
   };
   const hasErrors = Object.values(errors).some(Boolean);
   /** Show a field's error once it was left, or after "Place order" was pressed */
   const show = (field: keyof typeof errors) => (tried || touched[field] ? errors[field] : "");
-  const emailSuggestion = user ? null : suggestEmail(guestEmail);
+  const emailSuggestion = suggestEmail(typedEmail);
   /** Accept the suggestion; if the same typo was typed twice, fix both */
   const acceptSuggestion = () => {
     if (!emailSuggestion) return;
-    if (emailAgain.trim().toLowerCase() === guestEmail.toLowerCase()) setEmailAgain(emailSuggestion);
+    if (emailAgain.trim().toLowerCase() === typedEmail.toLowerCase()) setEmailAgain(emailSuggestion);
     setEmail(emailSuggestion);
   };
 
@@ -87,7 +88,7 @@ export function useCheckout(rootRef: RefObject<HTMLElement | null>) {
     errors.zone && { field: "area", text: L("Choose a delivery area", "בחרו אזור משלוח") },
     errors.name && { field: "name", text: L("Add your name", "הוסיפו שם") },
     errors.phone && { field: "phone", text: L("Check your phone number", "בדקו את מספר הטלפון") },
-    errors.email && { field: "email", text: guestEmail ? L("Check your email address", "בדקו את כתובת המייל") : L("Add your email", "הוסיפו מייל") },
+    errors.email && { field: "email", text: typedEmail ? L("Check your email address", "בדקו את כתובת המייל") : L("Add your email", "הוסיפו מייל") },
     errors.emailAgain && { field: "emailAgain", text: emailAgain.trim() ? L("Make the two emails match", "ודאו ששני המיילים תואמים") : L("Type your email again", "הקלידו את המייל שוב") },
     belowMinimum && { field: "", text: L(`Delivery starts at ₪${MIN_DELIVERY_ORDER}: add ₪${MIN_DELIVERY_ORDER - subtotal} more, or choose Modiin pickup`, `משלוח מ-₪${MIN_DELIVERY_ORDER}: הוסיפו עוד ₪${MIN_DELIVERY_ORDER - subtotal}, או בחרו איסוף במודיעין`) },
   ].filter(Boolean) as { field: string; text: string }[];
@@ -113,6 +114,8 @@ export function useCheckout(rootRef: RefObject<HTMLElement | null>) {
       case "INVALID_INPUT":
         return err.field === "phone"
           ? L("Check the phone number and try again.", "בדקו את מספר הטלפון ונסו שוב.")
+          : err.field === "payment_method"
+            ? L("Cash is only available in Modiin. Choose another way to pay.", "מזומן אפשרי רק במודיעין. בחרו דרך תשלום אחרת.")
           : err.field === "email"
             ? L("Check the email address and try again.", "בדקו את כתובת המייל ונסו שוב.")
             : L("Check your details and try again.", "בדקו את הפרטים ונסו שוב.");
@@ -126,20 +129,20 @@ export function useCheckout(rootRef: RefObject<HTMLElement | null>) {
     }
   };
 
-  /** Checks, then places the order. Resolves to the placed order, or null if it didn't go through. */
-  const placeOrder = async (): Promise<Order | null> => {
-    if (submitting) return null;
+  /** Checks, then places the order. The "Order placed" screen (CartContext.placed) shows when it went through. */
+  const placeOrder = async (): Promise<void> => {
+    if (submitting) return;
     if (hasErrors || belowMinimum) {
       setTried(true);
       // setTimeout, not requestAnimationFrame: works while the tab is in the background too
       window.setTimeout(() => rootRef.current?.querySelector<HTMLElement>("[aria-invalid='true']")?.focus(), 0);
-      return null;
+      return;
     }
     const order: Order = {
       reference: "",
       name: name.trim(),
       phone: phone.trim(),
-      email: guestEmail || undefined,
+      email: typedEmail,
       address: [street.trim(), apartment.trim(), city.trim()].filter(Boolean).join(", "),
       city: city.trim(),
       street: street.trim(),
@@ -148,6 +151,7 @@ export function useCheckout(rootRef: RefObject<HTMLElement | null>) {
       zoneName: zone!.name,
       notes: notes.trim(),
       language: he ? "he" : "en",
+      payMethod,
       requestedDeliveryDate: nextDeliveryDate && zone!.id !== OTHER_ZONE ? toIsoDate(nextDeliveryDate) : undefined,
       lines: items.map((i) => ({
         productId: findVariant(categories, i.categoryName, i.productName)?.id,
@@ -169,30 +173,11 @@ export function useCheckout(rootRef: RefObject<HTMLElement | null>) {
     if (!result.ok) {
       setOrderError(result.error);
       if (result.error.code === "OUT_OF_STOCK" || result.error.code === "UNAVAILABLE") void refreshCatalog();
-      return null;
+      return;
     }
     setTried(false);
-    // Remember the details as this customer's defaults (works the same for Google, password
-    // and code accounts). The database already fills empty profile fields on every order;
-    // this also replaces older saved details when the box is ticked.
-    if (user && saveDetails) {
-      try {
-        const sb = await getSupabase();
-        await sb?.from("profiles").update({
-          full_name: order.name || null,
-          phone: order.phone || null,
-          city: order.city || null,
-          street: order.street || null,
-          apartment: order.apartment || null,
-          default_zone_id: order.zoneId,
-        }).eq("id", user.id);
-      } catch {
-        // not critical: the order went through
-      }
-    }
     clearCart();
-    void refreshProfile();
-    return result.order;
+    setPlaced(result.order);
   };
 
   return {
@@ -202,6 +187,8 @@ export function useCheckout(rootRef: RefObject<HTMLElement | null>) {
     deliveryText,
     total,
     belowMinimum,
+    payMethods,
+    payMethod,
     nextDeliveryDate,
     errors,
     show,
@@ -213,9 +200,6 @@ export function useCheckout(rootRef: RefObject<HTMLElement | null>) {
     submitting,
     orderError: orderError ? errorText(orderError) : "",
     placeOrder,
-    signedIn: !!user,
-    saveDetails,
-    setSaveDetails,
   };
 }
 

@@ -10,7 +10,7 @@
  * Right: your details and Place order.
  */
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef } from "react";
 import { ArrowUp, Pencil } from "lucide-react";
 import { useCart, type CartItem } from "@/contexts/CartContext";
 import { useCatalog } from "@/contexts/CatalogContext";
@@ -21,7 +21,6 @@ import { findVariant } from "@/lib/catalog";
 import { productThumb } from "@/lib/images";
 import { openCart } from "@/lib/shopFilter";
 import { scrollToTarget } from "@/lib/smoothScroll";
-import type { Order } from "@/lib/orders";
 import { useCheckout } from "./checkout/useCheckout";
 import CheckoutFields, { CheckoutProblems } from "./checkout/CheckoutFields";
 import OrderPlaced from "./checkout/OrderPlaced";
@@ -31,15 +30,10 @@ export default function OrderForm() {
   const he = language === "he";
   const L = (en: string, hebrew: string) => (he ? hebrew : en);
   const t = translations.checkout;
-  const { items, subtotal } = useCart();
+  const { items, subtotal, placed, setPlaced } = useCart();
   const { categories } = useCatalog();
   const sectionRef = useRef<HTMLElement>(null);
   const checkout = useCheckout(sectionRef);
-  const [placed, setPlaced] = useState<Order | null>(null);
-  // A new bag after an order: back to the form
-  useEffect(() => {
-    if (items.length) setPlaced(null);
-  }, [items.length]);
 
   // One line per product, its packs summed by size: "500g × 2 · 100g"
   const groups = useMemo(() => {
@@ -54,13 +48,8 @@ export default function OrderForm() {
     return Array.from(map.entries());
   }, [items]);
 
-  const placeOrder = async () => {
-    const order = await checkout.placeOrder();
-    if (order) setPlaced(order);
-  };
-
   return (
-    <section ref={sectionRef} id="order" className="py-16 px-4" style={{ backgroundColor: "var(--background)", borderTop: "3px solid var(--accent)" }}>
+    <section ref={sectionRef} id="order" className="py-16 px-4" style={{ borderTop: "3px solid var(--accent)" }}>
       <div className="max-w-5xl mx-auto">
         <div className="mb-12 text-center">
           <h2 className="section-title mb-4">{t.title[language]}</h2>
@@ -127,7 +116,7 @@ export default function OrderForm() {
               {checkout.orderError && (
                 <p className="cart-min cart-order-error order-error" role="alert">{checkout.orderError}</p>
               )}
-              <button type="button" className="cart-primary order-submit" onClick={placeOrder} disabled={checkout.submitting} aria-busy={checkout.submitting}>
+              <button type="button" className="cart-primary order-submit" onClick={checkout.placeOrder} disabled={checkout.submitting} aria-busy={checkout.submitting}>
                 {checkout.submitting ? L("Placing your order…", "שולחים את ההזמנה…") : `${L("Place order", "ביצוע הזמנה")} · ₪${checkout.total}`}
               </button>
             </div>

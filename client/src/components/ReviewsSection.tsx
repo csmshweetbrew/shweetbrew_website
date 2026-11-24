@@ -296,7 +296,6 @@ export default function ReviewsSection() {
     <section
       id="reviews"
       className="py-20 md:py-28 overflow-hidden"
-      style={{ backgroundColor: "oklch(0.13 0.005 60)" }}
     >
       <div className="container mb-12">
         <div className="flex flex-col md:flex-row md:items-end gap-4 md:gap-8">
@@ -318,16 +317,6 @@ export default function ReviewsSection() {
 
       {/* Scrollable row */}
       <div className="relative" style={{ direction: "ltr" }}>
-        {/* Fade edges */}
-        <div
-          className="absolute left-0 top-0 bottom-0 w-12 sm:w-16 md:w-24 z-10 pointer-events-none"
-          style={{ background: "linear-gradient(to right, oklch(0.13 0.005 60), transparent)" }}
-        />
-        <div
-          className="absolute right-0 top-0 bottom-0 w-12 sm:w-16 md:w-24 z-10 pointer-events-none"
-          style={{ background: "linear-gradient(to left, oklch(0.13 0.005 60), transparent)" }}
-        />
-
         <button type="button" className="reviews-arrow left-2 md:left-6" onClick={() => scrollByCard(-1)} aria-label={language === "en" ? "Previous reviews" : "ביקורות קודמות"}>
           <ChevronLeft className="w-5 h-5" />
         </button>

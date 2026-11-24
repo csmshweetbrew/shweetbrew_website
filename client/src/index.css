@@ -368,6 +368,44 @@
     padding-top: 6.5rem;
     padding-bottom: 5.5rem;
   }
+  /* ---------- Navbar (Navbar.tsx): links exactly centred; on phones the logo is ---------- */
+  .nav-bar { position: fixed; inset: 0 0 auto; z-index: 50; direction: ltr; border-bottom: 1px solid transparent; transition: background-color 0.3s, box-shadow 0.3s, border-color 0.3s; }
+  .nav-bar.is-solid { background-color: oklch(0.13 0.005 60 / 0.97); border-bottom-color: oklch(1 0 0 / 0.1); box-shadow: 0 10px 15px -3px oklch(0 0 0 / 0.4); }
+  .nav-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1rem; height: 4rem; }
+  .nav-home { grid-column: 2; padding: 0.5rem; justify-self: center; }
+  .nav-logo { display: block; width: auto; height: 32px; transition: transform 0.2s; }
+  .nav-home:hover .nav-logo { transform: scale(1.05); }
+  .nav-burger { justify-self: start; margin-inline-start: -0.6rem; color: var(--foreground); }
+  .nav-links, .nav-globe { display: none; }
+  .nav-end { grid-column: 3; display: flex; align-items: center; justify-content: flex-end; gap: 0.6rem; }
+  .nav-icon { width: 2.75rem; height: 2.75rem; place-items: center; border-radius: 4px; transition: background-color 0.2s; }
+  .nav-icon:hover { background-color: oklch(1 0 0 / 0.1); }
+  .nav-burger { display: grid; }
+  .nav-globe { color: var(--accent); }
+  .nav-order { display: inline-flex; align-items: center; justify-content: center; min-height: 2.75rem; padding: 0 1.1rem; border-radius: 4px; background-color: var(--accent); color: var(--accent-foreground); font-weight: 900; text-align: center; transition: filter 0.2s, transform 0.2s; }
+  .nav-order:hover { filter: brightness(1.12); }
+  .nav-order:active { transform: scale(0.97); }
+  .nav-link { position: relative; min-height: 2.75rem; padding: 0 0.75rem; font-size: 0.95rem; font-weight: 700; text-align: center; white-space: nowrap; color: var(--brand-cream-dim); transition: color 0.2s; }
+  .nav-link:hover, .nav-link[aria-current] { color: var(--foreground); }
+  .nav-links .nav-link::after { content: ""; position: absolute; inset-inline: 0.75rem; bottom: 0.35rem; height: 2px; background-color: var(--accent); transform: scaleX(0); transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
+  .nav-links .nav-link[aria-current]::after { transform: none; }
+  .nav-menu { display: grid; justify-items: center; padding: 0.25rem 1rem 1rem; border-top: 1px solid oklch(1 0 0 / 0.1); background-color: var(--background); animation: checkout-problems-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .nav-menu .nav-link { width: 100%; min-height: 3.25rem; font-size: 1.05rem; border-bottom: 1px solid oklch(1 0 0 / 0.06); }
+  .nav-menu .nav-link:last-child { border-bottom: 0; }
+  .nav-menu .nav-lang { display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+  .nav-menu .nav-lang svg { color: var(--accent); }
+  @media (min-width: 640px) { .nav-row { height: 72px; } .nav-logo { height: 34px; } }
+  @media (min-width: 1024px) {
+    .nav-row { height: 5rem; }
+    .nav-burger, .nav-menu { display: none; }
+    .nav-home { grid-column: 1; justify-self: start; margin-inline-start: -0.5rem; }
+    .nav-logo { height: 40px; }
+    .nav-links { grid-column: 2; display: flex; align-items: center; justify-content: center; }
+    .nav-globe { display: grid; }
+    .nav-order { padding: 0 1.4rem; }
+  }
+  @media (prefers-reduced-motion: reduce) { .nav-menu { animation: none; } .nav-logo, .nav-links .nav-link::after { transition: none; } }
+
   .hero-shop-title {
     margin: 0;
     font-family: 'Bebas Neue', sans-serif;
@@ -753,6 +791,56 @@
     color: var(--foreground);
   }
 
+  /* How would you like to pay? */
+  .pay-choice { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.75rem; margin: 0; padding: 0; border: 0; min-width: 0; }
+  .pay-choice legend { padding: 0; margin-bottom: 0.6rem; font-size: 0.9rem; font-weight: 700; color: var(--foreground); }
+  .pay-option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 3.1rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    border: 1px solid oklch(1 0 0 / 0.18);
+    background-color: var(--card);
+    color: var(--foreground);
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s;
+  }
+  .pay-option:hover { border-color: oklch(1 0 0 / 0.35); }
+  .pay-option input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .pay-dot { flex-shrink: 0; width: 1.15rem; height: 1.15rem; border-radius: 999px; border: 2px solid oklch(1 0 0 / 0.35); transition: border-color 0.2s, box-shadow 0.2s; }
+  .pay-option:has(input:checked) { border-color: var(--accent); background-color: color-mix(in oklab, var(--accent) 12%, var(--card)); }
+  .pay-option input:checked + .pay-dot { border-color: var(--accent); background-color: var(--accent); box-shadow: inset 0 0 0 3px var(--card); }
+  .pay-option:has(input:focus-visible) { outline: 2px solid color-mix(in oklab, var(--accent) 60%, transparent); outline-offset: 2px; }
+  /* "Pay ₪155 with Bit" on the order-placed screen */
+  .pay-panel { display: grid; gap: 0.85rem; width: 100%; max-width: 24rem; margin: 0.5rem 0; padding: 1.1rem; border-radius: 6.4px; border: 1px solid color-mix(in oklab, var(--accent) 50%, transparent); background-color: var(--card); }
+  .pay-panel h3 { margin: 0; font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; line-height: 1; letter-spacing: 0.04em; color: var(--foreground); }
+  .pay-panel dl { display: grid; margin: 0; }
+  .pay-row { display: grid; grid-template-columns: 4.2rem minmax(0, 1fr) auto; align-items: center; gap: 0.6rem; padding: 0.35rem 0; text-align: start; border-top: 1px solid oklch(1 0 0 / 0.1); }
+  .pay-row:first-child { border-top: 0; }
+  .pay-row dt { font-size: 0.85rem; color: var(--muted-foreground); }
+  .pay-row dd { margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--foreground); text-align: start; font-variant-numeric: tabular-nums; }
+  html[dir="rtl"] .pay-row dd[dir="ltr"] { text-align: right; }
+  .pay-copy { min-width: 4.6rem; padding: 0.55rem 0.6rem; border-radius: 4px; border: 1px solid oklch(0.94 0.025 75 / 0.3); font-size: 0.85rem; font-weight: 700; color: var(--brand-cream-dim); transition: border-color 0.2s, color 0.2s; }
+  .pay-copy:hover { border-color: oklch(0.94 0.025 75 / 0.6); color: var(--foreground); }
+  .pay-copy.is-copied { border-color: oklch(0.65 0.15 120); color: oklch(0.65 0.15 120); }
+  /* Three choices (Modiin): Bit / PayBox takes the whole first row */
+  .pay-option:nth-last-of-type(3):first-of-type { grid-column: 1 / -1; }
+  .pay-open-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.75rem; }
+  .pay-open { display: block; padding-inline: 0.35rem; text-align: center; white-space: nowrap; }
+  .pay-switch { width: 100%; max-width: 24rem; padding-block: 0.8rem; }
+  .pay-others { display: grid; gap: 0.6rem; width: 100%; max-width: 24rem; animation: checkout-problems-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .pay-others strong { color: var(--foreground); }
+  .pay-others .cart-secondary { padding-block: 0.8rem; }
+  .pay-others button:disabled { opacity: 0.7; cursor: progress; }
+  @media (prefers-reduced-motion: reduce) { .pay-others { animation: none; } }
+  .pay-done { width: 100%; padding-block: 0.8rem; }
+  .pay-done:disabled { opacity: 0.7; cursor: progress; }
+  .pay-tick { display: inline-grid; place-items: center; flex-shrink: 0; width: 1.25rem; height: 1.25rem; border-radius: 999px; background-color: oklch(0.65 0.15 120); color: var(--background); }
+  .pay-claimed { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin: 0; font-weight: 700; color: var(--foreground); }
+
   .cart-search { position: relative; display: flex; align-items: center; }
   .cart-search svg { position: absolute; inset-inline-start: 0.7rem; color: var(--muted-foreground); pointer-events: none; }
   .cart-search svg.cart-search-caret { inset-inline-start: auto; inset-inline-end: 0.7rem; transition: transform 0.2s; }
@@ -899,6 +987,8 @@
     scrollbar-width: none;
     padding-block: 1rem;
     cursor: grab;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 clamp(3rem, 8vw, 6rem), #000 calc(100% - clamp(3rem, 8vw, 6rem)), transparent);
+    mask-image: linear-gradient(to right, transparent, #000 clamp(3rem, 8vw, 6rem), #000 calc(100% - clamp(3rem, 8vw, 6rem)), transparent);
   }
   .reviews-track::-webkit-scrollbar { display: none; }
   .reviews-track:active { cursor: grabbing; }
@@ -1435,464 +1525,25 @@
   ::-webkit-scrollbar-thumb { background: oklch(0.35 0.15 260); border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: #cd2027; }
 
-  /* ------------------------------------------------------------------
-     Login popup (AuthModal.tsx): email first, one question per step
-     ------------------------------------------------------------------ */
-  .auth-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 70;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    background-color: oklch(0 0 0 / 0.7);
-    animation: info-fade 0.25s ease-out both;
-  }
-  .auth-panel {
+  /* "Into the fire": the live background behind the whole home page (lib/fire/background.ts) */
+  .fire-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+  .fire-bg canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .hero-backdrop { position: absolute; inset: 0; overflow: hidden; -webkit-mask-image: linear-gradient(#000 62%, transparent); mask-image: linear-gradient(#000 62%, transparent); }
+
+  /* The bushveld fire at the bottom of the home page (lib/fire/braai.ts). The picture shows until the live one is ready. */
+  .braai {
     position: relative;
-    width: 100%;
-    max-width: 28rem;
-    max-height: calc(100dvh - 2rem);
-    overflow-y: auto;
-    padding: 1.75rem 1.5rem 1.5rem;
-    border-radius: 6.4px;
-    background-color: var(--background);
-    border: 1px solid color-mix(in oklab, var(--accent) 60%, transparent);
-    box-shadow: 0 30px 80px oklch(0 0 0 / 0.6);
-    animation: info-pop 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-  .auth-close {
-    position: absolute;
-    top: 0.75rem;
-    inset-inline-end: 0.75rem;
-    padding: 0.4rem;
-    border-radius: 999px;
-    color: var(--brand-cream-dim);
-    transition: color 0.15s, background-color 0.15s;
-  }
-  .auth-close:hover { color: var(--foreground); background-color: oklch(1 0 0 / 0.08); }
-
-  /* Steps fade into each other while the panel eases to the new height */
-  .auth-viewport { overflow: hidden; transition: height 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
-  /* Motion tokens for the login popup (adapted from neighbour-s) */
-  .auth-panel {
-    --m-out: cubic-bezier(0.22, 1, 0.36, 1);
-    --m-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-    --m-fast: 0.15s;
-    --m-base: 0.25s;
-    --m-slow: 0.4s;
-    --ok: oklch(0.65 0.15 120);
-    --ok-soft: color-mix(in oklab, oklch(0.65 0.15 120) 16%, transparent);
-    --bad: oklch(0.70 0.18 25);
-    --bad-soft: color-mix(in oklab, var(--accent) 14%, transparent);
-    --accent-soft: color-mix(in oklab, var(--accent) 28%, transparent);
-  }
-  /* Steps fade up into place while the panel eases to the new height */
-  .auth-step { animation: auth-step-in var(--m-slow) var(--m-out) 60ms both; }
-  @keyframes auth-step-in { from { opacity: 0; transform: translateY(6px); } }
-  @keyframes auth-pop { 0% { transform: scale(0.5); } 60% { transform: scale(1.18); } 100% { transform: none; } }
-  @keyframes auth-rise { from { opacity: 0; transform: translateY(8px); } }
-  @keyframes auth-shake { 20%, 60% { transform: translateX(-7px); } 40%, 80% { transform: translateX(7px); } }
-  @keyframes auth-ring { from { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 35%, transparent); } to { box-shadow: 0 0 0 18px transparent; } }
-
-  /* Progress through a new customer's way in (email → details → code → in). A light sweeps
-     along it now and then; each step forward springs it longer and glows its edge. A normal
-     login (password / code) hides it. */
-  .auth-progress {
-    height: 5px;
-    margin: 0 2.25rem 1.25rem 0;
-    border-radius: 999px;
-    background-color: oklch(1 0 0 / 0.08);
-    transition: opacity var(--m-base);
-  }
-  [dir="rtl"] .auth-progress { margin: 0 0 1.25rem 2.25rem; }
-  .auth-progress.is-hidden { opacity: 0; }
-  .auth-progress span {
-    position: relative;
-    display: block;
-    height: 100%;
-    border-radius: inherit;
+    height: clamp(30rem, 52vw, min(48rem, 88vh));
+    margin-block: -5rem -1px;
     overflow: hidden;
-    background: linear-gradient(90deg, color-mix(in oklab, var(--accent) 55%, var(--brand-gold)), var(--accent));
-    box-shadow: 0 0 10px color-mix(in oklab, var(--accent) 35%, transparent);
-    transition: width 0.7s var(--m-spring);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
   }
-  [dir="rtl"] .auth-progress span { margin-inline-start: 0; }
-  .auth-progress span::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    transform: translateX(-100%);
-    background: linear-gradient(90deg, transparent 25%, oklch(1 0 0 / 0.45) 50%, transparent 75%);
-    animation: auth-shine 3.2s ease-in-out 1s infinite;
-  }
-  .auth-progress.is-bump span { animation: auth-bar-glow 0.8s var(--m-out); }
-  .auth-progress.is-complete span { background: linear-gradient(90deg, var(--accent), var(--ok)); }
-  @keyframes auth-shine { 60%, 100% { transform: translateX(100%); } }
-  @keyframes auth-bar-glow { 30% { box-shadow: 0 0 0 3px var(--accent-soft), 0 0 18px color-mix(in oklab, var(--accent) 70%, transparent); } }
-
-  .auth-head { display: flex; align-items: center; gap: 0.25rem; margin-bottom: 1.1rem; }
-  .auth-back {
-    margin-inline-start: -0.45rem;
-    padding: 0.3rem;
-    border-radius: 999px;
-    color: var(--brand-cream-dim);
-  }
-  .auth-back:hover { color: var(--foreground); background-color: oklch(1 0 0 / 0.08); }
-  .auth-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2.25rem;
-    line-height: 1;
-    letter-spacing: 0.04em;
-    color: var(--foreground);
-    margin: 0;
-  }
-  .auth-sub { margin: -0.6rem 0 1.1rem; font-size: 0.9rem; line-height: 1.5; color: var(--brand-cream-dim); }
-  .auth-sub strong { color: var(--foreground); }
-
-  .auth-form { display: grid; gap: 0.9rem; }
-  .auth-field { display: grid; gap: 0.35rem; }
-  .auth-field label {
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    color: var(--brand-cream-dim);
-  }
-  .auth-field input {
-    width: 100%;
-    height: 3.6rem;
-    padding: 0 1.05rem;
-    border-radius: 4px;
-    border: 1px solid var(--accent);
-    background-color: var(--background);
-    color: var(--foreground);
-    font-size: 1.1rem;
-  }
-  .auth-field input::placeholder { color: var(--muted-foreground); opacity: 1; }
-  .auth-field input[aria-invalid="true"] { box-shadow: 0 0 0 1px var(--accent); }
-  .auth-step.is-shaking .auth-field:has(input[aria-invalid="true"]) { animation: auth-shake 0.4s ease-in-out; }
-  .auth-names { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-
-  .auth-password { position: relative; }
-  .auth-password input { padding-inline-end: 3.1rem; }
-  .auth-eye {
-    position: absolute;
-    top: 50%;
-    inset-inline-end: 0.4rem;
-    transform: translateY(-50%);
-    padding: 0.35rem;
-    border-radius: 4px;
-    color: var(--brand-cream-dim);
-  }
-  .auth-eye:hover { color: var(--foreground); }
-
-  /* Strength: 3 bars fill as it gets stronger (red → gold → green); only the 8-character rule is required */
-  .auth-strength { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.3rem; margin-top: 0.15rem; }
-  .auth-strength span { position: relative; height: 4px; border-radius: 999px; overflow: hidden; background-color: oklch(1 0 0 / 0.12); }
-  .auth-strength span::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background-color: var(--ok);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform var(--m-slow) var(--m-out), background-color var(--m-base);
-  }
-  [dir="rtl"] .auth-strength span::after { transform-origin: right; }
-  .auth-strength[data-score="1"] span:nth-child(-n + 1)::after,
-  .auth-strength[data-score="2"] span:nth-child(-n + 2)::after,
-  .auth-strength[data-score="3"] span::after { transform: none; }
-  .auth-strength[data-score="1"] span::after { background-color: var(--accent); }
-  .auth-strength[data-score="2"] span::after { background-color: var(--brand-gold); }
-  .auth-rules { list-style: none; margin: 0.15rem 0 0; padding: 0; display: grid; gap: 0.2rem; font-size: 0.8rem; color: var(--muted-foreground); }
-  .auth-rules li { display: flex; align-items: center; gap: 0.45rem; transition: color 0.2s; }
-  .auth-rules li.is-met { color: var(--brand-cream-dim); }
-  .auth-rule-dot {
-    display: inline-grid;
-    place-items: center;
-    width: 0.95rem;
-    height: 0.95rem;
-    border-radius: 999px;
-    border: 1px solid oklch(1 0 0 / 0.25);
-    color: transparent;
-    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
-  }
-  .auth-rule-dot svg { width: 0.6rem; height: 0.6rem; }
-  .auth-rules li.is-met .auth-rule-dot { background-color: var(--ok); border-color: transparent; color: var(--background); animation: auth-pop var(--m-slow) var(--m-spring); }
-
-  .auth-error {
-    animation: auth-rise var(--m-base) var(--m-out);
-    margin: 0;
-    padding: 0.6rem 0.75rem;
-    border-radius: 4px;
-    background-color: color-mix(in oklab, var(--accent) 16%, transparent);
-    font-size: 0.875rem;
-    color: var(--foreground);
-  }
-
-  /* Primary: the site's red button. Working: it draws in to a round spinner. Done: a green
-     circle with a check pops in, then the next step comes. */
-  .auth-primary {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    justify-self: center;
-    width: 100%;
-    height: 3.4rem;
-    padding: 0 1rem;
-    border-radius: 4px;
-    background-color: var(--accent);
-    color: var(--accent-foreground);
-    font-weight: 900;
-    overflow: hidden;
-    transition: width var(--m-slow) var(--m-out), border-radius var(--m-slow) var(--m-out), background-color var(--m-base), filter 0.2s, transform 0.2s var(--m-out);
-  }
-  .auth-primary:hover:not(:disabled) { filter: brightness(1.08); }
-  .auth-primary:active:not(:disabled) { transform: scale(0.98); }
-  .auth-primary.is-busy, .auth-primary.is-done { width: 3.4rem; padding: 0; border-radius: 999px; cursor: progress; }
-  .auth-primary.is-done { background-color: var(--ok); cursor: default; }
-  .auth-primary-label { white-space: nowrap; transition: opacity var(--m-fast); }
-  .auth-primary.is-busy .auth-primary-label, .auth-primary.is-done .auth-primary-label { opacity: 0; }
-  .auth-primary-icon { position: absolute; inset: 0; margin: auto; width: 1.3rem; height: 1.3rem; }
-  .auth-primary.is-done .auth-primary-icon { animation: auth-pop var(--m-slow) var(--m-spring); }
-
-  .auth-link {
-    color: var(--foreground);
-    font-weight: 700;
-    font-size: 0.875rem;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-decoration-color: color-mix(in oklab, var(--accent) 70%, transparent);
-  }
-  .auth-link:hover:not(:disabled) { color: var(--accent); }
-  .auth-link:disabled { color: var(--muted-foreground); text-decoration: none; cursor: default; }
-  .auth-below { display: block; margin: 1rem auto 0; }
-
-  .auth-chip {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    margin: 0.25rem 0 1.1rem;
-    padding: 0.55rem 0.75rem;
-    border-radius: 4px;
-    background-color: var(--card);
-    font-size: 0.9rem;
-    color: var(--brand-cream-dim);
-  }
-  .auth-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .auth-avatar {
-    display: grid;
-    place-items: center;
-    width: 3rem;
-    height: 3rem;
-    margin-bottom: 0.75rem;
-    border-radius: 999px;
-    background-color: var(--accent);
-    color: var(--accent-foreground);
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.6rem;
-    line-height: 1;
-    animation: auth-pop var(--m-slow) var(--m-spring);
-  }
-
-  .auth-or { display: flex; align-items: center; gap: 0.75rem; margin: 1.25rem 0; color: var(--muted-foreground); font-size: 0.8rem; }
-  .auth-or::before, .auth-or::after { content: ""; flex: 1; height: 1px; background-color: oklch(1 0 0 / 0.12); }
-  .auth-socials { display: grid; gap: 0.6rem; }
-  .auth-social {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.6rem;
-    width: 100%;
-    height: 3.4rem;
-    padding: 0 1rem;
-    border-radius: 4px;
-    border: 1px solid oklch(1 0 0 / 0.2);
-    background-color: var(--card);
-    color: var(--foreground);
-    font-weight: 700;
-    transition: border-color 0.15s, background-color 0.15s;
-  }
-  .auth-social:hover:not(:disabled) { border-color: oklch(1 0 0 / 0.4); }
-
-  .auth-agree { margin: 0; text-align: center; font-size: 0.78rem; line-height: 1.45; color: var(--muted-foreground); }
-  .auth-links { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.35rem 0.6rem; margin: 1rem 0 0; color: var(--muted-foreground); font-size: 0.85rem; }
-  .auth-links .auth-link { font-size: 0.85rem; }
-
-  .auth-centre { text-align: center; }
-  .auth-centre .auth-head { justify-content: center; }
-  .auth-mark {
-    display: inline-grid;
-    place-items: center;
-    width: 3.5rem;
-    height: 3.5rem;
-    margin-bottom: 0.9rem;
-    border-radius: 999px;
-    background-color: color-mix(in oklab, var(--accent) 18%, transparent);
-    color: var(--accent);
-    animation: auth-pop 0.55s var(--m-spring) both, auth-ring 1.1s 0.35s ease-out;
-  }
-  .auth-done { padding: 1rem 0 0.5rem; display: grid; justify-items: center; gap: 0.9rem; }
-  .auth-check { width: 4rem; height: 4rem; }
-  .auth-done .auth-title { animation: auth-rise var(--m-slow) var(--m-out) 0.25s both; }
-  .auth-check circle { fill: none; stroke: oklch(0.65 0.15 120); stroke-width: 3; stroke-dasharray: 151; stroke-dashoffset: 151; animation: auth-draw 0.5s ease-out forwards; }
-  .auth-check path { fill: none; stroke: oklch(0.65 0.15 120); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 40; stroke-dashoffset: 40; animation: auth-draw 0.35s 0.35s ease-out forwards; }
-  @keyframes auth-draw { to { stroke-dashoffset: 0; } }
-
-  @media (max-width: 420px) {
-    .auth-panel { padding: 1.5rem 1.1rem 1.25rem; }
-    .auth-names { grid-template-columns: 1fr; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .auth-backdrop, .auth-panel, .auth-step, .auth-error, .auth-avatar, .auth-mark, .auth-done .auth-title,
-    .auth-progress span, .auth-progress span::before, .auth-rules li.is-met .auth-rule-dot, .auth-primary-icon,
-    .auth-step.is-shaking .auth-field, .code-digit, .code-field.is-busy .code-cell, .code-field.is-done .code-cell,
-    .code-field.is-shaking .code-cells, .code-input:focus ~ .code-cells .code-cell::after { animation: none !important; }
-    .auth-primary, .auth-progress span, .auth-strength span::after { transition: none; }
-    .code-field.is-done .code-tick { animation: none; opacity: 1; transform: none; }
-    .code-field.is-done .code-tick path { animation: none; stroke-dashoffset: 0; }
-    .auth-viewport { transition: none; }
-    .auth-check circle, .auth-check path { animation: none; stroke-dashoffset: 0; }
-  }
-
-  .auth-hint { margin: 0.6rem 0 0; text-align: center; font-size: 0.8rem; color: var(--muted-foreground); }
-  .auth-below-tight { margin-top: 0.6rem; }
-
-  /* 6-digit email code: six boxes over one real input (EmailCodeInput.tsx). Each digit drops in,
-     the next empty box carries a blinking caret; checking ripples along the boxes; wrong turns
-     them red and shakes; right turns them green in a wave and a check pops in the middle. */
-  .code-field { display: grid; gap: 0.35rem; min-width: 0; }
-  .code-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; color: var(--brand-cream-dim); }
-  /* In the login popup the boxes speak for themselves: label for screen readers only */
-  .auth-panel .code-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .code-box { position: relative; }
-  .code-input {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: transparent;
-    caret-color: transparent;
-    font-size: 16px; /* no zoom-on-focus on iPhone */
-    opacity: 0;
-    cursor: text;
-  }
-  .code-cells { display: grid; grid-template-columns: repeat(3, 1fr) 0.4rem repeat(3, 1fr); gap: 0.45rem; }
-  .code-cell:nth-child(4) { grid-column: 5; }
-  .code-cell {
-    display: grid;
-    place-items: center;
-    height: 3.4rem;
-    overflow: hidden;
-    border: 1px solid oklch(1 0 0 / 0.18);
-    border-radius: 6.4px;
-    background-color: var(--card);
-    color: var(--foreground);
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2rem;
-    line-height: 1;
-    transition: border-color var(--m-fast), box-shadow var(--m-fast), background-color var(--m-base), color var(--m-base);
-  }
-  .code-cell.is-filled { border-color: oklch(0.94 0.025 75 / 0.6); }
-  .code-digit { display: block; animation: code-digit-in 0.32s var(--m-spring) both; }
-  @keyframes code-digit-in { from { opacity: 0; transform: translateY(-6px) scale(0.9); } }
-  .code-input:focus:not(:read-only) ~ .code-cells .code-cell.is-active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-  .code-input:focus:not(:read-only) ~ .code-cells .code-cell.is-active:not(.is-filled)::after {
-    content: "";
-    width: 2px;
-    height: 1.5rem;
-    border-radius: 1px;
-    background-color: var(--accent);
-    animation: code-caret 1s steps(1) infinite;
-  }
-  @keyframes code-caret { 50% { opacity: 0; } }
-  .code-input[aria-invalid="true"] ~ .code-cells .code-cell { border-color: var(--bad); background-color: var(--bad-soft); color: var(--bad); box-shadow: none; }
-  .code-field.is-shaking .code-cells { animation: auth-shake 0.4s ease-in-out; }
-  /* Checking: a ripple runs along the boxes */
-  .code-field.is-busy .code-cell { border-color: var(--accent); animation: code-ripple 0.9s ease-in-out infinite; animation-delay: calc(var(--i) * 50ms); }
-  @keyframes code-ripple { 0%, 60%, 100% { transform: none; } 25% { transform: translateY(-5px); } }
-  /* In: green in a wave, then a check pops in the middle with a ring */
-  .code-field.is-done .code-cell { border-color: var(--ok); background-color: var(--ok-soft); color: var(--ok); animation: auth-pop var(--m-slow) var(--m-spring) both; animation-delay: calc(var(--i) * 50ms); }
-  .code-field.is-done .code-digit { animation: none; opacity: 0.45; transition: opacity var(--m-base) 0.3s; }
-  .code-tick {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    z-index: 2;
-    display: grid;
-    place-items: center;
-    width: 3rem;
-    height: 3rem;
-    margin: -1.5rem 0 0 -1.5rem;
-    border-radius: 999px;
-    background-color: var(--ok);
-    color: var(--background);
-    pointer-events: none;
-    opacity: 0;
-    transform: scale(0);
-  }
-  .code-tick svg { width: 1.5rem; height: 1.5rem; }
-  .code-tick path { stroke-dasharray: 24; stroke-dashoffset: 24; }
-  .code-field.is-done .code-tick { animation: code-tick-in 0.5s var(--m-spring) 0.3s forwards, code-tick-ring 0.8s ease-out 0.4s; }
-  .code-field.is-done .code-tick path { animation: auth-draw 0.3s var(--m-out) 0.5s forwards; }
-  @keyframes code-tick-in { to { opacity: 1; transform: scale(1); } }
-  @keyframes code-tick-ring { from { box-shadow: 0 0 0 0 color-mix(in oklab, oklch(0.65 0.15 120) 45%, transparent); } to { box-shadow: 0 0 0 22px transparent; } }
-  /* Smaller boxes in the cart drawer */
-  .code-field.is-compact .code-cell { height: 2.75rem; font-size: 1.6rem; }
-  .code-field.is-compact .code-cells { gap: 0.35rem; }
-  .code-field.is-compact .code-tick { width: 2.5rem; height: 2.5rem; margin: -1.25rem 0 0 -1.25rem; }
-  @media (max-width: 380px) { .code-cell { height: 2.9rem; font-size: 1.6rem; } .code-cells { gap: 0.3rem; } }
-
-  /* Checkout account line (details step): guest by default, log in optional */
-  .checkout-account { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.55rem; margin: 0; font-size: 0.875rem; color: var(--brand-cream-dim); }
-  .checkout-account strong { color: var(--foreground); }
-  .checkout-account-link {
-    font-weight: 700;
-    color: var(--foreground);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-decoration-color: color-mix(in oklab, var(--accent) 70%, transparent);
-  }
-  .checkout-account-link:hover { color: var(--accent); }
-  .checkout-account-tick {
-    display: inline-grid;
-    place-items: center;
-    flex-shrink: 0;
-    width: 1.25rem;
-    height: 1.25rem;
-    border-radius: 999px;
-    background-color: oklch(0.65 0.15 120);
-    color: var(--background);
-  }
-  /* "Save these details for next time" (signed in): a small custom tick box */
-  .checkout-save { position: relative; display: flex; align-items: center; gap: 0.55rem; font-size: 0.85rem; font-weight: 700; color: var(--brand-cream-dim); cursor: pointer; }
-  .checkout-save input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-  .checkout-save-box {
-    display: grid;
-    place-items: center;
-    flex-shrink: 0;
-    width: 1.15rem;
-    height: 1.15rem;
-    border-radius: 4px;
-    border: 1px solid oklch(1 0 0 / 0.3);
-    background-color: var(--card);
-    color: transparent;
-    transition: background-color 0.15s, border-color 0.15s, color 0.15s;
-  }
-  .checkout-save-box svg { width: 0.75rem; height: 0.75rem; }
-  .checkout-save input:checked + .checkout-save-box { background-color: var(--accent); border-color: var(--accent); color: var(--accent-foreground); animation: auth-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
-  .checkout-save input:focus-visible + .checkout-save-box { outline: 2px solid color-mix(in oklab, var(--accent) 60%, transparent); outline-offset: 2px; }
-  @media (prefers-reduced-motion: reduce) { .checkout-save input:checked + .checkout-save-box { animation: none; } }
-  .cart-placed-track { font-size: 0.85rem; color: var(--brand-cream-dim); }
-  .cart-placed-track strong { color: var(--foreground); }
+  .braai img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; transition: opacity 0.5s 0.9s; }
+  .braai.is-live img { opacity: 0; }
+  .braai canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 0.9s; }
+  .braai.is-live canvas { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { .braai { cursor: default; } }
 
   /* Order section (#order): the cart's checkout laid out on the page */
   .order-layout { display: grid; gap: 1.5rem; align-items: start; }
@@ -1930,36 +1581,4 @@
   }
   .order-cta:hover { transform: scale(1.05); }
 
-  /* Signed-in account button + menu in the navbar */
-  .account-menu {
-    position: absolute;
-    top: calc(100% + 0.5rem);
-    inset-inline-end: 0;
-    min-width: 14rem;
-    padding: 0.5rem;
-    border-radius: 6.4px;
-    background-color: var(--background);
-    border: 1px solid oklch(1 0 0 / 0.12);
-    box-shadow: 0 16px 40px oklch(0 0 0 / 0.5);
-    animation: info-pop 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
-    z-index: 60;
-  }
-  .account-menu-who { padding: 0.5rem 0.6rem 0.65rem; border-bottom: 1px solid oklch(1 0 0 / 0.08); margin-bottom: 0.35rem; }
-  .account-menu-who strong { display: block; color: var(--foreground); font-size: 0.95rem; }
-  .account-menu-who span { display: block; color: var(--muted-foreground); font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; }
-  .account-menu button { display: flex; width: 100%; align-items: center; gap: 0.5rem; padding: 0.55rem 0.6rem; border-radius: 4px; font-size: 0.875rem; font-weight: 700; color: var(--brand-cream-dim); text-align: start; }
-  .account-menu button:hover { background-color: oklch(1 0 0 / 0.06); color: var(--foreground); }
-  .account-initial {
-    display: inline-grid;
-    place-items: center;
-    width: 1.6rem;
-    height: 1.6rem;
-    border-radius: 999px;
-    background-color: var(--accent);
-    color: var(--accent-foreground);
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1rem;
-    line-height: 1;
-  }
-  @media (prefers-reduced-motion: reduce) { .account-menu { animation: none; } }
 }

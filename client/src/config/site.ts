@@ -79,7 +79,7 @@ export const SITE_CONFIG = {
     minimumOrder: 80, // NIS
     minimumOrderPickup: 0, // NIS
     orderCutoff: "12pm", // For same-day delivery in Modiin
-    paymentMethods: ["Cash", "Bank Transfer", "Bit"],
+    paymentMethods: ["Bit", "PayBox", "Bank Transfer", "Cash (Modiin only)"],
     pickupAvailable: true,
     pickupLocation: "Modiin",
   },

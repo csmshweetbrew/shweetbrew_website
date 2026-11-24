@@ -8,7 +8,7 @@
  * Step 2 "Details": the shared checkout form (components/checkout): confirmed
  * email, delivery area, name, phone, address, note. The Order section on the
  * page uses the very same form and rules (useCheckout).
- * Step 3: order placed.
+ * Then the "Order placed" screen (shared with the Order section).
  *
  * Closes on the X, a click outside, or Escape.
  */
@@ -20,7 +20,6 @@ import { ShoppingBag, X, Plus, Minus, ChevronLeft } from "lucide-react";
 import { getTranslatedProductName } from "@/config/products";
 import { useCatalog } from "@/contexts/CatalogContext";
 import { findVariant as findCatalogVariant } from "@/lib/catalog";
-import type { Order } from "@/lib/orders";
 import { productThumb } from "@/lib/images";
 import { scrollToTarget, lockPageScroll } from "@/lib/smoothScroll";
 import { OPEN_CART_EVENT } from "@/lib/shopFilter";
@@ -28,20 +27,19 @@ import { useCheckout } from "./checkout/useCheckout";
 import CheckoutFields, { CheckoutProblems } from "./checkout/CheckoutFields";
 import OrderPlaced from "./checkout/OrderPlaced";
 
-type Step = 1 | 2 | 3;
+type Step = 1 | 2;
 
 export default function CartPanel() {
   const { language } = useLanguage();
   const he = language === "he";
   const L = (en: string, hebrew: string) => (he ? hebrew : en);
-  const { items, addItem, updateQuantity, subtotal } = useCart();
+  const { items, addItem, updateQuantity, subtotal, placed, setPlaced, placedRestored } = useCart();
 
   const { categories } = useCatalog();
   const findVariant = (categoryName: string, productName: string) => findCatalogVariant(categories, categoryName, productName);
 
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState<Step>(1);
-  const [placed, setPlaced] = useState<Order | null>(null);
   const panelRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const checkout = useCheckout(panelRef);
@@ -84,16 +82,15 @@ export default function CartPanel() {
     return () => lockPageScroll(false);
   }, [isOpen]);
 
-  // Back to the bag when it empties; leave the "placed" screen once the drawer closes
+  // Back to the bag when it empties. The "Order placed" screen stays until "Back to the shop"
+  // or a new bag, so closing the drawer by accident doesn't lose the payment details.
   useEffect(() => {
     if (!items.length && step === 2) setStep(1);
   }, [items.length, step]);
+  // The phone dropped the page while the customer was paying in another app: show it again
   useEffect(() => {
-    if (!isOpen && step === 3) {
-      setStep(1);
-      setPlaced(null);
-    }
-  }, [isOpen, step]);
+    if (placedRestored) setIsOpen(true);
+  }, [placedRestored]);
 
   /* ---------- bag grouping: one block per product, one row per pack ---------- */
   const groups = useMemo(() => {
@@ -153,15 +150,7 @@ export default function CartPanel() {
 
   const goToDetails = () => setStep(2);
 
-  const placeOrder = async () => {
-    const order = await checkout.placeOrder();
-    if (order) {
-      setPlaced(order);
-      setStep(3);
-    }
-  };
-
-  const title = step === 3 ? L("Order placed", "ההזמנה התקבלה") : step === 2 ? L("Your details", "הפרטים שלכם") : L("Your bag", "הסל שלכם");
+  const title = placed ? L("Order placed", "ההזמנה התקבלה") : step === 2 ? L("Your details", "הפרטים שלכם") : L("Your bag", "הסל שלכם");
 
   return (
     <>
@@ -193,14 +182,14 @@ export default function CartPanel() {
         <header className="cart-head">
           <h2>
             {title}
-            {step !== 3 && count > 0 && <small>{count} {count === 1 ? L("item", "פריט") : L("items", "פריטים")}</small>}
+            {!placed && count > 0 && <small>{count} {count === 1 ? L("item", "פריט") : L("items", "פריטים")}</small>}
           </h2>
           <button type="button" className="cart-icon-btn" onClick={() => setIsOpen(false)} aria-label={L("Close", "סגור")}>
             <X className="w-5 h-5" />
           </button>
         </header>
 
-        {items.length > 0 && step !== 3 && (
+        {items.length > 0 && !placed && (
           <nav className="cart-steps" aria-label={L("Checkout steps", "שלבי הזמנה")}>
             <button type="button" onClick={() => setStep(1)} aria-current={step === 1 ? "step" : undefined} className={step > 1 ? "is-done" : ""}>
               1. {L("Bag", "סל")}
@@ -212,11 +201,11 @@ export default function CartPanel() {
         )}
 
         <div className="cart-body" data-lenis-prevent>
-          {/* ---------- Step 3: placed ---------- */}
-          {step === 3 && placed && <OrderPlaced order={placed} onDone={() => setIsOpen(false)} />}
+          {/* ---------- Order placed ---------- */}
+          {placed && <OrderPlaced order={placed} onDone={() => { setPlaced(null); setIsOpen(false); }} />}
 
           {/* ---------- Empty ---------- */}
-          {step !== 3 && items.length === 0 && (
+          {!placed && items.length === 0 && (
             <div className="cart-empty">
               <p className="cart-empty-title">{L("Your bag is empty", "הסל ריק")}</p>
               <p>{L("Tap the red + on any product to add it.", "לחצו על ה-+ האדום במוצר כדי להוסיף.")}</p>
@@ -282,7 +271,7 @@ export default function CartPanel() {
         </div>
 
         {/* ---------- Footer: totals + main action ---------- */}
-        {items.length > 0 && step !== 3 && (
+        {items.length > 0 && !placed && (
           <footer className="cart-foot">
             <dl className="cart-totals">
               <div><dt>{L("Subtotal", "סכום ביניים")}</dt><dd>₪{subtotal}</dd></div>
@@ -304,7 +293,7 @@ export default function CartPanel() {
                     {checkout.orderError}
                   </p>
                 )}
-                <button type="button" className="cart-primary" onClick={placeOrder} disabled={checkout.submitting} aria-busy={checkout.submitting}>
+                <button type="button" className="cart-primary" onClick={checkout.placeOrder} disabled={checkout.submitting} aria-busy={checkout.submitting}>
                   {checkout.submitting ? L("Placing your order…", "שולחים את ההזמנה…") : L("Place order", "ביצוע הזמנה")}
                 </button>
                 <button type="button" className="cart-link cart-back" onClick={() => setStep(1)}>

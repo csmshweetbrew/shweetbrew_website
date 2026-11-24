@@ -68,7 +68,7 @@ export default function ProductsSection() {
   );
 
   return (
-    <section className="py-20 px-4" style={{ backgroundColor: "oklch(0.13 0.005 60)" }}>
+    <section className="py-20 px-4">
       <div className="container">
         {/* Section Header */}
         <div className="mb-12 text-center">

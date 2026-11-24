@@ -14,10 +14,13 @@ import FAQSection from "@/components/FAQSection";
 import ContactSection from "@/components/ContactSection";
 import CartPanel from "@/components/CartPanel";
 import ProductTicker from "@/components/ProductTicker";
+import FireBackground from "@/components/FireBackground";
+import Braai from "@/components/Braai";
 
 export default function Home() {
   return (
     <div className="w-full">
+      <FireBackground />
       <CartPanel />
       
       {/* Landing Section */}
@@ -61,6 +64,9 @@ export default function Home() {
       <section id="contact">
         <ContactSection />
       </section>
+
+      {/* The bushveld fire; its ground fades into the footer */}
+      <Braai />
     </div>
   );
 }

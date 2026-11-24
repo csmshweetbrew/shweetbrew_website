@@ -221,7 +221,6 @@ export default function AboutSection() {
     <section
       id="about"
       className="py-24 md:py-40 relative"
-      style={{ backgroundColor: "oklch(0.13 0.005 60)" }}
     >
       <div className="container">
         {/* Section Header */}

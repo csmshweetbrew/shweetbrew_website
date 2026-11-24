@@ -73,7 +73,6 @@ export default function ContactSection() {
   return (
     <section
       className="py-20 md:py-32"
-      style={{ backgroundColor: "oklch(0.13 0.005 60)" }}
     >
       <div className="container">
         {/* Section Header */}

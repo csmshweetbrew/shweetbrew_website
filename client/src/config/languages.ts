@@ -14,16 +14,14 @@ export type Language = keyof typeof languages;
 export const translations = {
   // Navigation
   navbar: {
-    products: { en: "PRODUCTS", he: "מוצרים" },
-    order: { en: "ORDER", he: "הזמנה" },
-    reviews: { en: "REVIEWS", he: "ביקורות" },
-    about: { en: "ABOUT", he: "אודות" },
+    products: { en: "Products", he: "מוצרים" },
+    order: { en: "Order", he: "הזמנה" },
+    reviews: { en: "Reviews", he: "ביקורות" },
+    about: { en: "About", he: "אודות" },
     faq: { en: "FAQ", he: "שאלות נפוצות" },
-    delivery: { en: "DELIVERY", he: "משלוח" },
-    contact: { en: "CONTACT", he: "יצירת קשר" },
+    delivery: { en: "Delivery", he: "משלוח" },
+    contact: { en: "Contact", he: "יצירת קשר" },
     orderOnWhatsApp: { en: "Order on WhatsApp", he: "הזמן ב-WhatsApp" },
-    logIn: { en: "Log in", he: "התחברות" },
-    logInSoon: { en: "Accounts are coming soon. For now, order on WhatsApp.", he: "חשבונות משתמש יגיעו בקרוב. בינתיים אפשר להזמין ב-WhatsApp." },
   },
 
   // Hero Section
@@ -206,7 +204,7 @@ export const translations = {
     cutoffTitle: { en: "Order Cutoff", he: "סגירה הזמנות" },
     cutoffDesc: { en: "Order by 12pm for same-day delivery in Modiin. Contact us for delivery days in other areas.", he: "הזמנו עד 12:00 למשלוח באותו יום במודיעין. צור קשר לימי משלוח באזורים אחרים." },
     paymentTitle: { en: "Payment", he: "תשלום" },
-    paymentDesc: { en: "Cash, bank transfer, or Bit. Payment on delivery or in advance.", he: "מזומן, העברה בנקאית, או Bit. תשלום עם המשלוח או מראש." },
+    paymentDesc: { en: "Bit, PayBox or bank transfer. Cash in Modiin only.", he: "Bit, PayBox או העברה בנקאית. מזומן במודיעין בלבד." },
     pickupTitle: { en: "Pickup Available", he: "איסוף זמין" },
     pickupDesc: { en: "Prefer to collect? Pickup available in Modiin. WhatsApp us to arrange.", he: "מעדיפים לאסוף בעצמכם? איסוף זמין במודיעין. שלחו לנו הודעה ב-WhatsApp לתיאום." },
     

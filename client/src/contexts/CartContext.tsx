@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { useAuth } from "./AuthContext";
+import type { Order } from "@/lib/orders";
+import type { PayMethod } from "@/lib/payMethods";
 
 export type CartItem = {
   id: string; // variant ID
@@ -37,10 +38,9 @@ type CartContextType = {
   setApartment: (apartment: string) => void;
   notes: string;
   setNotes: (notes: string) => void;
-  /** optional, guests only (signed-in orders use the account's email) */
   email: string;
   setEmail: (email: string) => void;
-  /** the email typed a second time (guests); must match */
+  /** the email typed a second time; must match */
   emailAgain: string;
   setEmailAgain: (email: string) => void;
   /* Checkout state shared by the cart drawer and the Order section, so both always show
@@ -51,9 +51,27 @@ type CartContextType = {
   touch: (field: string) => void;
   submitting: boolean;
   setSubmitting: (submitting: boolean) => void;
-  saveDetails: boolean;
-  setSaveDetails: (save: boolean) => void;
+  payMethod: PayMethod;
+  setPayMethod: (m: PayMethod) => void;
+  /** The order just placed: the same "Order placed" screen in the cart and the Order section */
+  placed: Order | null;
+  setPlaced: (order: Order | null) => void;
+  updatePlaced: (change: Partial<Order>) => void;
+  /** the phone dropped the page before they paid (e.g. while in the Bit app): show it again */
+  placedRestored: boolean;
 };
+
+/* The "Order placed" screen survives the phone dropping the page while the
+   customer is in the Bit or PayBox app: kept in this tab, for two hours. */
+const PLACED_KEY = "shweet-brew-placed";
+function readPlaced(): Order | null {
+  try {
+    const p = JSON.parse(sessionStorage.getItem(PLACED_KEY) || "null");
+    return p?.reference && Date.now() - Date.parse(p.createdAt) < 2 * 3600000 ? p : null;
+  } catch {
+    return null;
+  }
+}
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -72,28 +90,29 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const touch = (field: string) => setTouched((t) => (t[field] ? t : { ...t, [field]: true }));
   const [submitting, setSubmitting] = useState(false);
-  const [saveDetails, setSaveDetails] = useState(true);
+  const [payMethod, setPayMethod] = useState<PayMethod>("bit_paybox");
+  const [placed, setPlaced] = useState<Order | null>(readPlaced);
+  const [placedRestored] = useState(() => !!placed && !placed.claimed && placed.payMethod === "bit_paybox");
+  const updatePlaced = (change: Partial<Order>) => setPlaced((o) => (o ? { ...o, ...change } : o));
+  useEffect(() => {
+    try {
+      if (placed) sessionStorage.setItem(PLACED_KEY, JSON.stringify(placed));
+      else sessionStorage.removeItem(PLACED_KEY);
+    } catch {
+      // private browsing: the confirmation email has it all too
+    }
+  }, [placed]);
 
   // An empty bag (order placed, or everything removed) starts the next checkout without old errors
   const bagEmpty = items.length === 0;
   useEffect(() => {
-    if (!bagEmpty) return;
+    if (!bagEmpty) {
+      setPlaced(null); // a new bag after an order
+      return;
+    }
     setTried(false);
     setTouched({});
   }, [bagEmpty]);
-
-  // Checkout details are shared by the cart drawer and the Order section, so typing in one
-  // fills the other. Signed in: fill them from the profile (only fields still empty).
-  const { profile } = useAuth();
-  useEffect(() => {
-    if (!profile) return;
-    if (profile.full_name) setName((v) => v || profile.full_name || "");
-    if (profile.phone) setPhone((v) => v || profile.phone || "");
-    if (profile.city) setCity((v) => v || profile.city || "");
-    if (profile.street) setShippingDetails((v) => v || profile.street || "");
-    if (profile.apartment) setApartment((v) => v || profile.apartment || "");
-    if (profile.default_zone_id) setSelectedArea((v) => v || profile.default_zone_id || "");
-  }, [profile]);
 
   const addItem = (newItem: CartItem) => {
     setItems((prev) => {
@@ -185,8 +204,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         touch,
         submitting,
         setSubmitting,
-        saveDetails,
-        setSaveDetails,
+        payMethod,
+        setPayMethod,
+        placed,
+        setPlaced,
+        updatePlaced,
+        placedRestored,
       }}
     >
       {children}
