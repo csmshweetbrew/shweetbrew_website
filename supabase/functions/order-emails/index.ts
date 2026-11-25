@@ -9,7 +9,8 @@
 //      (English or Hebrew), when the order has an email. With Bit or PayBox
 //      it says where to send the money.
 // When a customer presses "I've paid" or picks another way to pay (an UPDATE),
-// the owner gets another one.
+// the owner gets another one. When an order is marked paid, the customer gets
+// "We've got your payment".
 // Every other update is ignored.
 //
 // One file with no imports, so it can be pasted into the Supabase dashboard
@@ -52,6 +53,8 @@ type Order = {
   payment_method?: string | null; // since migration 0018
   payment_claimed_at?: string | null;
   payment_changes?: number;
+  payment_status?: string;
+  status?: string;
 };
 
 type Item = {
@@ -65,6 +68,9 @@ type Item = {
 
 const WHATSAPP_DISPLAY = "058-413-2576";
 const PAY_NUMBER_DISPLAY = "058-413-2576"; // Bit and PayBox (same as client/src/lib/payMethods.ts)
+
+// Shown under the customer's order details. Not a tax invoice or a receipt.
+const BUSINESS = { name: "Shweet Brew", owner: { en: "Uri Marks", he: "אורי מרקס" }, osek: "346919780", city: { en: "Modiin, Israel", he: "מודיעין" }, email: "urimarks@gmail.com" };
 
 function methodText(m: string | null | undefined, he: boolean) {
   switch (m) {
@@ -118,6 +124,11 @@ function dateText(iso: string | null, he: boolean) {
 const zoneText = (order: Order, he: boolean) =>
   (he && order.zone_id && ZONE_HE[order.zone_id]) || order.zone_name || (he ? "לא נבחר אזור" : "No area chosen");
 
+/** Every second Monday: the date isn't certain yet */
+const TO_CONFIRM = ["zone_6_south", "zone_7_kiryat_gat"];
+const toConfirm = (order: Order, he: boolean) =>
+  TO_CONFIRM.includes(order.zone_id ?? "") ? (he ? " (התאריך יאושר בהמשך)" : " (date to be confirmed)") : "";
+
 const addressText = (order: Order) => [order.street, order.apartment, order.city].filter(Boolean).join(", ");
 
 /** Israeli phone → wa.me number (972…), or null if it doesn't look like one */
@@ -155,7 +166,7 @@ function itemsTable(items: Item[], order: Order, he: boolean) {
       <tr>
         <td style="padding:10px 0;border-bottom:1px solid #eee5d8;font-size:15px">
           <b>${esc(it.product_name)}</b>${it.category_name ? ` <span style="color:#867f77">· ${esc(it.category_name)}</span>` : ""}<br>
-          <span style="color:#5a534c;font-size:14px">${esc(it.size_label)} × ${esc(it.quantity)}</span>
+          <span style="color:#5a534c;font-size:14px">${esc(it.size_label)} × ${esc(it.quantity)}${it.quantity > 1 ? ` · ${he ? `${shekel(it.unit_price)} ליחידה` : `${shekel(it.unit_price)} each`}` : ""}</span>
         </td>
         <td style="padding:10px 0;border-bottom:1px solid #eee5d8;font-size:15px;text-align:${align};white-space:nowrap;vertical-align:top">${shekel(it.line_total)}</td>
       </tr>`).join("");
@@ -172,11 +183,27 @@ function itemsTable(items: Item[], order: Order, he: boolean) {
     </table>`;
 }
 
+/** Who sold it, to whom and when: with the items table this is the whole order on paper */
+function detailsBlock(order: Order, he: boolean) {
+  const T = (en: string, hebrew: string) => (he ? hebrew : en);
+  const row = (label: string, value: string) => `<tr><td style="padding:3px 0;color:#867f77;white-space:nowrap;vertical-align:top;padding-${he ? "left" : "right"}:14px">${label}</td><td style="padding:3px 0;width:100%">${value}</td></tr>`;
+  const ltr = (t: string) => `<span dir="ltr">${esc(t)}</span>`;
+  const when = new Date(order.created_at).toLocaleDateString(he ? "he-IL" : "en-GB", { timeZone: "Asia/Jerusalem", day: "numeric", month: "long", year: "numeric" });
+  const address = addressText(order);
+  const how = methodText(order.payment_method, he);
+  return `${h(T("Details", "פרטים"))}<table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:14px;line-height:1.5">
+      ${row(T("Order", "הזמנה"), `${ltr(order.reference)} · ${esc(when)}`)}
+      ${row(T("For", "עבור"), [esc(order.customer_name), address ? esc(address) : "", order.phone ? ltr(order.phone) : "", order.email ? ltr(order.email) : ""].filter(Boolean).join("<br>"))}
+      ${how ? row(T("Payment", "תשלום"), esc(how)) : ""}
+      ${row(T("From", "מאת"), [`${BUSINESS.name}, ${T(BUSINESS.owner.en, BUSINESS.owner.he)}`, `${T("Osek Patur", "עוסק פטור")} ${ltr(BUSINESS.osek)}`, T(BUSINESS.city.en, BUSINESS.city.he), `${ltr(WHATSAPP_DISPLAY)} · ${ltr(BUSINESS.email)}`].join("<br>"))}
+    </table>`;
+}
+
 const h = (text: string) => `<p style="margin:24px 0 8px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#cd2027">${text}</p>`;
 const p = (html: string, extra = "") => `<p style="margin:0 0 6px;font-size:15px;line-height:1.5;${extra}">${html}</p>`;
 
 // ---------------------------------------------------------------------------
-// The two emails
+// The emails
 // ---------------------------------------------------------------------------
 export function ownerEmail(order: Order, items: Item[], siteUrl: string) {
   const wa = waNumber(order.phone);
@@ -185,7 +212,7 @@ export function ownerEmail(order: Order, items: Item[], siteUrl: string) {
   const inner = `
     <p style="margin:0 0 4px;font-size:14px;color:#867f77">New order${order.language === "he" ? " · customer reads Hebrew" : ""}</p>
     <p style="margin:0 0 4px;font-size:30px;font-weight:900">${esc(order.reference)} · ${shekel(order.total)}</p>
-    <p style="margin:0 0 4px;font-size:15px;color:#5a534c">${esc(zoneText(order, false))}${date ? ` · wants ${esc(date)}` : ""}</p>
+    <p style="margin:0 0 4px;font-size:15px;color:#5a534c">${esc(zoneText(order, false))}${date ? ` · wants ${esc(date)}${toConfirm(order, false)}` : ""}</p>
     ${h("Customer")}
     ${p(`<b>${esc(order.customer_name)}</b>`)}
     ${order.phone ? p(`<a href="tel:${esc(order.phone.replace(/[^\d+]/g, ""))}" style="color:#1a1816">${esc(order.phone)}</a>${wa ? ` · <a href="https://wa.me/${wa}" style="color:#1a7f45;font-weight:700">WhatsApp</a>` : ""}`) : p(`<span style="color:#867f77">No phone given: reply to this email to reach them</span>`)}
@@ -239,11 +266,13 @@ export function customerEmail(order: Order, items: Item[], siteUrl: string) {
       `שלחו <b>${shekel(order.total)}</b> ב-<b>${payApp}</b> למספר <b dir="ltr">${PAY_NUMBER_DISPLAY}</b> וכתבו <b dir="ltr">${esc(order.reference)}</b> בהערה.`)) : ""}
     ${h(T("Delivery", "משלוח"))}
     ${p(`<b>${esc(zoneText(order, he))}</b>`)}
-    ${date ? p(`${T("Next available delivery", "המשלוח הקרוב")}: <b>${esc(date)}</b>`) : p(esc(T("We'll arrange the day with you.", "נתאם איתכם את היום.")))}
+    ${date ? p(`${T("Next available delivery", "המשלוח הקרוב")}: <b>${esc(date)}</b>${toConfirm(order, he)}`) : p(esc(T("We'll arrange the day with you.", "נתאם איתכם את היום.")))}
     ${pickup ? p(esc(T("Pickup in Modiin: we'll send you the details.", "איסוף עצמי במודיעין: נשלח לכם את הפרטים."))) : address ? p(esc(address)) : ""}
     ${order.notes ? p(`<span style="color:#5a534c">${T("Your note", "ההערה שלכם")}:</span> ${esc(order.notes)}`) : ""}
     ${h(T("Your order", "ההזמנה שלכם"))}
     ${itemsTable(items, order, he)}
+    ${detailsBlock(order, he)}
+    ${p(T("These are your order details, not a receipt.", "אלה פרטי ההזמנה, לא קבלה."), "color:#867f77;font-size:13px;margin-top:10px")}
     <hr style="border:none;border-top:1px solid #eee5d8;margin:24px 0 16px">
     <p style="margin:0;font-size:14px;color:#5a534c">${T(
       `Questions? Just reply to this email, or WhatsApp us on <b dir="ltr">${WHATSAPP_DISPLAY}</b>.`,
@@ -252,6 +281,27 @@ export function customerEmail(order: Order, items: Item[], siteUrl: string) {
     subject: T(`We've got your order ${order.reference}: awaiting confirmation`, `קיבלנו את ההזמנה ${order.reference}: ממתינה לאישור`),
     html: frame(inner, he),
   };
+}
+
+/** An order was marked paid: the customer gets a thank-you with everything in it */
+export function paidEmail(order: Order, items: Item[]) {
+  const he = order.language === "he";
+  const T = (en: string, hebrew: string) => (he ? hebrew : en);
+  const inner = `
+    <p style="margin:0 0 4px;font-size:20px;font-weight:900">${T("We've got your payment. Thank you!", "קיבלנו את התשלום. תודה!")}</p>
+    <p style="margin:0 0 16px;font-size:15px;color:#5a534c">${T("Your receipt comes separately.", "הקבלה תישלח בנפרד.")}</p>
+    <div style="background:#f5efe6;border-radius:6px;padding:14px 16px;margin:0 0 4px">
+      <p style="margin:0;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#867f77">${T("Paid", "שולם")}</p>
+      <p style="margin:2px 0 0;font-size:28px;font-weight:900;color:#cd2027"><span dir="ltr">${shekel(order.total)}</span> · <span dir="ltr">${esc(order.reference)}</span></p>
+    </div>
+    ${h(T("Your order", "ההזמנה שלכם"))}
+    ${itemsTable(items, order, he)}
+    ${detailsBlock(order, he)}
+    <hr style="border:none;border-top:1px solid #eee5d8;margin:24px 0 16px">
+    <p style="margin:0;font-size:14px;color:#5a534c">${T(
+      `Questions? Just reply to this email, or WhatsApp us on <b dir="ltr">${WHATSAPP_DISPLAY}</b>.`,
+      `שאלות? פשוט השיבו למייל הזה, או כתבו לנו ב-WhatsApp ל-<b dir="ltr">${WHATSAPP_DISPLAY}</b>.`)}</p>`;
+  return { subject: T(`We've got your payment for ${order.reference}`, `קיבלנו את התשלום על ${order.reference}`), html: frame(inner, he) };
 }
 
 /** The customer pressed "I've paid": the owner checks the app */
@@ -326,12 +376,25 @@ export async function handleRequest(req: Request, env: Env, f: typeof fetch = fe
   const old = payload.type === "UPDATE" ? payload.old_record : null;
   const justClaimed = !!old && !!order?.payment_claimed_at && !old.payment_claimed_at;
   const justChanged = !!old && Number(order?.payment_changes ?? 0) > Number(old.payment_changes ?? 0);
-  if (payload.table !== "orders" || !order?.id || (payload.type !== "INSERT" && !justClaimed && !justChanged)) {
+  const justPaid = !!old && order?.payment_status === "paid" && old.payment_status !== "paid" && order.status !== "cancelled";
+  if (payload.table !== "orders" || !order?.id || (payload.type !== "INSERT" && !justClaimed && !justChanged && !justPaid)) {
     return json(200, { skipped: "not a new order" });
   }
 
   const siteUrl = (env.SITE_URL || "https://shweetbrew.com").replace(/\/$/, "");
   const owners = (env.OWNER_EMAIL || "").split(",").map((s) => s.trim()).filter(Boolean);
+
+  if (justPaid) {
+    if (!order.email) return json(200, { skipped: "no email" });
+    try {
+      const m = paidEmail(order, await loadItems(env, order.id, f));
+      const sent = await sendEmail(env, f, { to: [order.email], subject: m.subject, html: m.html, reply_to: owners.length ? [owners[0]] : undefined });
+      return json(200, { reference: order.reference, paid: sent });
+    } catch (e) {
+      console.error(order.reference, "paid", String(e));
+      return json(502, { error: String(e) });
+    }
+  }
 
   if (justClaimed || justChanged) {
     if (!owners.length) return json(200, { skipped: "no OWNER_EMAIL" });

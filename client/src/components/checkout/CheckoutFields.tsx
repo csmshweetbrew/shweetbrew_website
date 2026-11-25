@@ -1,6 +1,6 @@
 /*
  * The checkout details form, shared by the cart drawer and the Order section:
- * searchable delivery area (+ next delivery date), the minimum note, name +
+ * searchable delivery area (+ next delivery date), name +
  * optional phone, the email (required, typed twice, with a "did you mean gmail.com?" hint),
  * address and an optional note. Errors show once a field is left; CheckoutProblems lists
  * what's missing above the Place order button.
@@ -9,12 +9,12 @@
  */
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { ChevronDown, Search } from "lucide-react";
+import { Check, ChevronDown, Search } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { deliveryZones, formatDeliveryDate, zoneDays, zoneName, zoneNameBoth, zoneSearchTerms, type DeliveryZone } from "@/config/deliveryZones";
+import { deliveryZones, formatDeliveryDate, isEverySecondMonday, zoneDays, zoneName, zoneNameBoth, zoneSearchTerms, type DeliveryZone } from "@/config/deliveryZones";
 import PaymentChoice from "./PaymentChoice";
-import { MIN_DELIVERY_ORDER, OTHER_ZONE, type Checkout } from "./useCheckout";
+import { OTHER_ZONE, type Checkout } from "./useCheckout";
 
 export default function CheckoutFields({ checkout, idPrefix }: { checkout: Checkout; idPrefix: string }) {
   const { language } = useLanguage();
@@ -22,9 +22,9 @@ export default function CheckoutFields({ checkout, idPrefix }: { checkout: Check
   const L = (en: string, hebrew: string) => (he ? hebrew : en);
   const {
     selectedArea, setSelectedArea, name, setName, phone, setPhone, notes, setNotes,
-    shippingDetails: street, setShippingDetails: setStreet, city, setCity, apartment, setApartment, email, setEmail, emailAgain, setEmailAgain,
+    shippingDetails: street, setShippingDetails: setStreet, city, setCity, apartment, setApartment, email, setEmail, emailAgain, setEmailAgain, adult, setAdult,
   } = useCart();
-  const { zone, nextDeliveryDate, belowMinimum, subtotal, show, touch, emailSuggestion, acceptSuggestion } = checkout;
+  const { zone, nextDeliveryDate, show, touch, emailSuggestion, acceptSuggestion } = checkout;
   const id = (s: string) => `${idPrefix}-${s}`;
 
   return (
@@ -34,6 +34,7 @@ export default function CheckoutFields({ checkout, idPrefix }: { checkout: Check
         <p className="cart-next-delivery">
           {L("Next available delivery: ", "משלוח זמין הבא: ")}
           <strong>{formatDeliveryDate(nextDeliveryDate, language)}</strong>
+          {isEverySecondMonday(zone) && <span className="block">{L("Delivery date to be confirmed", "תאריך המשלוח יאושר בהמשך")}</span>}
         </p>
       )}
       {zone && zone.id === OTHER_ZONE && (
@@ -41,17 +42,9 @@ export default function CheckoutFields({ checkout, idPrefix }: { checkout: Check
           {L("Delivery by arrangement - Contact us for pricing and delivery dates", "משלוח לפי הסכמה - צור איתנו קשר לתמחור ותאריכי משלוח")}
         </p>
       )}
-      {belowMinimum && (
-        <p className="cart-min" role="status">
-          {L(
-            `Delivery starts at ₪${MIN_DELIVERY_ORDER}. Add ₪${MIN_DELIVERY_ORDER - subtotal} more, or choose Modiin for pickup.`,
-            `משלוח מ-₪${MIN_DELIVERY_ORDER}. הוסיפו עוד ₪${MIN_DELIVERY_ORDER - subtotal}, או בחרו איסוף במודיעין.`
-          )}
-        </p>
-      )}
       <div className="cart-row2">
         <Field id={id("name")} label={L("Name", "שם")} value={name} onChange={setName} onBlur={() => touch("name")} error={show("name")} autoComplete="name" />
-        <Field id={id("phone")} label={<>{L("Phone", "טלפון")} <span className="cart-optional">{L("(optional)", "(לא חובה)")}</span></>} value={phone} onChange={setPhone} onBlur={() => touch("phone")} error={show("phone")} type="tel" autoComplete="tel" />
+        <Field id={id("phone")} label={L("Phone", "טלפון")} value={phone} onChange={setPhone} onBlur={() => touch("phone")} error={show("phone")} type="tel" autoComplete="tel" />
       </div>
         <Field
           id={id("email")}
@@ -97,6 +90,16 @@ export default function CheckoutFields({ checkout, idPrefix }: { checkout: Check
         <textarea id={id("notes")} rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={L("Gate code, a time that suits you, a gift message…", "קוד שער, שעה נוחה, הקדשה…")} />
       </div>
       <PaymentChoice checkout={checkout} idPrefix={idPrefix} />
+      {checkout.needsAge && (
+        <div className="cart-field">
+          <label className="pay-option age-tick">
+            <input id={id("age")} type="checkbox" checked={adult} onChange={(e) => setAdult(e.target.checked)} aria-invalid={show("age") ? "true" : undefined} aria-describedby={show("age") ? `${id("age")}-err` : undefined} />
+            <span className="age-box" aria-hidden="true"><Check strokeWidth={3.5} /></span>
+            <strong>{L("I'm 18 or over (your bag has alcohol)", "אני בן/בת 18 ומעלה (יש אלכוהול בסל)")}</strong>
+          </label>
+          {show("age") && <span id={`${id("age")}-err`} className="cart-err">{show("age")}</span>}
+        </div>
+      )}
     </div>
   );
 }

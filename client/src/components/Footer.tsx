@@ -5,19 +5,24 @@
  */
 
 import { Mail, MapPin, Phone } from "lucide-react";
+import { Link, useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/config/languages";
 import { SOCIAL_LINKS, CONTACT_INFO, NAV_LINKS } from "@/config/constants";
 import { getPrimaryColor } from "@/config/colors";
+import { PUBLIC_LEGAL_PAGES } from "@/config/legal";
 import { scrollToTarget } from "@/lib/smoothScroll";
 
 export default function Footer() {
   const { language } = useLanguage();
   const navLinks = language === "en" ? NAV_LINKS.en : NAV_LINKS.he;
 
+  const [, navigate] = useLocation();
+
   const handleNavClick = (href: string) => {
     const el = document.querySelector(href);
     if (el) scrollToTarget(el);
+    else navigate("/"); // from a legal page or the 404 page
   };
 
   return (
@@ -142,7 +147,7 @@ export default function Footer() {
                   className="font-body text-sm inline-block py-1 transition-colors hover:text-fire"
                   style={{ color: "oklch(0.68 0.015 75)" }}
                 >
-                  {CONTACT_INFO.whatsappDisplay}
+                  <bdi dir="ltr">{CONTACT_INFO.whatsappDisplay}</bdi>
                 </a>
               </li>
               <li className="flex items-start gap-2">
@@ -167,6 +172,15 @@ export default function Footer() {
             </ul>
           </div>
         </div>
+
+        {/* Legal pages, once they're public (config/legal.ts) */}
+        {PUBLIC_LEGAL_PAGES.length > 0 && (
+          <nav className="mt-8 flex flex-wrap gap-x-5" aria-label={language === "en" ? "Legal" : "מידע משפטי"}>
+            {PUBLIC_LEGAL_PAGES.map((p) => (
+              <Link key={p.path} href={p.path} className="font-body text-sm py-2 transition-colors hover:text-fire" style={{ color: "oklch(0.68 0.015 75)" }}>{p.title[language]}</Link>
+            ))}
+          </nav>
+        )}
 
         {/* Bottom Bar */}
         <div

@@ -814,6 +814,23 @@
   .pay-option:has(input:checked) { border-color: var(--accent); background-color: color-mix(in oklab, var(--accent) 12%, var(--card)); }
   .pay-option input:checked + .pay-dot { border-color: var(--accent); background-color: var(--accent); box-shadow: inset 0 0 0 3px var(--card); }
   .pay-option:has(input:focus-visible) { outline: 2px solid color-mix(in oklab, var(--accent) 60%, transparent); outline-offset: 2px; }
+  /* Legal pages: plain text on the page background */
+  .container.legal-page { min-height: 100vh; max-width: 52rem; padding-block: 8rem 5rem; }
+  .legal-page .section-title { margin: 0.75rem 0 2rem; text-align: start; }
+  .legal-page section + section { margin-top: 2rem; padding-top: 2rem; border-top: 1px solid oklch(1 0 0 / 0.1); }
+  .legal-page h2 { margin: 0 0 0.6rem; font-family: 'Bebas Neue', sans-serif; font-size: 1.75rem; line-height: 1; letter-spacing: 0.03em; color: var(--foreground); }
+  .legal-page p { margin: 0; white-space: pre-line; font-size: 1.1rem; line-height: 1.7; color: var(--brand-cream-dim); overflow-wrap: anywhere; }
+  .legal-page mark { padding: 0.1em 0.4em; border-radius: 4px; background-color: color-mix(in oklab, var(--accent) 30%, transparent); color: var(--foreground); }
+  .legal-back { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 2.75rem; font-weight: 700; color: var(--brand-cream-dim); }
+  .legal-back:hover { color: var(--foreground); }
+  /* "I'm 18 or over": a pay-option with a square tick box */
+  .cart-field > .age-tick { font-size: 1rem; color: var(--foreground); }
+  .age-tick input { width: 1px; height: 1px; padding: 0; }
+  .age-box { display: grid; place-items: center; flex-shrink: 0; width: 1.5rem; height: 1.5rem; border-radius: 4px; border: 2px solid oklch(1 0 0 / 0.35); color: transparent; transition: border-color 0.2s, background-color 0.2s; }
+  .age-box svg { width: 1rem; height: 1rem; }
+  .age-tick input:checked + .age-box { border-color: var(--accent); background-color: var(--accent); color: var(--accent-foreground); }
+  .age-tick:has(input[aria-invalid="true"]) { border-color: oklch(0.70 0.18 25); }
+  .info-ask { font-weight: 700; color: var(--foreground); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: color-mix(in oklab, var(--accent) 70%, transparent); }
   /* "Pay ₪155 with Bit" on the order-placed screen */
   .pay-panel { display: grid; gap: 0.85rem; width: 100%; max-width: 24rem; margin: 0.5rem 0; padding: 1.1rem; border-radius: 6.4px; border: 1px solid color-mix(in oklab, var(--accent) 50%, transparent); background-color: var(--card); }
   .pay-panel h3 { margin: 0; font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; line-height: 1; letter-spacing: 0.04em; color: var(--foreground); }
@@ -1200,6 +1217,24 @@
     background-color: var(--accent);
     border-color: var(--accent);
     transform: scale(1.05);
+  }
+
+  /* 18+ on alcohol: a still mark in the corner opposite the (i) */
+  .product-adult {
+    position: absolute;
+    top: 0.625rem;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0 0.4rem;
+    border-radius: 999px;
+    background-color: var(--accent);
+    color: var(--accent-foreground);
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1;
   }
 
   .product-unavailable {

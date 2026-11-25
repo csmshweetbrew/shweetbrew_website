@@ -15,8 +15,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const WORDS = {
-  en: ["Biltong", "Boerewors", "Drywors", "Holy Land Jerky", "Chicken Jerky", "Shots", "Sauces", "Kosher options"],
-  he: ["בילטונג", "בוארווורס", "דרייוורס", "ג'רקי ארץ הקודש", "ג'רקי עוף", "שוטס", "רטבים", "אפשרויות כשרות"],
+  en: ["Biltong", "Boerewors", "Drywors", "Holy Land Jerky", "Chicken Jerky", "Shots", "Sauces"],
+  he: ["בילטונג", "בוארווורס", "דרייוורס", "ג'רקי ארץ הקודש", "ג'רקי עוף", "שוטס", "רטבים"],
 };
 
 const SPEED_PX_PER_SEC = 60;

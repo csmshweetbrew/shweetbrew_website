@@ -9,9 +9,10 @@ import { createPortal } from "react-dom";
 import { lockPageScroll } from "@/lib/smoothScroll";
 import { productThumb } from "@/lib/images";
 import { X } from "lucide-react";
+import { getWhatsAppLink } from "@/config/site";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/config/languages";
-import { getTranslatedProductDescription, getCategoryNameHebrew, getTranslatedIngredients, getTranslatedAllergens, getTranslatedProductName, type ProductVariant, sizeLabel } from "@/config/products";
+import { adultText, getTranslatedProductDescription, getCategoryNameHebrew, getTranslatedIngredients, getTranslatedAllergens, getTranslatedProductName, type ProductVariant, sizeLabel } from "@/config/products";
 
 type ProductInfoModalProps = {
   variant: ProductVariant;
@@ -45,6 +46,9 @@ export default function ProductInfoModal({ variant, categoryName, isOpen, onClos
     { label: t.carbs[language], value: variant.nutrition?.carbs || "2g" },
     { label: t.calories[language], value: variant.nutrition?.calories || "300" },
   ];
+  const ingredients = getTranslatedIngredients(variant.id, language);
+  const allergens = getTranslatedAllergens(variant.id, language);
+  const adult = adultText(variant.id, language);
   const labelStyle = { color: "var(--brand-fire-bright)", letterSpacing: "0.08em" };
 
   // Portal to <body> so the popup sits above every card (cards create their own stacking contexts)
@@ -123,13 +127,22 @@ export default function ProductInfoModal({ variant, categoryName, isOpen, onClos
 
         {/* Ingredients + allergens */}
         <div className="space-y-2.5 text-[1.1rem] leading-snug">
+          {ingredients && (
+            <p style={{ color: "var(--brand-cream-dim)" }}>
+              <span className="text-[0.9rem] font-bold uppercase me-2" style={labelStyle}>{t.ingredients[language]}</span>
+              {ingredients}
+            </p>
+          )}
+          {allergens && (
+            <p style={{ color: "var(--brand-cream-dim)" }}>
+              <span className="text-[0.9rem] font-bold uppercase me-2" style={labelStyle}>{t.allergens[language]}</span>
+              {allergens}
+            </p>
+          )}
+          {adult && <p className="font-bold" style={{ color: "var(--foreground)" }}>{adult}</p>}
           <p style={{ color: "var(--brand-cream-dim)" }}>
-            <span className="text-[0.9rem] font-bold uppercase me-2" style={labelStyle}>{t.ingredients[language]}</span>
-            {getTranslatedIngredients(variant.id, language)}
-          </p>
-          <p style={{ color: "var(--brand-cream-dim)" }}>
-            <span className="text-[0.9rem] font-bold uppercase me-2" style={labelStyle}>{t.allergens[language]}</span>
-            {getTranslatedAllergens(variant.id, language)}
+            {t.allergyAsk[language]}{" "}
+            <a className="info-ask" href={getWhatsAppLink()} target="_blank" rel="noopener noreferrer">{t.allergyAskLink[language]}</a>
           </p>
         </div>
       </div>

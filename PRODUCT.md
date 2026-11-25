@@ -29,8 +29,8 @@ South African cured-meat craft made in Israel by a South African–Israeli maker
 ## Operating Context
 
 - Ordering happens on the website: the cart saves orders in Supabase, tracked in the admin app (owner, 2026-11-19). WhatsApp (+972 58 413 2576) is for contacting us only, not for orders.
-- Production day is Wednesday 12:00. Delivery days depend on the zone; Modiin (HQ) is free pickup or same day. Zones and prices live in `client/src/config/deliveryZones.ts`.
-- Payment: Bit / PayBox, bank transfer, or cash (Modiin only), chosen at checkout, can be changed after ordering, and paid outside the site (no online payments; owner, 2026-11-24). Bit and PayBox go to 058-413-2576. Minimum order applies for delivery.
+- Production day is Wednesday; orders close on Tuesday 12:00 (business owner, 2026-11-25). Delivery days depend on the zone; Modiin (HQ) is free pickup or same day. Zones and prices live in `client/src/config/deliveryZones.ts`.
+- Payment: Bit / PayBox, bank transfer, or cash (Modiin only), chosen at checkout, can be changed after ordering, and paid outside the site (no online payments; owner, 2026-11-24). Bit and PayBox go to 058-413-2576. There is no minimum order (business owner, 2026-11-25).
 - Product data (variants, sizes, prices in NIS, spice level 1–5, kosher flag, nutrition, availability) lives in `client/src/config/products.ts`.
 
 ## Capabilities and Constraints

@@ -80,6 +80,15 @@ http.createServer(async (req, res) => {
       if (old) fireOrderWebhook(json.p_order_id, old);
       return send(res, 200, r.rows[0].r);
     }
+    // Testing only: POST /__paid/SB-1001 marks an order paid, as an admin would
+    const paid = url.pathname.match(/^\/__paid\/([\w-]+)$/)?.[1];
+    if (paid) {
+      const old = (await db.query(`select * from public.orders where reference = $1`, [paid])).rows[0];
+      if (!old) return send(res, 404, { message: "no such order" });
+      await db.query(`update public.orders set payment_status = 'paid' where id = $1`, [old.id]);
+      await fireOrderWebhook(old.id, old);
+      return send(res, 200, { reference: paid });
+    }
     const rpc = url.pathname.match(/^\/rest\/v1\/rpc\/(\w+)$/);
     if (rpc) {
       try {

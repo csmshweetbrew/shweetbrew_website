@@ -33,7 +33,6 @@ export const translations = {
     browseProducts: { en: "Browse Products", he: "עיין במוצרים" },
     madeInIsrael: { en: "🇮🇱 Made in Israel", he: "🇮🇱 תוצרת הארץ" },
     saRoots: { en: "🇿🇦 SA Roots", he: "🇿🇦 שורשים דרום אפריקאיים" },
-    kosherOptions: { en: "✡ All Kosher Ingredients", he: "✡ כל הרכיבים כשרים" },
     // Stats section
     products: { en: "Products", he: "מוצרים" },
     beef: { en: "Beef", he: "בשר בקר" },
@@ -46,7 +45,7 @@ export const translations = {
   // Products Section
   products: {
     sectionTitle: { en: "PRODUCTS THAT HIT DIFFERENT", he: "מוצרים שמכים אחרת" },
-    sectionSubtitle: { en: "Every product is made with 100% beef, authentic SA spices, and the kind of love only a South African in Israel can understand.", he: "כל מוצר עשוי מ-100% בשר בקר, תבלינים דרום אפריקאיים אותנטיים, וסוג האהבה שרק דרום אפריקאי בישראל יכול להבין." },
+    sectionSubtitle: { en: "Made with 100% beef, or chicken where it says so, authentic SA spices, and the kind of love only a South African in Israel can understand.", he: "עשוי מ-100% בשר בקר, או עוף היכן שמצוין, תבלינים דרום אפריקאיים אותנטיים, וסוג האהבה שרק דרום אפריקאי בישראל יכול להבין." },
     theRange: { en: "THE SHWEET BREW RANGE", he: "המגוון של שוויט ברו" },
     filterAll: { en: "All", he: "הכל" },
     
@@ -105,7 +104,7 @@ export const translations = {
     jerkyClassicTagline: { en: "American vibes. SA quality.", he: "רוח אמריקאית. איכות דרום אפריקאית." },
 
     // HOLY LAND JERKY CATEGORY
-    holyLandJerky: { en: "Holy Land Jerky", he: "ג'רקי הארץ הקדושה" },
+    holyLandJerky: { en: "Holy Land Jerky", he: "ג'רקי ארץ הקודש" },
     holyLandJerkyDesc: { en: "Experience the perfect balance of tradition and craft. Holy Land Jerky, by Shweet Brew, delivers authentic jerky flavors and premium quality in every bite.", he: "חוו את האיזון המושלם בין מסורת לאומנות. ג'רקי הארץ הקדושה, מבית שוויט ברו, מספק טעמי ג'רקי אותנטיים ואיכות פרימיום בכל ביס." },
     holyLandJerkyCowboy: { en: "Traditional Cowboy", he: "קאובוי מסורתי" },
     holyLandJerkyCowboyDesc: { en: "The rugged classic. Soya sauce, salt and pepper with hints of onion and garlic.", he: "הקלאסי הגס. רוטב סויה, מלח ופלפל עם רמזים של בצל ושום." },
@@ -119,6 +118,12 @@ export const translations = {
     holyLandJerkyChilli: { en: "Chilli", he: "צ'ילי" },
     holyLandJerkyChilliDesc: { en: "For those who crave a serious, authentic burn.", he: "למי שמשתוקק לחריפות רצינית ואותנטית." },
     holyLandJerkyChilliTagline: { en: "Serious heat. Serious flavor.", he: "חום רציני. טעם רציני." },
+
+    // Chicken jerky
+    chickenSweetChilliDesc: { en: "Lean, protein-packed chicken jerky with a perfect blend of sweet heat and authentic braai spices.", he: "ג'רקי עוף רזה ועשיר בחלבון, עם שילוב מושלם של חריפות מתוקה ותבליני ברייי אותנטיים." },
+    chickenSweetChilliTagline: { en: "Lean Heat. Protein Packed.", he: "חריפות רזה. מלא חלבון." },
+    chickenTeriyakiDesc: { en: "Lean, protein-packed chicken jerky with a savory-sweet teriyaki glaze and authentic braai spices.", he: "ג'רקי עוף רזה ועשיר בחלבון, עם זיגוג טריאקי מלוח-מתוק ותבליני ברייי אותנטיים." },
+    chickenTeriyakiTagline: { en: "Sweet Savory. Protein Packed.", he: "מתוק מלוח. מלא חלבון." },
 
     // CHILLI BITES
     chilliBites: { en: "Chilli Bites", he: "ביטות צ'ילי" },
@@ -150,8 +155,6 @@ export const translations = {
     added: { en: "Added", he: "נוסף" },
     spiceLevel: { en: "SPICE LEVEL", he: "רמת תבל" },
     spiceMild: { en: "No Heat", he: "ללא חריפות" },
-    kosher: { en: "✡ KOSHER", he: "✡ כשר" },
-    passoverKosher: { en: "✡ KOSHER FOR PASSOVER ", he: "✡ כשר לפסח" },
     notAvailable: { en: "NOT AVAILABLE", he: "לא זמין" },
     
     // Product Info Modal
@@ -166,6 +169,8 @@ export const translations = {
       he: "הערכים התזונתיים הם הערכות ל-100 גרם ועשויים להשתנות מעט בשל הבדלים טבעיים במרכיבים ובתהליך ההכנה.",
     },
     allergens: { en: "ALLERGENS", he: "אלרגנים" },
+    allergyAsk: { en: "Allergies?", he: "אלרגיה?" },
+    allergyAskLink: { en: "Ask us before you order", he: "שאלו אותנו לפני ההזמנה" },
     close: { en: "Close", he: "סגור" },
   },
 
@@ -197,8 +202,8 @@ export const translations = {
     everywhere_fee: { en: "Contact for quote", he: "צור קשר לציטוט" },
     
     // Delivery info cards
-    minimumOrderTitle: { en: "Minimum Order", he: "הזמנה מינימלית" },
-    minimumOrderDesc: { en: "₪80 minimum for delivery. No minimum for pickup in Modiin.", he: "₪80 מינימום למשלוח. אין מינימום לאיסוף במודיעין." },
+    minimumOrderTitle: { en: "No Minimum Order", he: "אין הזמנה מינימלית" },
+    minimumOrderDesc: { en: "Order as little or as much as you like.", he: "הזמינו כמה שתרצו, קצת או הרבה." },
     cutoffTitle: { en: "Order Cutoff", he: "סגירת הזמנות" },
     cutoffDesc: { en: "Order by 12pm for same-day delivery in Modiin. Contact us for delivery days in other areas.", he: "הזמנו עד 12:00 למשלוח באותו יום במודיעין. צור קשר לימי משלוח באזורים אחרים." },
     paymentTitle: { en: "Payment", he: "תשלום" },
@@ -256,20 +261,19 @@ export const translations = {
     twoNations: { en: "TWO NATIONS", he: "שתי אומות" },
     oneBraai: { en: "ONE BRAAI", he: "ברייי אחד" },
     headlineHe: { en: "Bringing South African Braai Culture to Israel", he: "הבאת תרבות ברייי דרום אפריקאית לישראל" },
-    storyHe: { en: "We're a team of South Africans who grew up eating authentic biltong, boerewors, and braai. When we moved to Israel, we realized there was no place making it the right way. So we did it ourselves. Every product is made with 100% beef, traditional SA spices, and the kind of care that only comes from people who grew up on this stuff. No shortcuts. No compromises. Just meat, done right.", he: "אנחנו צוות של דרום אפריקאים שגדלו על אכילת בילטונג אותנטי, בוארווורס וברייי. כשעברנו לישראל, הבנו שאין מקום שעושה את זה בצורה הנכונה. אז עשינו זאת בעצמנו. כל מוצר עשוי מ-100% בשר בקר, תבלינים דרום אפריקאיים מסורתיים, וסוג הטיפול שמגיע רק מאנשים שגדלו על הדברים האלה. אין קיצורי דרך. אין פשרות. רק בשר, עשוי כמו שצריך." },
     
     // Story section
     storyTitle: { en: "The Shweet Brew Story", he: "סיפור שוויט ברו" },
     storyParagraph1: { en: "We're South Africans who fell in love with Israel. And we couldn't let go of home.", he: "אנחנו דרום אפריקאים שהתאהבנו בישראל. ולא יכולנו לשחרר את הבית." },
     storyParagraph2: { en: "When we moved to Israel, we missed the braai culture, the authentic flavours, the community. So we decided to bring it here.", he: "כשעברנו לישראל, התגעגענו לתרבות הברייי, לטעמים האותנטיים ולקהילה. אז החלטנו להביא את זה לכאן." },
-    storyParagraph3: { en: "Shweet Brew is our love letter to both nations. Every product is made with 100% beef, authentic SA spices, and the kind of pride that only comes from bridging two homes.", he: "שוויט ברו היא מכתב אהבה שלנו לשתי אומות. כל מוצר עשוי מ-100% בשר בקר, תבלינים דרום אפריקאיים אותנטיים, וסוג הגאווה שמגיע רק מחיבור שני בתים." },
+    storyParagraph3: { en: "Shweet Brew is our love letter to both nations. Our meat is 100% beef, or chicken where it says so, with authentic SA spices and the kind of pride that only comes from bridging two homes.", he: "שוויט ברו היא מכתב אהבה שלנו לשתי אומות. הבשר שלנו הוא 100% בקר, או עוף היכן שמצוין, עם תבלינים דרום אפריקאיים אותנטיים וסוג הגאווה שמגיע רק מחיבור שני בתים." },
     
     // Values
     valuesTitle: { en: "OUR VALUES", he: "הערכים שלנו" },
     beef100: { en: "100% Beef", he: "100% בשר בקר" },
-    beef100Desc: { en: "No fillers, no nonsense", he: "בלי תוספות ובלי שטויות" },
+    beef100Desc: { en: "Or chicken where it says so. No fillers, no nonsense", he: "או עוף היכן שמצוין. בלי תוספות ובלי שטויות" },
     kosherCert: { en: "Kosher Ingredients", he: "רכיבים כשרים" },
-    kosherCertDesc: { en: "Always Available", he: "תמיד זמין" },
+    kosherCertDesc: { en: "No kosher certificate", he: "ללא תעודת כשרות" },
     authenticRecipes: { en: "Authentic Recipes", he: "מתכונים אותנטיים" },
     authenticRecipesDesc: { en: "Straight from SA", he: "ישירות מדרום אפריקה" },
     israeliPride: { en: "Israeli Pride", he: "גאווה ישראלית" },

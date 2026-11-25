@@ -6,7 +6,7 @@
  *  2. Four big photo tiles, one per range (Biltong, Jerky, Boerewors, Sauces & Shots),
  *     each with its starting price. A tap opens the products section on that range.
  *  3. Shop all products / Contact us (scrolls to the contact section).
- *  4. Trust row: Made in Israel · SA roots · Kosher ingredients.
+ *  4. Trust row: Made in Israel · SA roots · Kosher ingredients, not certified.
  */
 
 import { ArrowRight, MessageCircle, ShoppingCart } from "lucide-react";
@@ -141,7 +141,7 @@ export default function HeroSection() {
         <ul className="hero-trust" data-reveal="fade" style={{ ["--reveal-delay" as string]: "720ms" }}>
           <li><FlagIsrael className="hero-flag" /><span>{L("Made in Israel", "תוצרת הארץ")}</span></li>
           <li><FlagSouthAfrica className="hero-flag" /><span>{L("SA roots", "שורשים דרום אפריקאיים")}</span></li>
-          <li><KosherStar className="hero-star" /><span>{L("Kosher ingredients", "רכיבים כשרים")}</span></li>
+          <li><KosherStar className="hero-star" /><span>{L("Kosher ingredients, not certified", "רכיבים כשרים, ללא תעודה")}</span></li>
         </ul>
 
       </div>

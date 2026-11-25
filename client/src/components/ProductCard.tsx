@@ -8,7 +8,7 @@
 import { memo, useEffect, useRef, useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslatedProductName, getCategoryNameHebrew, type ProductVariant, sizeLabel } from "@/config/products";
+import { getTranslatedProductName, getCategoryNameHebrew, type ProductVariant, isAdultProduct, sizeLabel } from "@/config/products";
 import { translations } from "@/config/languages";
 import ProductInfoModal from "./ProductInfoModal";
 import { productSrcSet, PRODUCT_CARD_SIZES } from "@/lib/images";
@@ -131,6 +131,8 @@ const ProductCardComponent = ({ variant, categoryName, index = 0 }: ProductCardP
           >
             <Info className="w-4 h-4" aria-hidden="true" />
           </button>
+
+          {isAdultProduct(variant.id) && <span className={`product-adult ${isRtl ? "right-2.5" : "left-2.5"}`}><bdi dir="ltr">18+</bdi></span>}
 
           {!isAvailable && (
             <span className="product-unavailable" title={variant.unavailableReason}>

@@ -28,8 +28,8 @@ export default function DeliverySection() {
 
   const facts = [
     { title: t.cutoffTitle[language], desc: he
-        ? "הזמינו עד יום רביעי כדי להיכנס לסבב המשלוחים הקרוב באזורכם. הזמנות אחרי רביעי עוברות לשבוע הבא."
-        : "Order by Wednesday to make your area's next delivery run. Orders after Wednesday go out the following week." },
+        ? "הזמינו עד יום שלישי ב-12:00 כדי להיכנס לסבב המשלוחים הקרוב באזורכם. הזמנות מאוחרות יותר עוברות לשבוע הבא."
+        : "Order by Tuesday 12:00 to make your area's next delivery run. Later orders go out the following week." },
     { title: t.minimumOrderTitle[language], desc: t.minimumOrderDesc[language] },
     { title: t.paymentTitle[language], desc: t.paymentDesc[language] },
     { title: t.pickupTitle[language], desc: t.pickupDesc[language] },
@@ -59,7 +59,7 @@ export default function DeliverySection() {
           <div className="delivery-cutoff">
             <div className="delivery-cutoff-label">{he ? "הזמינו עד" : "Order by"}</div>
             <div className="delivery-cutoff-value">
-              {he ? "רביעי" : "Wednesday"} <span>12:00</span>
+              {he ? "שלישי" : "Tuesday"} <span>12:00</span>
             </div>
           </div>
         </div>

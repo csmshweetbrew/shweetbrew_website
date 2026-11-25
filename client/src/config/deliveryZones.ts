@@ -1,12 +1,12 @@
 /*
  * SHWEETBREW DELIVERY ZONES CONFIGURATION
  * 7-zone delivery system for Israel
- * Production Day: Wednesday 12:00 PM
- * 
- * CORRECTED DELIVERY LOGIC:
- * 1. Find the closest Wednesday (today if Wed, this week if before, next week if after)
- * 2. Products available AFTER that Wednesday
- * 3. Choose first valid delivery day AFTER the closest Wednesday based on zone
+ * We make everything on Wednesday; orders close on Tuesday 12:00 (business owner, 2026-11-25).
+ *
+ * The next delivery: find the Wednesday this order makes (this week's until Tuesday
+ * 12:00, then next week's), then the area's first delivery day AFTER that Wednesday.
+ * Jerusalem and Shfela can go out that same Wednesday (business owner, 2026-11-25).
+ * Days and hours are Israel's, wherever the visitor is.
  */
 
 export interface DeliveryZone {
@@ -19,9 +19,18 @@ export interface DeliveryZone {
   icon: string;
 }
 
-// Production day: Wednesday 12:00 PM
+/**
+ * South and Kiryat Gat: every second Monday, counted from this one. The business owner
+ * let us pick the start (2026-11-25), so the checkout adds "Delivery date to be confirmed".
+ */
+const SECOND_MONDAY_START = "2026-12-07";
+
+/** Areas that get their order on the Wednesday it's made; the others wait for a later day */
+const SAME_WEDNESDAY = ["zone_4_jerusalem", "zone_3_shfela"];
+
 export const PRODUCTION_DAY = 3; // 0=Sunday, 3=Wednesday
-export const PRODUCTION_HOUR = 12;
+/** Orders close the day before, at 12:00 */
+export const CUTOFF_HOUR = 12;
 
 export const deliveryZones: DeliveryZone[] = [
   // MODIIN (HQ) - FREE PICKUP OR SAME DAY
@@ -237,59 +246,33 @@ export function getZoneByCity(cityName: string): DeliveryZone | null {
   return deliveryZones.find((z) => z.id === zoneId) || null;
 }
 
-/**
- * Find the closest Wednesday
- * - If today is before Wednesday: return this week's Wednesday
- * - If today is Wednesday: return today
- * - If today is after Wednesday: return next week's Wednesday
- */
-function getClosestWednesday(referenceDate: Date = new Date()): Date {
-  const now = new Date(referenceDate);
-  now.setHours(0, 0, 0, 0);
-  
-  const currentDay = now.getDay(); // 0=Sunday, 3=Wednesday
-  
-  if (currentDay < PRODUCTION_DAY) {
-    // Before Wednesday: use this week's Wednesday
-    const daysUntilWednesday = PRODUCTION_DAY - currentDay;
-    const wednesday = new Date(now);
-    wednesday.setDate(wednesday.getDate() + daysUntilWednesday);
-    return wednesday;
-  } else if (currentDay === PRODUCTION_DAY) {
-    // Today is Wednesday
-    return now;
-  } else {
-    // After Wednesday: use next week's Wednesday
-    const daysUntilNextWednesday = 7 - currentDay + PRODUCTION_DAY;
-    const wednesday = new Date(now);
-    wednesday.setDate(wednesday.getDate() + daysUntilNextWednesday);
-    return wednesday;
-  }
+/** The date and time in Israel, as a plain local Date */
+function israelNow(): Date {
+  return new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Jerusalem" }));
 }
 
-/**
- * Calculate next available delivery date based on corrected logic:
- * 1. Find closest Wednesday
- * 2. Products available AFTER that Wednesday
- * 3. Find first valid delivery day AFTER the closest Wednesday for the zone
- */
+/** The Wednesday an order placed now is made on: this week's until Tuesday 12:00, then next week's */
+export function productionWednesday(now: Date): Date {
+  const ahead = (PRODUCTION_DAY - now.getDay() + 7) % 7; // 0 on Wednesday
+  const missed = ahead === 0 || (ahead === 1 && now.getHours() >= CUTOFF_HOUR);
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate() + ahead + (missed ? 7 : 0));
+}
+
+/** The next delivery for an area */
 export function getNextDeliveryDate(zone: DeliveryZone): Date {
   // Special case: Modiin is always today (same-day delivery)
   if (zone.id === "modiin") {
-    return new Date();
+    return israelNow();
   }
 
   // Special case: Everywhere Else - return a placeholder date
   if (zone.id === "zone_everywhere_else") {
-    return new Date(); // Return today as placeholder
+    return israelNow(); // Return today as placeholder
   }
 
-  const now = new Date();
-  const closestWednesday = getClosestWednesday(now);
-  
-  // Start searching from the day AFTER the closest Wednesday
-  const searchStartDate = new Date(closestWednesday);
-  searchStartDate.setDate(searchStartDate.getDate() + 1);
+  // Start searching from that Wednesday, or the day after it
+  const searchStartDate = productionWednesday(israelNow());
+  if (!SAME_WEDNESDAY.includes(zone.id)) searchStartDate.setDate(searchStartDate.getDate() + 1);
 
   // Find the next delivery day for this zone
   return findNextDeliveryDay(searchStartDate, zone);
@@ -310,20 +293,8 @@ function findNextDeliveryDay(startDate: Date, zone: DeliveryZone): Date {
   ];
 
   // Handle special cases for "every second Monday"
-  if (zone.specialRules?.includes("Bi-weekly")) {
-    return getNextSecondMonday(startDate);
-  }
-
-  // Special handling for Jerusalem (always next Wednesday after closest Wednesday)
-  if (zone.id === "zone_4_jerusalem") {
-    // Find the next Wednesday after startDate
-    let checkDate = new Date(startDate);
-    for (let i = 0; i < 7; i++) {
-      if (checkDate.getDay() === PRODUCTION_DAY) {
-        return checkDate;
-      }
-      checkDate.setDate(checkDate.getDate() + 1);
-    }
+  if (isEverySecondMonday(zone)) {
+    return nextSecondMonday(startDate);
   }
 
   // Standard delivery day matching
@@ -343,38 +314,17 @@ function findNextDeliveryDay(startDate: Date, zone: DeliveryZone): Date {
   return findNextDeliveryDay(nextWeekStart, zone);
 }
 
-/**
- * Get the next "every second Monday" from a given date
- * Returns the first Monday that occurs after startDate
- */
-function getNextSecondMonday(startDate: Date): Date {
-  const dayNames = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ];
-  let mondayCount = 0;
-  let checkDate = new Date(startDate);
-  checkDate.setHours(0, 0, 0, 0);
+/** Their dates aren't certain yet: the checkout says so */
+export function isEverySecondMonday(zone: DeliveryZone): boolean {
+  return !!zone.specialRules?.includes("Bi-weekly");
+}
 
-  // Find the 1st Monday from the start date (since we're already after the closest Wednesday)
-  for (let i = 0; i < 30; i++) {
-    const testDate = new Date(checkDate);
-    testDate.setDate(testDate.getDate() + i);
-
-    if (dayNames[testDate.getDay()] === "Monday") {
-      return testDate;
-    }
-  }
-
-  // Fallback: return 7 days from start
-  const fallback = new Date(startDate);
-  fallback.setDate(fallback.getDate() + 7);
-  return fallback;
+/** The first of every second Monday on or after startDate */
+export function nextSecondMonday(startDate: Date): Date {
+  const [y, m, d] = SECOND_MONDAY_START.split("-").map(Number);
+  let date = new Date(y, m - 1, d);
+  while (date < startDate) date = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 14);
+  return date;
 }
 
 /**
@@ -382,7 +332,7 @@ function getNextSecondMonday(startDate: Date): Date {
  */
 export function formatDeliveryDate(date: Date, lang: "en" | "he" = "en"): string {
   // Next delivery is today (e.g. same-day Modiin): just say so
-  const now = new Date();
+  const now = israelNow();
   if (date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth() && date.getDate() === now.getDate()) {
     return lang === "he" ? "היום" : "Today";
   }
@@ -395,46 +345,3 @@ export function formatDeliveryDate(date: Date, lang: "en" | "he" = "en"): string
   return date.toLocaleDateString(lang === "he" ? "he-IL" : "en-US", options);
 }
 
-/**
- * Get next South delivery date for banner
- */
-export function getNextSouthDeliveryDate(): Date {
-  const now = new Date();
-  const closestWednesday = getClosestWednesday(now);
-  const searchStartDate = new Date(closestWednesday);
-  searchStartDate.setDate(searchStartDate.getDate() + 1);
-  return getNextSecondMonday(searchStartDate);
-}
-
-/**
- * Get next South delivery date formatted for banner
- */
-export function getNextSouthDeliveryDateFormatted(): string {
-  return formatDeliveryDate(getNextSouthDeliveryDate());
-}
-
-/**
- * Get zone with formatted next delivery date for dropdown display
- */
-export function getZoneWithDeliveryInfo(zone: DeliveryZone): {
-  zone: DeliveryZone;
-  nextDeliveryDate: string;
-  displayText: string;
-} {
-  const nextDate = getNextDeliveryDate(zone);
-  const formattedDate = formatDeliveryDate(nextDate);
-  const priceText =
-    zone.price === -1
-      ? "Please contact us"
-      : zone.price === 0
-        ? "FREE"
-        : `₪${zone.price}`;
-
-  const displayText = `${zone.name} — ${priceText} — ${formattedDate}`;
-
-  return {
-    zone,
-    nextDeliveryDate: formattedDate,
-    displayText,
-  };
-}

@@ -24,8 +24,6 @@ import {
 } from "../client/src/config/products";
 import { deliveryZones, zoneName } from "../client/src/config/deliveryZones";
 
-const MIN_DELIVERY_ORDER = 80; // same as CartPanel.tsx
-
 const q = (v: string | null | undefined) => (v == null || v === "" ? "null" : `'${String(v).replace(/'/g, "''")}'`);
 const n = (v: number | null | undefined) => (v == null ? "null" : String(v));
 const b = (v: boolean) => (v ? "true" : "false");
@@ -44,7 +42,7 @@ out.push(
 out.push("-- Delivery zones");
 deliveryZones.forEach((z, i) => {
   const fee = z.price < 0 ? null : z.price;
-  const min = z.id === "modiin" ? 0 : MIN_DELIVERY_ORDER;
+  const min = 0; // no minimum order (business owner, 2026-11-25)
   out.push(
     `insert into public.delivery_zones (id, name_en, name_he, fee, min_order, sort_order) values (${q(z.id)}, ${q(z.name)}, ${q(zoneName(z, "he"))}, ${n(fee)}, ${min}, ${i * 10}) on conflict (id) do nothing;`
   );

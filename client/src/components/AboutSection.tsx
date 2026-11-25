@@ -16,7 +16,7 @@ import { FlagIsrael, FlagSouthAfrica } from "./Flags";
 
 const ABOUT_IMG = "/images/about-1100.webp";
 
-const PULL_LINE = /^(Everything is good\. Everything is Shweet\.)\s*([\s\S]*)$/;
+const PULL_LINE = /^(Everything is good\. Everything is Shweet\.|הכול טוב\. הכול שוויט\.)\s*([\s\S]*)$/;
 
 /*
  * The story is plain text with blank lines between paragraphs.
@@ -119,7 +119,7 @@ function StoryText({ text }: { text: string }) {
  * Shows the first ~5 lines of the story with a soft fade. "Read the full story" opens
  * the whole story in a popup, styled like the product info popup (portal over the page,
  * close on X / backdrop / Escape, page frozen behind it). If the story is short
- * (e.g. the Hebrew version) it's shown in full with no button.
+ * it's shown in full with no button.
  */
 const COLLAPSED_REM = 10; // about 5 lines of 1.125rem text at 1.8 line-height
 
@@ -306,7 +306,7 @@ export default function AboutSection() {
             </h3>
 
             <CollapsibleStory language={language} title={language === "en" ? SITE_CONFIG.about.headline : translations.about.headlineHe.he}>
-              <StoryText text={language === "en" ? SITE_CONFIG.about.story : translations.about.storyHe.he} />
+              <StoryText text={language === "en" ? SITE_CONFIG.about.story : SITE_CONFIG.about.storyHe} />
             </CollapsibleStory>
 
           </div>

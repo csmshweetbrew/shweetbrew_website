@@ -151,6 +151,8 @@ ok((await db.query(`select full_name from public.profiles where id=$1`, [guest])
 ok(await stockOf("biltong-traditional", "100g") === null, "untracked size stays untracked");
 
 await expectError("authenticated", guest, `select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "250g", quantity: 4 }]))], "OUT_OF_STOCK:biltong-traditional:250g:3", "cannot order more than stock");
+ok(Number((await db.query(`select max(min_order) m from public.delivery_zones`)).rows[0].m) === 0, "no area has a minimum order");
+await db.query(`update public.delivery_zones set min_order = 80 where id <> 'modiin'`); // the rule still works if one is set
 await expectError("authenticated", guest, `select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "100g", quantity: 1 }]))], "BELOW_MINIMUM:80", "minimum order for delivery");
 const pickup = await as("authenticated", guest, () => db.query(`select public.place_order($1::jsonb) r`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "100g", quantity: 1 }], { zone_id: "modiin", phone: "0500000000" }))]));
 ok(Number(pickup.rows[0].r.total) === 50, "Modiin pickup has no minimum and is free");

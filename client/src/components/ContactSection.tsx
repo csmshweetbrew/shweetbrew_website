@@ -49,7 +49,7 @@ export default function ContactSection() {
                 className="text-xl font-bold transition-colors hover:text-fire"
                 style={{ color: "oklch(0.94 0.025 75)" }}
               >
-                {SITE_CONFIG.contact.whatsappDisplay}
+                <bdi dir="ltr">{SITE_CONFIG.contact.whatsappDisplay}</bdi>
               </a>
             </div>
 

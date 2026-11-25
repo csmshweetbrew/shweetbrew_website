@@ -51,6 +51,9 @@ type CartContextType = {
   touch: (field: string) => void;
   submitting: boolean;
   setSubmitting: (submitting: boolean) => void;
+  /** "I'm 18 or over": asked only when the bag holds alcohol */
+  adult: boolean;
+  setAdult: (adult: boolean) => void;
   payMethod: PayMethod;
   setPayMethod: (m: PayMethod) => void;
   /** The order just placed: the same "Order placed" screen in the cart and the Order section */
@@ -90,6 +93,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const touch = (field: string) => setTouched((t) => (t[field] ? t : { ...t, [field]: true }));
   const [submitting, setSubmitting] = useState(false);
+  const [adult, setAdult] = useState(false);
   const [payMethod, setPayMethod] = useState<PayMethod>("bit_paybox");
   const [placed, setPlaced] = useState<Order | null>(readPlaced);
   const [placedRestored] = useState(() => !!placed && !placed.claimed && placed.payMethod === "bit_paybox");
@@ -112,6 +116,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
     setTried(false);
     setTouched({});
+    setAdult(false);
   }, [bagEmpty]);
 
   const addItem = (newItem: CartItem) => {
@@ -204,6 +209,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         touch,
         submitting,
         setSubmitting,
+        adult,
+        setAdult,
         payMethod,
         setPayMethod,
         placed,

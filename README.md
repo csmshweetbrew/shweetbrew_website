@@ -54,7 +54,7 @@ It only fast-forwards `main`; it never overwrites it. If someone else pushed to 
 
 ### Database changes (migrations)
 
-The database is built from the numbered files in `supabase/migrations/` (`0001_…` to `0019_…`, more later). To apply one: Supabase Dashboard → **SQL Editor** → paste the file → **Run**. Run new files in number order, each one once.
+The database is built from the numbered files in `supabase/migrations/` (`0001_…` to `0020_…`, more later). To apply one: Supabase Dashboard → **SQL Editor** → paste the file → **Run**. Run new files in number order, each one once.
 
 - Never edit a file that has already been run. Changes go in a new file with the next number.
 - `supabase/seed.sql` loads the starting products and delivery zones (`npx tsx scripts/generate-supabase-seed.ts` regenerates it from the site's product list). It only adds missing rows, so re-running it is safe.
@@ -101,6 +101,8 @@ Every new website order sends two emails: **"New order SB-1001 · ₪155 · Hash
 4. **Test:** place an order on the site with your own email. Both emails should arrive within a minute. If not: **Edge Functions → order-emails → Logs** shows the reason (wrong secret = 401; Resend refused = the Resend message).
 
 If a customer picks another way to pay after ordering you get **"SB-1001: now paying by Bank transfer"**. When they press **I've paid** you get **"SB-1001: customer says paid · ₪155 · Bit or PayBox"**. Nothing confirms a personal Bit or PayBox payment by itself: check the app, then mark the order paid (`update public.orders set payment_status = 'paid' where reference = 'SB-1001';` until there's an admin app).
+
+When an order is marked paid, the customer gets **"We've got your payment for SB-1001"** with the whole order (the webhook's Update event sends it).
 
 **Switching this on for an existing project** (needs migration `0018`): paste the new `order-emails` code and deploy, tick **Update** on the webhook, then run `0018_payment_method.sql` once. The site works before that too; the choice just isn't kept and "I've paid" and "Choose another way to pay" don't show.
 

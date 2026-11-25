@@ -6,11 +6,12 @@
  *     typed twice (plus a "did you mean gmail.com?" typo hint); phone optional
  *   - errors show as soon as a field is left, and "Place order" with
  *     something missing lists every problem above the button
- *   - ₪80 minimum for delivery, except Modiin pickup
+ *   - no minimum order (business owner, 2026-11-25)
  *   - delivery fee and total from the chosen area
  *   - how they'll pay (Bit / PayBox, bank transfer, cash in Modiin only): kept on the order, nothing is charged
+ *   - alcohol in the bag: "I'm 18 or over" must be ticked (business owner, 2026-11-25)
  *   - the order goes to the database (lib/orders.ts → place_order), which
- *     re-checks prices, stock and the minimum itself
+ *     re-checks prices and stock itself
  *
  * The typed details, shown errors and "being sent" state all live in
  * CartContext, so both places always behave the same.
@@ -20,14 +21,13 @@ import { useEffect, useState, type RefObject } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useCatalog } from "@/contexts/CatalogContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslatedProductName, sizeLabel } from "@/config/products";
+import { getTranslatedProductName, isAdultProduct, sizeLabel } from "@/config/products";
 import { deliveryZones, getNextDeliveryDate, type DeliveryZone } from "@/config/deliveryZones";
 import { findVariant, findVariantById } from "@/lib/catalog";
 import { submitOrder, type Order, type OrderError } from "@/lib/orders";
 import { suggestEmail } from "@/lib/emailTypos";
 import { payMethodsFor } from "@/lib/payMethods";
 
-export const MIN_DELIVERY_ORDER = 80;
 export const OTHER_ZONE = "zone_everywhere_else";
 
 /** yyyy-mm-dd in local time (what the delivery date line showed) */
@@ -42,7 +42,7 @@ export function useCheckout(rootRef: RefObject<HTMLElement | null>) {
   const L = (en: string, hebrew: string) => (he ? hebrew : en);
 
   const { items, subtotal, selectedArea, name, phone, notes, shippingDetails: street, city, apartment, email, setEmail, emailAgain, setEmailAgain, clearCart,
-    tried, setTried, touched, touch, submitting, setSubmitting, payMethod: chosenMethod, setPlaced } = useCart();
+    tried, setTried, touched, touch, submitting, setSubmitting, payMethod: chosenMethod, adult, setPlaced } = useCart();
   const { categories, refresh: refreshCatalog } = useCatalog();
   const typedEmail = email.trim();
 
@@ -55,7 +55,7 @@ export function useCheckout(rootRef: RefObject<HTMLElement | null>) {
   // Cash chosen and then another area picked: back to the first choice
   const payMethods = payMethodsFor(zone?.id);
   const payMethod = payMethods.includes(chosenMethod) ? chosenMethod : payMethods[0];
-  const belowMinimum = !!zone && zone.id !== "modiin" && subtotal < MIN_DELIVERY_ORDER;
+  const needsAge = items.some((i) => isAdultProduct(findVariant(categories, i.categoryName, i.productName)?.id));
   const nextDeliveryDate = zone ? getNextDeliveryDate(zone) : null;
   const deliveryText = !zone ? "—" : zone.price === 0 ? L("Free", "חינם") : zone.price < 0 ? L("To arrange", "בתיאום") : `₪${zone.price}`;
 
@@ -64,6 +64,7 @@ export function useCheckout(rootRef: RefObject<HTMLElement | null>) {
     zone: !zone ? L("Choose where it's going.", "בחרו לאן לשלוח.") : "",
     name: !name.trim() ? L("Add your name.", "הוסיפו שם.") : "",
     // Optional, but a number that can't work is still pointed out (same rule as the database)
+    age: needsAge && !adult ? L("Tick this to order alcohol.", "סמנו כדי להזמין אלכוהול.") : "",
     phone: phone.trim() && !/^\+?[0-9][0-9 ()-]{6,24}$/.test(phone.trim()) ? L("Check the phone number, or leave it empty.", "בדקו את מספר הטלפון, או השאירו ריק.") : "",
     email: !typedEmail
       ? L("Add your email for the order confirmation.", "הוסיפו מייל לאישור ההזמנה.")
@@ -90,7 +91,7 @@ export function useCheckout(rootRef: RefObject<HTMLElement | null>) {
     errors.phone && { field: "phone", text: L("Check your phone number", "בדקו את מספר הטלפון") },
     errors.email && { field: "email", text: typedEmail ? L("Check your email address", "בדקו את כתובת המייל") : L("Add your email", "הוסיפו מייל") },
     errors.emailAgain && { field: "emailAgain", text: emailAgain.trim() ? L("Make the two emails match", "ודאו ששני המיילים תואמים") : L("Type your email again", "הקלידו את המייל שוב") },
-    belowMinimum && { field: "", text: L(`Delivery starts at ₪${MIN_DELIVERY_ORDER}: add ₪${MIN_DELIVERY_ORDER - subtotal} more, or choose Modiin pickup`, `משלוח מ-₪${MIN_DELIVERY_ORDER}: הוסיפו עוד ₪${MIN_DELIVERY_ORDER - subtotal}, או בחרו איסוף במודיעין`) },
+    errors.age && { field: "age", text: L("Confirm you're 18 or over", "אשרו שאתם בני 18 ומעלה") },
   ].filter(Boolean) as { field: string; text: string }[];
 
   // A changed bag or area makes an old order error stale
@@ -110,6 +111,7 @@ export function useCheckout(rootRef: RefObject<HTMLElement | null>) {
           ? L(`${what} isn't available right now. Remove it to continue.`, `${what} לא זמין כרגע. הסירו אותו כדי להמשיך.`)
           : L("Something in your bag isn't available any more. Remove it to continue.", "משהו בסל כבר לא זמין. הסירו אותו כדי להמשיך.");
       case "BELOW_MINIMUM":
+        // Only from a database that hasn't had migration 0020 yet
         return L(`Delivery starts at ₪${err.min}. Add a little more, or choose Modiin for pickup.`, `משלוח מ-₪${err.min}. הוסיפו עוד קצת, או בחרו איסוף במודיעין.`);
       case "INVALID_INPUT":
         return err.field === "phone"
@@ -132,7 +134,7 @@ export function useCheckout(rootRef: RefObject<HTMLElement | null>) {
   /** Checks, then places the order. The "Order placed" screen (CartContext.placed) shows when it went through. */
   const placeOrder = async (): Promise<void> => {
     if (submitting) return;
-    if (hasErrors || belowMinimum) {
+    if (hasErrors) {
       setTried(true);
       // setTimeout, not requestAnimationFrame: works while the tab is in the background too
       window.setTimeout(() => rootRef.current?.querySelector<HTMLElement>("[aria-invalid='true']")?.focus(), 0);
@@ -186,9 +188,9 @@ export function useCheckout(rootRef: RefObject<HTMLElement | null>) {
     deliveryFee,
     deliveryText,
     total,
-    belowMinimum,
     payMethods,
     payMethod,
+    needsAge,
     nextDeliveryDate,
     errors,
     show,
