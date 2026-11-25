@@ -1,6 +1,6 @@
 /*
  * SHWEETBREW SITE CONFIGURATION
- * Central configuration for contact details, delivery zones, and site-wide settings
+ * Contact details, social links and the English story. Delivery zones live in deliveryZones.ts.
  */
 
 export const SITE_CONFIG = {
@@ -20,68 +20,6 @@ export const SITE_CONFIG = {
     instagram: "https://instagram.com/shweetbrew",
     facebook: "https://facebook.com/shweetbrew",
     tiktok: "https://tiktok.com/@shweetbrew",
-  },
-
-  // Delivery Zones
-  deliveryZones: [
-    {
-      name: "Modiin (HQ)",
-      daysMin: 0,
-      daysMax: 1,
-      fee: 0,
-      label: "Same day / Next day",
-      icon: "🏠",
-    },
-    {
-      name: "Tel Aviv & Gush Dan",
-      daysMin: 1,
-      daysMax: 2,
-      fee: 20,
-      label: "1–2 days",
-      icon: "🌆",
-    },
-    {
-      name: "Jerusalem",
-      daysMin: 1,
-      daysMax: 2,
-      fee: 25,
-      label: "1–2 days",
-      icon: "🕍",
-    },
-    {
-      name: "Haifa & North",
-      daysMin: 2,
-      daysMax: 3,
-      fee: 30,
-      label: "2–3 days",
-      icon: "⛵",
-    },
-    {
-      name: "Beer Sheva & South",
-      daysMin: 2,
-      daysMax: 3,
-      fee: 30,
-      label: "2–3 days",
-      icon: "🌵",
-    },
-    {
-      name: "Everywhere Else",
-      daysMin: 2,
-      daysMax: 5,
-      fee: null, // Variable
-      label: "Varies",
-      icon: "📍",
-    },
-  ],
-
-  // Delivery Info
-  delivery: {
-    minimumOrder: 80, // NIS
-    minimumOrderPickup: 0, // NIS
-    orderCutoff: "12pm", // For same-day delivery in Modiin
-    paymentMethods: ["Bit", "PayBox", "Bank Transfer", "Cash (Modiin only)"],
-    pickupAvailable: true,
-    pickupLocation: "Modiin",
   },
 
   // About Us
@@ -115,18 +53,6 @@ When you see the Shweet Brew label, you know you're getting:
 3. Good Times Only: Products designed to be shared, celebrated, and enjoyed.
 
 Everything is good. Everything is Shweet. Welcome to the family. Grab a bag, fire up the grill, and let's get the vibe going.`,
-    values: [
-      { icon: "🥩", title: "100% Beef", description: "No fillers, no nonsense" },
-      { icon: "✡", title: "Kosher Options", description: "Certified & available" },
-      { icon: "🇿🇦", title: "Authentic Recipes", description: "Straight from SA" },
-      { icon: "🇮🇱", title: "Israeli Pride", description: "Made with love in Israel" },
-    ],
-  },
-
-  // Order Form
-  orderForm: {
-    minimumProducts: 1,
-    successMessage: "Order sent! We'll confirm via WhatsApp within 1 hour.",
   },
 };
 
@@ -136,6 +62,3 @@ export function getWhatsAppLink(message?: string): string {
   return `https://wa.me/${SITE_CONFIG.contact.whatsapp.replace(/[^\d]/g, "")}${message ? `?text=${encoded}` : ""}`;
 }
 
-export function getDeliveryZoneByName(name: string) {
-  return SITE_CONFIG.deliveryZones.find((z) => z.name === name);
-}

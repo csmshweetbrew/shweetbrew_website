@@ -20,7 +20,7 @@ import { useEffect, useState, type RefObject } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useCatalog } from "@/contexts/CatalogContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslatedProductName } from "@/config/products";
+import { getTranslatedProductName, sizeLabel } from "@/config/products";
 import { deliveryZones, getNextDeliveryDate, type DeliveryZone } from "@/config/deliveryZones";
 import { findVariant, findVariantById } from "@/lib/catalog";
 import { submitOrder, type Order, type OrderError } from "@/lib/orders";
@@ -99,7 +99,7 @@ export function useCheckout(rootRef: RefObject<HTMLElement | null>) {
   /** What went wrong with the order, in the visitor's language */
   const errorText = (err: OrderError): string => {
     const item = "productId" in err ? findVariantById(categories, err.productId) : null;
-    const what = item ? `${getTranslatedProductName(item.variant.id, language) || item.variant.name} ${"size" in err ? err.size : ""}`.trim() : "";
+    const what = item ? `${getTranslatedProductName(item.variant.id, language) || item.variant.name} ${"size" in err ? sizeLabel(err.size, language) : ""}`.trim() : "";
     switch (err.code) {
       case "OUT_OF_STOCK":
         return err.left > 0

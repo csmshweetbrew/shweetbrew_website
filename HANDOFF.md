@@ -6,7 +6,9 @@ General knowledge for the next agent working on this site. Read this, then `desi
 
 A single-page, bilingual (English / Hebrew, RTL) shop for **Shweet Brew**, a small Modiin-based maker of South African biltong, boerewors, drywors, the "Holy Land Jerky" range (beef + chicken), Shweet Brew Shots and sweet chilli sauce, delivered across Israel. **Orders are placed on the site and stored in Supabase**; customers have no accounts; WhatsApp is only a contact channel. Admin phone apps for orders and stock are next. See "Backend (Supabase)" and "Where things stand" below.
 
-The owner (Caleb) works in short, casual messages ("yo fella", "chop chop"), often several numbered requests at once, sometimes mid-task, and reviews in the browser on localhost. He likes to see **options as artifacts** (clickable prototype pages published with the Artifact tool) for bigger design changes, but when he names a reference (e.g. "use the neighbour-s login") just build it. He prefers **minimal UI**: less clutter, fewer small texts, one question per step, no decorative icons above titles, big inputs, bigger photos, clear labelling. Motion should feel interactive but **not overdone** (he had animations toned down twice). He decided to **keep the original dark "Braai Fire & Blue Star" look**. He doesn't want his own server: everything runs on Supabase (no Python/Docker). Commit or push only when he says so.
+**Caleb** builds the site with us; the **business owner** is someone else (he gives the product, kosher, legal and delivery facts). Older notes below say "the owner" and mean Caleb. **The GitHub repository is public:** no keys, private links or personal details in committed files.
+
+Caleb works in short, casual messages ("yo fella", "chop chop"), often several numbered requests at once, sometimes mid-task, and reviews in the browser on localhost. He likes to see **options as artifacts** (clickable prototype pages published with the Artifact tool) for bigger design changes, but when he names a reference (e.g. "use the neighbour-s login") just build it. He prefers **minimal UI**: less clutter, fewer small texts, one question per step, no decorative icons above titles, big inputs, bigger photos, clear labelling. Motion should feel interactive but **not overdone** (he had animations toned down twice). He decided to **keep the original dark "Braai Fire & Blue Star" look**. He doesn't want his own server: everything runs on Supabase (no Python/Docker). Commit or push only when he says so.
 
 ## Folders and running it
 
@@ -16,16 +18,16 @@ The owner (Caleb) works in short, casual messages ("yo fella", "chop chop"), oft
 - Dev server: the owner tests on **http://localhost:3000**. `preview_start` with name **`shweetbrew-dev`** (`.claude/launch.json` in this folder) runs Vite on port 3000; `shweetbrew-standin` runs it on 3002 against the local stand-in (see Testing). If 3000 is taken, find the process first (`Get-NetTCPConnection -LocalPort 3000`); an old stale Vite once held it for days. Production preview: `npx vite build && npx vite preview --port 4173`.
 - Checks: `npx tsc --noEmit` and `npx vite build` from the project root.
 - Deploy: **Netlify only**, built from `main` (`netlify.toml` → `dist/public`). `npm run deploy` (`scripts/deploy.sh`) checks, builds, lists migrations to run, asks, then fast-forwards `main`. Full steps in `README.md`. The old GitHub Pages workflow was deleted on 2026-11-19 (it published the unbuilt source); the owner unpublishes Pages in repo Settings. `.gitattributes` keeps `*.sh` at LF so bash works on Windows.
-- Git (2026-11-24): work happens on branch **`claude/shweetbrew-domain-deployment-ml5015`**; everything up to the bushveld fire was committed and pushed there on 2026-11-24 (check `git log` and `git status` yourself). `main` (what Netlify publishes) is **8 commits behind** it, so none of this is on shweetbrew.com. The owner often leaves work uncommitted: never `git checkout`, `git restore`, `git reset`, `git stash` or `git clean` here. Commit/push only when the owner asks.
+- Git (2026-11-25): work happens on branch **`claude/shweetbrew-domain-deployment-ml5015`**. Everything up to 595f118 is pushed; the steel braai, Fire sky, hero smoke and step 1 are committed on top of it on 2026-11-25 and **not pushed** (check `git log` and `git status` yourself). `main` (what Netlify publishes) has none of this branch's later work: shweetbrew.com still shows the old site with "Order on WhatsApp". Never `git checkout`, `git restore`, `git reset`, `git stash` or `git clean` here. Commit/push only when Caleb asks.
 - The git-ignored `temp/` folder holds the artifact sources (see "Design artifacts"), only on this PC. `.playwright-mcp/` is test scratch: delete it before committing.
 
 ## Page structure (top to bottom)
 
-`client/src/pages/Home.tsx`: Hero → red product ticker → Products → Delivery → Order → Reviews → About → FAQ → Contact, plus `Navbar`, `Footer` (in `App.tsx`) and the cart (`CartPanel`). Behind all of it is the fire background, and between Contact and the footer is the bushveld fire.
+`client/src/pages/Home.tsx`: Hero → red product ticker → Products → Delivery → Order → Reviews → About → FAQ → Contact, plus `Navbar`, `Footer` (in `App.tsx`) and the cart (`CartPanel`). Behind all of it is the fire background, and between Contact and the footer is the steel braai.
 
 - **Navbar** (`Navbar.tsx`, `.nav-*`, owner 2026-11-24): logo left, links dead centre, globe + red Order button right; on phones burger left, logo centre, Order right. Order opens the bag, or the products if it's empty. No prices, counts or progress bar.
-- **Fire background** (`FireBackground.tsx`, `lib/fire/background.ts`): smoke at the top, warmer with more sparks as you scroll. Home sections have **no background of their own** so it shows through; keep new ones see-through.
-- **Bushveld fire** (`Braai.tsx`, `lib/fire/braai.ts`, `.braai`): see "The bushveld fire" below.
+- **Fire background** (`FireBackground.tsx`, `lib/fire/background.ts`): smoke at the top (with wisps in the hero that show through the photo: `.hero-backdrop` uses `mix-blend-mode: screen`, so nothing between it and `.fire-bg` may become a stacking context), warmer with more sparks as you scroll. Home sections have **no background of their own** so it shows through; keep new ones see-through.
+- **Steel braai** (`Braai.tsx`, `lib/fire/braai.ts`, `.braai`): see "The steel braai" below.
 
 - **Hero** (`HeroSection.tsx`): "Play hard. Snack harder." slogan, a two-line description with *biltong / boerewors / jerky* coloured to match their tiles, four range tiles (Biltong, Jerky, Boerewors, Sauces & Shots) with starting prices computed from product data, "Shop all products" + "Contact us" (scrolls to #contact), and a trust row with drawn flags (`Flags.tsx`).
 - **Products** (`ProductsSection.tsx`, `ProductCard.tsx`): Bebas category tabs; 4-column grid (2 on phones). Cards are photo-first: name, category, heat icons, "from ₪X / size"; a round (i) opens `ProductInfoModal` (portal to body); a red + opens a size tray and adds to cart with a fly-to-cart dot.
@@ -49,7 +51,7 @@ The owner (Caleb) works in short, casual messages ("yo fella", "chop chop"), oft
 - `lib/smoothScroll.ts` — Lenis smooth wheel scrolling; `scrollToTarget()` for all in-page jumps (one continuous ease-in-out glide, 0.9–1.8s); `lockPageScroll()` while the cart / popups are open; scrollable boxes carry `data-lenis-prevent`.
 - `lib/reveal.ts` — scroll reveal (IntersectionObserver). Revealed = `data-revealed` attribute (not a class: React re-renders rewrite `className`, which used to hide product cards after opening their size tray, most visibly after a hero-tile jump). Variants by `data-reveal`: heading, text, zoom, wipe, fade, default. Below-the-fold elements are tagged **by selector** in `AUTO_TARGETS` (components don't need attributes); the hero uses attributes in JSX. `revealInstantly()` shows everything on a menu jump's path so nothing replays.
 - `lib/parallax.ts` — gentle hero parallax/fade while scrolling away.
-- `lib/fire/gl.ts` — small WebGL2 helpers (programs, noise texture, background compile, sparks) shared by the background and the bushveld fire. No 3D library.
+- `lib/fire/gl.ts` — small WebGL2 helpers (programs, noise texture, background compile, sparks) shared by the background and the steel braai. No 3D library.
 - `lib/images.ts` — self-hosted photo helpers (`productSrcSet`, `productThumb`).
 
 ## Backend (Supabase)
@@ -86,26 +88,45 @@ Added 2026-11-19. The website talks to Supabase directly with the public anon ke
 
 **Testing without real credentials**: `tools/supabase-standin/` (see its README): a PGlite-backed fake Supabase on :54399 (catalogue, orders, order emails' reads) plus a dev server on :3002 pointed at it, so the owner's :3000 and real project stay untouched. Don't create orders on the live project without asking.
 
-## The bushveld fire (2026-11-24)
+## The steel braai (2026-11-25)
 
-How it got here: the owner asked for a whole-page visual, picked "Into the fire" from five, asked for a braai at the bottom, got a long-grid braai, then picked **the bushveld fire** from five braais. It is built and on the branch. **The owner's next request is more realistic options for it, as an artifact** (nothing to be built until they pick).
+How it got here: the owner picked "Into the fire" for the page, then the bushveld fire for the bottom, then asked for more realistic options (five, as an artifact). They answered with a Pexels photo (14823745) as a reference; the steel braai was designed after it and built. Then: "i want the background to fade into the picture, so that it looks like it was always a part". From four blends they asked for Fire sky and Smoke on the full page, made lighter, and chose **Fire sky**. Built and committed 2026-11-25.
 
-- **What it is:** one fragment shader (no images, no 3D library): boerewors coil (ray-marched, with charring and shine) on a round grid swinging on three chains under a tripod, logs, a ring of stones, coals, flames, sparks, smoke, stars, and a skyline with Table Mountain on the left, Jerusalem on the right, acacias in front. Moving over it makes a breeze; a click or tap blows on the fire. Beef only (kosher).
-- **What looks least real now (a frank list):** the stones are smooth round blobs with blocky dark patches and jagged edges (no anti-aliasing), the logs are plain capsules with a stripy pattern, the ground is flat and almost black away from the fire, the flames are two or three flat sheets, the chains are dashed lines, the trees, mountain and town are flat cut-outs, and there are no real cast shadows or light flicker on the surroundings.
-- **Picture first:** `client/public/images/fire-wide.webp` (2448×720) and `fire-phone.webp` (760×876) show at once; the live canvas fades in over them (`is-live`). They were rendered from the shader (reduced motion on, so `t` = 4, at those exact sizes). **Re-render both if the scene changes.**
-- **First compile on Windows is slow and unpredictable** (measured cold: from 3 to 35 seconds for the same shader on the owner's PC, Intel UHD graphics; cached later visits are ready at once). It compiles in the background 4 seconds after the page opens. Never depend on it being ready. Keep it down: no `texture()`/`fwidth()` in the big shader (use `textureLod` and `pxl`), loops start at `ZERO`, noise from a texture, few copies of any shape. Measure cold (change a constant so the driver cache misses).
-- **Speed:** about 60fps on that Intel chip, with a fixed pixel budget (760,000) and automatic quality steps. Not tried on a real phone yet.
-- **Ideas for realism** to weigh: real photos or short looping video for the flames/ground/stones (needs assets from the owner or properly licensed ones; ask first), a pre-rendered scene (e.g. Blender) as a looping WebM/AVIF with only sparks, smoke and interaction live, or photo textures inside the shader. A pre-rendered loop would also remove the compile wait.
-- The long-grid version is saved as `temp/braai/braai-long-grid.ts` (git-ignored).
+- **What it is:** a scene rendered offline by our own path tracer (no Blender, nothing downloaded; none of the photo's pixels are used, its tags say pork and ours is beef only), kept as separate light pictures in `client/public/images/fire/`: `wide-…` and `phone-…` (551px and narrower) × `base` (the low sun), `fire` (firelight, with the coals' glow folded in), `shares` (how much of the firelight comes from each of the four fire lights, so it can flicker), `masks` (r in front of the flames, g scene or sky, b leaves, already softened), `tongs`, `tongs-mask`. Stored on a log scale: the numbers are in `SCENE` in `braai.ts`. No sky: the page's background is the sky.
+- **Live parts:** `SCENE` draws the lit scene into a texture about 16 times a second; `LIVE` adds flames, smoke, hot air, leaves and tongs every frame. `flames.ts` is a small fluid simulation (two fires in one texture, drawn seven times along the trough), `embers.ts` the sparks. The flames are tuned to exactly the noise in `gl.ts` (`NOISE_GLSL` and `createNoiseTexture`, shared with `background.ts`): changing it makes them curl sideways.
+- **The stills** `images/fire/wide.webp` and `phone.webp` are see-through snapshots of the live canvas (whole picture plus the 34% above it), taken from the real page by `temp/fire/stills-site.mjs`. Take them again whenever the scene, the grade or `EXT` changes.
+- **To change the scene** you must render again (about 10 to 15 minutes a picture on this PC), from the git-ignored `temp/fire`: geometry `geo2.mjs` (far things from `geo.mjs`), materials and light `mk2.mjs` → `tr2.mjs`, cameras `shots2.mjs`, then `node render2.mjs steel bg 1 60 14`, `… steel fg 1 110 14`, the same for `steelP` (72), `node full/enc.mjs`, and copy `full/art/{wide,phone}-*.webp` over. Cameras in `braai.ts` must match `shots2.mjs`. Don't delete `temp/fire/out` or `art`.
+- **Tests:** `temp/fire/site.mjs` opens the real page on :3000 in Chrome (sizes, Hebrew, breeze and click, rotation, reduced motion, no WebGL).
+- **Speed:** 60–61fps at desktop and phone sizes on the owner's laptop (Intel UHD), live 0.6–1 s after coming near; about 4–6 ms of graphics time a frame (it was 12–13 before it was made lighter; `temp/fire/full/gpu.mjs` measures it with the driver's own timer). Readings swing with whatever else uses the graphics chip (the Claude app itself took 57% once). Not tried on a real phone, Safari or Firefox.
+- The bushveld fire's shader and stills are saved in `temp/braai` (`bushveld-shader.ts`) and in git (595f118).
+- Fixed on the way: the closed cart drawer's shadow darkened the page's edge (`.cart-drawer` now has it only when open).
 
-## Where things stand (2026-11-24) and what's next
+## Where things stand (2026-11-25) and what's next
 
 **Live on Supabase** (works from localhost:3000): catalogue/stock, guest checkout, order emails (Resend).
-**Committed and pushed to the branch, but not on shweetbrew.com:** pay later (payment choice, pay panel, switching method), no customer accounts, the new navbar, the fire background and the bushveld fire, migrations 0018–0019 (**not run on live**) and the new `order-emails` code (**not on live**; the webhook's Update event too), plus the delivery price board and zone fixes, guest checkout (optional phone, email typed twice, typo hint, "Before you can order" list, one shared checkout state for cart and Order section), the order-emails source, migrations 0015–0017.
+**Committed and pushed to the branch, but not on shweetbrew.com:** pay later (payment choice, pay panel, switching method), no customer accounts, the new navbar, the fire background and the bushveld fire (since replaced by the steel braai, committed but not pushed), migrations 0018–0019 (**not run on live**) and the new `order-emails` code (**not on live**; the webhook's Update event too), plus the delivery price board and zone fixes, guest checkout (optional phone, email typed twice, typo hint, "Before you can order" list, one shared checkout state for cart and Order section), the order-emails source, migrations 0015–0017.
 
-Next: 1) the realistic bushveld fire options (artifact), 2) put 0018, 0019, the new `order-emails` and the webhook's Update event live (offered, no answer yet; the owner signs in and types every secret), 3) Netlify env vars and `npm run deploy`, 4) the features below. Ask before committing, pushing, deploying, or touching the live database.
+**Waiting for the business owner (2026-11-25):** he fills in a Google Doc with click boxes. The link is in the git-ignored `temp/owner-questions/LINK.txt` (anyone with it can edit, so it stays out of the public repo); the built-in browser's Google account can open and edit the Doc. An older Word copy and its source are in the same folder. **Don't invent these facts; read them from the Doc when Caleb says it's filled in:**
+- ingredients and allergens of all 14 products (both chicken jerkies have none; Cowboy jerky's description says soya sauce but its ingredients don't; nothing mentions wheat; the sweet chilli sauce lists no sugar), and where the nutrition numbers come from
+- kosher per product (the four beef jerkies are `is_kosher: false`, while the site says "Kosher ingredients, always available", and nothing shows customers which is which)
+- the Shots: 18+ line and age tick, "coming soon", or off the site
+- business and legal details (cancellations, terms, privacy, accessibility, business number)
+- delivery days and fees, which Mondays "every second Monday" means (the code always offers the next Monday), days off
+- payment number, bank details automatic or by hand, stock counting, who gets order emails
+- claims ("100% beef" on everything, "5.0 from 200+ customers", the reviews), social accounts (TikTok isn't linked)
+- Hebrew product names, which Holy Land Jerky name, the full story in Hebrew, real photos
 
-Open questions for the owner: whether to add an 18+ line (the Shots contain vodka, nothing on the site says so), whether PayBox opens on a real phone (`https://links.payboxapp.com/`). Emails "not arriving" on 2026-11-24 were orders placed on :3002, which only saves emails to `tools/supabase-standin/outbox/`; live sending wasn't rechecked after that.
+**Plan meanwhile:** step 1, fixes that need no facts (done 2026-11-25, see below); step 2, places ready for the answers, switched off (legal pages with gaps, kosher mark per product, "Contains" line with wheat, 18+ line and age tick, real second-Monday dates); step 3, push, check Supabase live, 0018 + 0019 + new order emails, Netlify values, a free Netlify preview (it would use the live Supabase: an order there is real); step 4, Caleb tests on real phones; step 5, answers in, owner checks, one real test order, publish.
+
+**Step 1, what was done (2026-11-25):** wording and links (no "order on WhatsApp" anywhere, LinkedIn/Twitter icons removed, dead contact form removed), Hebrew (dates, weights through `sizeLabel()` in `products.ts` for display only, reviews' labels, tab title and description in `LanguageContext.tsx`, plural wording; **product names and the two Holy Land Jerky names wait for the owner**), sharing picture `images/share.jpg` + icons (`temp/fire/share.mjs`), `robots.txt`, `sitemap.xml`, `site.webmanifest`, business details for Google in `index.html` (no ratings, hours or street address on purpose), bigger size chips and cart buttons, readable footer and small red labels, FAQ and reviews for screen readers (the looped review copies are `aria-hidden`), long caching in `netlify.toml`, unused files deleted (About, Contact, ProductDetail pages, AnnouncementBar, FloatingWhatsApp, Map, ProductModal, one hook, the 1.2 MB jerky picture, stale delivery fees in `site.ts`). Tested: full orders in both languages on the stand-in, desktop and phone, build.
+
+Next: 1) step 2 above, 2) put 0018, 0019, the new `order-emails` and the webhook's Update event live (offered, no answer yet; the owner signs in and types every secret), 3) Netlify env vars and `npm run deploy`, 4) the features below. Ask before committing, pushing, deploying, or touching the live database.
+
+**Netlify for free** (checked 2026-11-25 on Netlify's own docs): yes. New accounts get 300 credits a month as a hard limit: a production deploy costs 15, bandwidth 20 per GB, requests 2 per 10,000; previews are free; at 0 every site on the account is paused until the next month. Accounts made before 2025-09-04 may be on a legacy plan. The repository is public and belongs to a personal GitHub account. Deploy in batches, not for every small change.
+
+**What Caleb has to do:** send the owner the Doc and say when it's filled in; try the site on real phones (Android, and an iPhone if possible: fire stutter, checkout, Bit/PayBox opening); sign in and type every key for Supabase, Resend and Netlify; check under Netlify → Billing which plan the account has; find someone to check the legal text and the alcohol rules. A Netlify preview needs the branch pushed.
+
+Open questions: whether PayBox opens on a real phone (`https://links.payboxapp.com/`). Emails "not arriving" on 2026-11-24 were orders placed on :3002, which only saves emails to `tools/supabase-standin/outbox/`; live sending wasn't rechecked after that.
 
 Owner's setup:
 1. **Email sender**: done 2026-11-23. Resend with **shweetbrew.com** verified (DNS records `resend._domainkey`, `send`, `rsend`, `_dmarc` added in Netlify DNS, nameservers `dns1–4.p03.nsone.net`). Login code emails no longer exist, so there's nothing to check there.
@@ -118,7 +139,7 @@ Next features: the **admin phone apps** for orders (realtime) and stock (`admin_
 
 - **Photos**: self-hosted WebP in `client/public/images` (`name-360.webp` + `name-720.webp`; hero 960/1280; about 640/1100). Product data points at the 720 file and `srcset` adds the 360. To add a photo, convert to WebP at those widths (sharp worked: `npm i sharp` in a scratch folder). Several flavours share one photo (all biltong, all jerky).
 - **Fonts**: self-hosted in `client/public/fonts`, declared inline in `client/index.html` with `font-display: block` + preloads (no Google Fonts). Bebas Neue (display), Lato (body), Playfair italic (quotes), Open Sans (all Hebrew text, forced in CSS).
-- `client/public/jerky-transparent.png` (1.2MB) is no longer used.
+- **Sharing picture and icons:** `images/share.jpg` (1200×630, what WhatsApp shows), `apple-touch-icon.png`, `icon-192.png`, `icon-512.png` (the chilli on charcoal), made by `temp/fire/share.mjs`. `/images/*` is cached for a week: give a replaced picture a new name to show it at once.
 
 ## Gotchas learned the hard way
 
@@ -140,10 +161,12 @@ Next features: the **admin phone apps** for orders (realtime) and stock (`admin_
 
 ## Known quirks (not tasks, just so you're not surprised)
 
-- Several Hebrew product *flavour* names still fall back to English (the lookup keys don't match the ids); category names are translated.
+- All Hebrew product names fall back to English: `name_he` is empty in the live catalogue and the built-in lookup keys don't match the ids. The owner approves the names first.
 - Boerewors and Drywors variants are both called "Classic".
 - The Hebrew order emails show product names in English (the order stores the English name).
-- `formatDeliveryDate` prints dates in English even in Hebrew (only "Today" is translated), and "every second Monday" zones get the next Monday, with no every-second-week logic.
+- "every second Monday" zones get the next Monday, with no every-second-week logic (step 2).
+- "Holy Land Jerky" has two Hebrew names (filter and ticker: ג'רקי ארץ הקודש; cards and popup: ג'רקי הארץ הקדושה). The owner chooses.
+- The Hebrew "about" text is one short paragraph; the English story is long.
 - PRODUCT.md's positioning still mentions "personal WhatsApp ordering", which the owner has since ruled out.
 - Hebrew section titles (`.section-title`) render at weight 400, although `design-system.md` says 800 for Hebrew `h2`s. Seen on 2026-11-24, not touched.
 - Customer accounts were removed on 2026-11-24; don't bring them back without asking.
@@ -152,7 +175,11 @@ Next features: the **admin phone apps** for orders (realtime) and stock (`admin_
 
 Sources for the newer ones are in `temp/<folder>` (`src.html` + `node build.mjs logo.txt` or `node mk.mjs`; `serve.mjs` previews it locally).
 
-- **Braai options (5 was built: the bushveld fire), `temp/braai`:** https://claude.ai/artifact/9Pqm9gkweQmjsyPLwykST1
+- **Full-page Fire sky (built) and Smoke, `temp/fire/full`:** https://claude.ai/artifact/7PBqMdYhtHgUEJKxVyov1j
+- Four ways to blend the braai into the page, `temp/fire/blend`: https://claude.ai/artifact/1GVXDuNzUKVfW1oDy2ZmvS
+- The steel braai before the blend, `temp/fire`: https://claude.ai/artifact/EwXEHRrqXNb1Ls9hvWkG8y
+- Bushveld fire made real, five options (none built), `temp/fire`: https://claude.ai/artifact/ErYDgsrYiBJbp9GibF8b3Q
+- Braai options (5 was built: the bushveld fire, since replaced), `temp/braai`: https://claude.ai/artifact/9Pqm9gkweQmjsyPLwykST1
 - Whole-page visuals (3, "Into the fire", was built), `temp/page`: https://claude.ai/artifact/XiguDayVaedERJKgzEJzRf
 - Hero visuals, `temp/fx`: https://claude.ai/artifact/8SWhygyYbQ7uTsHVLAUwpF
 - Navigation bars (2 was built, without progress bar and price), `temp/nav`: https://claude.ai/artifact/Ya5w6yKeoMvU88FMCkZsLw

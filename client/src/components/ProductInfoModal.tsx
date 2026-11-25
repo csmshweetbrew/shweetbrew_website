@@ -11,7 +11,7 @@ import { productThumb } from "@/lib/images";
 import { X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/config/languages";
-import { getTranslatedProductDescription, getCategoryNameHebrew, getTranslatedIngredients, getTranslatedAllergens, getTranslatedProductName, type ProductVariant } from "@/config/products";
+import { getTranslatedProductDescription, getCategoryNameHebrew, getTranslatedIngredients, getTranslatedAllergens, getTranslatedProductName, type ProductVariant, sizeLabel } from "@/config/products";
 
 type ProductInfoModalProps = {
   variant: ProductVariant;
@@ -45,7 +45,7 @@ export default function ProductInfoModal({ variant, categoryName, isOpen, onClos
     { label: t.carbs[language], value: variant.nutrition?.carbs || "2g" },
     { label: t.calories[language], value: variant.nutrition?.calories || "300" },
   ];
-  const labelStyle = { color: "var(--accent)", letterSpacing: "0.08em" };
+  const labelStyle = { color: "var(--brand-fire-bright)", letterSpacing: "0.08em" };
 
   // Portal to <body> so the popup sits above every card (cards create their own stacking contexts)
   return createPortal(
@@ -102,7 +102,7 @@ export default function ProductInfoModal({ variant, categoryName, isOpen, onClos
         {/* Nutrition: one row of four */}
         <div>
           <p className="text-[0.9rem] font-bold uppercase mb-2" style={labelStyle}>
-            {t.nutrition[language]} · 100g
+            {t.nutrition[language]} · {sizeLabel("100g", language)}
           </p>
           <div className="grid grid-cols-4 rounded overflow-hidden" style={{ backgroundColor: "var(--card)" }}>
             {stats.map((s, i) => (

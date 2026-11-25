@@ -117,24 +117,11 @@ export default function ProductsSection() {
         {filteredVariants.length === 0 && (
           <div className="text-center py-12">
             <p className="text-lg" style={{ color: "oklch(0.80 0.020 75)" }}>
-              No products found in this category.
+              {language === "he" ? "אין כרגע מוצרים בקטגוריה הזו." : "No products in this category right now."}
             </p>
           </div>
         )}
 
-        {/* CSS Animation for fade-in */}
-        <style>{`
-          @keyframes fadeIn {
-            from {
-              opacity: 0;
-              transform: translateY(10px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-        `}</style>
       </div>
     </section>
   );

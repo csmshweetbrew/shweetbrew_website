@@ -9,7 +9,7 @@ import { useRef, useEffect } from "react";
 import { Star, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/config/languages";
-import { getWhatsAppLink } from "@/config/site";
+import { FlagIsrael } from "@/components/Flags";
 import { scrollToTarget } from "@/lib/smoothScroll";
 
 type Review = {
@@ -18,7 +18,6 @@ type Review = {
   rating: number;
   text: string;
   product?: string;
-  flag: string;
   link: string;
 };
 
@@ -31,7 +30,6 @@ const reviews: Review[] = [
     rating: 5,
     text: "I just finished a bag of Shweet Brew's delicious biltong and it was great, will definitely be buying again! Uri can also make different styles or order however you like it, so might try some different options out as well. Thanks for the great treat! The chilli was fantastic as well, by the way.",
     product: "Biltong",
-    flag: "🇮🇱",
     link: GOOGLE_MAPS_LINK,
   },
   {
@@ -40,7 +38,6 @@ const reviews: Review[] = [
     rating: 5,
     text: "Best biltong in town. Shweet brew chilli sauce is unbelievable and goes with everything",
     product: "Biltong & Sauce",
-    flag: "🇮🇱",
     link: GOOGLE_MAPS_LINK,
   },
   {
@@ -49,7 +46,6 @@ const reviews: Review[] = [
     rating: 5,
     text: "Shweet Brew totally enhanced our shabbat experience! Top quality taste and texture awakening the African in me! Look forward to my next biltong binge",
     product: "Biltong",
-    flag: "🇮🇱",
     link: GOOGLE_MAPS_LINK,
   },
   {
@@ -58,7 +54,6 @@ const reviews: Review[] = [
     rating: 5,
     text: "First time trying these South African snacks - Amazing!! Thanks you Uri!! It was a pleasure meeting you and will definitely be back for more",
     product: "South African Snacks",
-    flag: "🇮🇱",
     link: GOOGLE_MAPS_LINK,
   },
   {
@@ -67,7 +62,6 @@ const reviews: Review[] = [
     rating: 5,
     text: "Amazing biltong, Uri is always full of energy and is dedicated to his art.",
     product: "Biltong",
-    flag: "🇮🇱",
     link: GOOGLE_MAPS_LINK,
   },
   {
@@ -76,7 +70,6 @@ const reviews: Review[] = [
     rating: 5,
     text: "Best biltong I have tasted in a long time. Totally addictive.",
     product: "Biltong",
-    flag: "🇮🇱",
     link: GOOGLE_MAPS_LINK,
   },
   {
@@ -85,7 +78,6 @@ const reviews: Review[] = [
     rating: 5,
     text: "Excellent service, even better biltong. If 10 stars was an option I'd choose 11.",
     product: "Biltong",
-    flag: "🇮🇱",
     link: GOOGLE_MAPS_LINK,
   },
   {
@@ -94,7 +86,6 @@ const reviews: Review[] = [
     rating: 5,
     text: "Great product! Tastes awesome and nothing like service with a smile :)",
     product: "Biltong",
-    flag: "🇮🇱",
     link: GOOGLE_MAPS_LINK,
   },
 ];
@@ -116,14 +107,20 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-function ReviewCard({ review }: { review: Review }) {
+const PRODUCT_HE: Record<string, string> = { Biltong: "בילטונג", "Biltong & Sauce": "בילטונג ורוטב", "South African Snacks": "חטיפים דרום אפריקאיים" };
+
+function ReviewCard({ review, copy }: { review: Review; copy: boolean }) {
+  const { language } = useLanguage();
+  const he = language === "he";
   return (
     <a
+      aria-hidden={copy || undefined}
+      tabIndex={copy ? -1 : undefined}
       href={review.link}
       draggable={false}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={`${review.name}'s review on Google Maps (opens in a new tab)`}
+      aria-label={he ? `הביקורת של ${review.name} ב-Google Maps (נפתח בלשונית חדשה)` : `${review.name}'s review on Google Maps (opens in a new tab)`}
       className="review-card flex-shrink-0 w-72 sm:w-80 md:w-96 p-4 sm:p-6 rounded-lg border mx-2 sm:mx-3 flex flex-col cursor-pointer"
       style={{
         backgroundColor: "var(--card)",
@@ -144,25 +141,25 @@ function ReviewCard({ review }: { review: Review }) {
       </p>
       <div className="flex items-center justify-between mb-4">
         <div
-          className="font-body font-bold text-sm"
+          className="font-body font-bold text-sm inline-flex items-center gap-2"
           style={{ color: "oklch(0.94 0.025 75)" }}
         >
-          {review.flag} {review.name}
+          <FlagIsrael className="w-5 h-3.5 rounded-[1px]" /> {review.name}
         </div>
         {review.product && (
           <span
             className="font-body text-xs px-2 py-1 rounded"
             style={{
               backgroundColor: "oklch(0.13 0.005 60)",
-              color: "var(--accent)",
+              color: "var(--brand-fire-bright)",
             }}
           >
-            {review.product}
+            {he ? PRODUCT_HE[review.product] ?? review.product : review.product}
           </span>
         )}
       </div>
-      <span className="review-card-link">
-        Read on Google Maps
+      <span className="review-card-link" dir={he ? "rtl" : "ltr"}>
+        {he ? "לקריאה ב-Google Maps" : "Read on Google Maps"}
         <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
       </span>
     </a>
@@ -310,7 +307,7 @@ export default function ReviewsSection() {
               ))}
             </div>
             <span className="font-body font-bold text-lg" style={{ color: "oklch(0.94 0.025 75)" }}>5.0</span>
-            <span className="font-body text-sm" style={{ color: "oklch(0.55 0.015 75)" }}>{translations.reviews.happyCustomers[language]}</span>
+            <span className="font-body text-sm" style={{ color: "oklch(0.68 0.015 75)" }}>{translations.reviews.happyCustomers[language]}</span>
           </div>
         </div>
       </div>
@@ -334,7 +331,7 @@ export default function ReviewsSection() {
         >
           {/* Duplicate for seamless loop */}
           {[...reviews, ...reviews].map((review, i) => (
-            <ReviewCard key={`${review.id}-${i}`} review={review} />
+            <ReviewCard key={`${review.id}-${i}`} review={review} copy={i >= reviews.length} />
           ))}
         </div>
       </div>
@@ -343,7 +340,7 @@ export default function ReviewsSection() {
       <div className="container mt-12 text-center">
         <p
           className="font-body text-sm mb-4"
-          style={{ color: "oklch(0.55 0.015 75)" }}
+          style={{ color: "oklch(0.68 0.015 75)" }}
         >
           {translations.reviews.joinHundreds[language]}
         </p>

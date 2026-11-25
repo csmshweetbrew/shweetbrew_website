@@ -392,7 +392,7 @@ export function formatDeliveryDate(date: Date, lang: "en" | "he" = "en"): string
     month: "long",
     day: "numeric",
   };
-  return date.toLocaleDateString("en-US", options);
+  return date.toLocaleDateString(lang === "he" ? "he-IL" : "en-US", options);
 }
 
 /**

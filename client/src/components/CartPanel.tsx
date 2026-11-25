@@ -17,7 +17,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useCart, type CartItem } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ShoppingBag, X, Plus, Minus, ChevronLeft } from "lucide-react";
-import { getTranslatedProductName } from "@/config/products";
+import { getTranslatedProductName, sizeLabel } from "@/config/products";
 import { useCatalog } from "@/contexts/CatalogContext";
 import { findVariant as findCatalogVariant } from "@/lib/catalog";
 import { productThumb } from "@/lib/images";
@@ -250,10 +250,10 @@ export default function CartPanel() {
                               className="cart-size"
                             >
                               {sizes.map((s) => (
-                                <option key={s.size} value={s.size}>{s.size} · ₪{s.price}</option>
+                                <option key={s.size} value={s.size}>{sizeLabel(s.size, language)} · ₪{s.price}</option>
                               ))}
                             </select>
-                            <button type="button" className="cart-pack-remove" onClick={() => removePack(p)} aria-label={L(`Remove ${p.size}`, `הסר ${p.size}`)}>
+                            <button type="button" className="cart-pack-remove" onClick={() => removePack(p)} aria-label={L(`Remove ${p.size}`, `הסירו ${sizeLabel(p.size, "he")}`)}>
                               <X className="w-4 h-4" />
                             </button>
                           </li>

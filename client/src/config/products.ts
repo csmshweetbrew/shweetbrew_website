@@ -61,7 +61,6 @@ const BILTONG_IMG = "/images/biltong-720.webp";
 const BOEREWORS_IMG = "/images/boerewors-720.webp";
 const SHOTS_IMG = "/images/shots-720.webp";
 const DRYWORS_IMG = "/images/drywors-720.webp";
-const CHILLI_BITES_IMG = "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=600&q=80";
 const CHILLI_SAUCE_IMG = "/images/sauce-720.webp";
 const HOLY_LAND_JERKY_IMG = "/images/jerky-720.webp";
 
@@ -443,6 +442,15 @@ export const PRODUCTS: ProductCategory[] = PRODUCT_REGISTRY.map((product) => ({
   image: product.image,
   variants: product.variants,
 }));
+
+/** "250g" → "250 גרם" in Hebrew. Only for showing: orders and prices always use the size as it is. */
+export function sizeLabel(size: string, language: Language): string {
+  if (language !== "he") return size;
+  const m = /^([\d.]+)\s*(kg|g|ml|l)$/i.exec(size.trim());
+  if (!m) return size;
+  const units: Record<string, string> = { kg: "ק״ג", g: "גרם", ml: "מ״ל", l: "ליטר" };
+  return `${m[1]} ${units[m[2].toLowerCase()]}`;
+}
 
 // ============================================================================
 // HELPER FUNCTIONS - Automatically work with all products in PRODUCT_REGISTRY

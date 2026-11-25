@@ -21,7 +21,6 @@ export const translations = {
     faq: { en: "FAQ", he: "שאלות נפוצות" },
     delivery: { en: "Delivery", he: "משלוח" },
     contact: { en: "Contact", he: "יצירת קשר" },
-    orderOnWhatsApp: { en: "Order on WhatsApp", he: "הזמן ב-WhatsApp" },
   },
 
   // Hero Section
@@ -41,14 +40,13 @@ export const translations = {
     israelWideDelivery: { en: "Israel-wide Delivery", he: "משלוח בכל רחבי ישראל" },
     authenticRecipes: { en: "Authentic Recipes", he: "מתכונים אותנטיים" },
     // CTA buttons
-    orderOnWhatsApp: { en: "Order on WhatsApp", he: "הזמן ב-WhatsApp" },
     orderNow: { en: "Order Now", he: "הזמן עכשיו" },
   },
 
   // Products Section
   products: {
     sectionTitle: { en: "PRODUCTS THAT HIT DIFFERENT", he: "מוצרים שמכים אחרת" },
-    sectionSubtitle: { en: "Every product is made with 100% beef, authentic SA spices, and the kind of love only a South African in Israel can understand.", he: "כל מוצר עשוי מ-100% בשר בקר, תבליני SA אותנטיים, וסוג האהבה שרק דרום אפריקאי בישראל יכול להבין." },
+    sectionSubtitle: { en: "Every product is made with 100% beef, authentic SA spices, and the kind of love only a South African in Israel can understand.", he: "כל מוצר עשוי מ-100% בשר בקר, תבלינים דרום אפריקאיים אותנטיים, וסוג האהבה שרק דרום אפריקאי בישראל יכול להבין." },
     theRange: { en: "THE SHWEET BREW RANGE", he: "המגוון של שוויט ברו" },
     filterAll: { en: "All", he: "הכל" },
     
@@ -201,7 +199,7 @@ export const translations = {
     // Delivery info cards
     minimumOrderTitle: { en: "Minimum Order", he: "הזמנה מינימלית" },
     minimumOrderDesc: { en: "₪80 minimum for delivery. No minimum for pickup in Modiin.", he: "₪80 מינימום למשלוח. אין מינימום לאיסוף במודיעין." },
-    cutoffTitle: { en: "Order Cutoff", he: "סגירה הזמנות" },
+    cutoffTitle: { en: "Order Cutoff", he: "סגירת הזמנות" },
     cutoffDesc: { en: "Order by 12pm for same-day delivery in Modiin. Contact us for delivery days in other areas.", he: "הזמנו עד 12:00 למשלוח באותו יום במודיעין. צור קשר לימי משלוח באזורים אחרים." },
     paymentTitle: { en: "Payment", he: "תשלום" },
     paymentDesc: { en: "Bit, PayBox or bank transfer. Cash in Modiin only.", he: "Bit, PayBox או העברה בנקאית. מזומן במודיעין בלבד." },
@@ -224,7 +222,7 @@ export const translations = {
     title: { en: "CHECKOUT", he: "קופה" },
     reviewYourOrder: { en: "Review your order and complete checkout", he: "עברו על ההזמנה והשלימו את התהליך" },
     orderSummary: { en: "ORDER SUMMARY", he: "סיכום הזמנה" },
-    yourDetails: { en: "YOUR DETAILS", he: "הפרטים שלך" },
+    yourDetails: { en: "YOUR DETAILS", he: "הפרטים שלכם" },
     fullName: { en: "FULL NAME", he: "שם מלא" },
     phone: { en: "PHONE", he: "טלפון" },
     deliveryArea: { en: "DELIVERY AREA", he: "אזור משלוח" },
@@ -235,9 +233,8 @@ export const translations = {
     subtotal: { en: "Subtotal:", he: "סכום ביניים:" },
     delivery: { en: "Delivery:", he: "משלוח:" },
     total: { en: "Total:", he: "סה\"כ:" },
-    completeOrder: { en: "Complete Order on WhatsApp", he: "השלם הזמנה ב-WhatsApp" },
-    addProducts: { en: "Add Products", he: "הוסף מוצרים" },
-    cartEmpty: { en: "Your cart is empty. Add products to get started!", he: "העגלה שלך ריקה. הוסף מוצרים כדי להתחיל!" },
+    addProducts: { en: "Add Products", he: "הוספת מוצרים" },
+    cartEmpty: { en: "Your cart is empty. Add products to get started!", he: "הסל ריק. הוסיפו מוצרים כדי להתחיל!" },
   },
 
   // Reviews Section (titles only, not review boxes)
@@ -246,8 +243,8 @@ export const translations = {
     haveSpoken: { en: "Have Spoken", he: "דיברו" },
     subtitle: { en: "What People Are Saying", he: "מה אנשים אומרים" },
     happyCustomers: { en: "from 200+ happy customers", he: "מ-200+ לקוחות שמחים" },
-    joinHundreds: { en: "Join hundreds of happy customers across Israel.", he: "הצטרף למאות לקוחות שמחים בכל רחבי ישראל." },
-    beNext: { en: "Be the next happy customer →", he: "היה הלקוח השמח הבא →" },
+    joinHundreds: { en: "Join hundreds of happy customers across Israel.", he: "הצטרפו למאות לקוחות שמחים בכל רחבי ישראל." },
+    beNext: { en: "Be the next happy customer →", he: "הלקוח השמח הבא? אתם ←" },
   },
 
   // About Section
@@ -259,18 +256,18 @@ export const translations = {
     twoNations: { en: "TWO NATIONS", he: "שתי אומות" },
     oneBraai: { en: "ONE BRAAI", he: "ברייי אחד" },
     headlineHe: { en: "Bringing South African Braai Culture to Israel", he: "הבאת תרבות ברייי דרום אפריקאית לישראל" },
-    storyHe: { en: "We're a team of South Africans who grew up eating authentic biltong, boerewors, and braai. When we moved to Israel, we realized there was no place making it the right way. So we did it ourselves. Every product is made with 100% beef, traditional SA spices, and the kind of care that only comes from people who grew up on this stuff. No shortcuts. No compromises. Just meat, done right.", he: "אנחנו צוות של דרום אפריקאים שגדלו על אכילת בילטונג אותנטי, בוארווורס וברייי. כשעברנו לישראל, הבנו שאין מקום שעושה את זה בצורה הנכונה. אז עשינו זאת בעצמנו. כל מוצר עשוי מ-100% בשר בקר, תבליני SA מסורתיים, וסוג הטיפול שמגיע רק מאנשים שגדלו על הדברים האלה. אין קיצורי דרך. אין פשרות. רק בשר, עשוי כמו שצריך." },
+    storyHe: { en: "We're a team of South Africans who grew up eating authentic biltong, boerewors, and braai. When we moved to Israel, we realized there was no place making it the right way. So we did it ourselves. Every product is made with 100% beef, traditional SA spices, and the kind of care that only comes from people who grew up on this stuff. No shortcuts. No compromises. Just meat, done right.", he: "אנחנו צוות של דרום אפריקאים שגדלו על אכילת בילטונג אותנטי, בוארווורס וברייי. כשעברנו לישראל, הבנו שאין מקום שעושה את זה בצורה הנכונה. אז עשינו זאת בעצמנו. כל מוצר עשוי מ-100% בשר בקר, תבלינים דרום אפריקאיים מסורתיים, וסוג הטיפול שמגיע רק מאנשים שגדלו על הדברים האלה. אין קיצורי דרך. אין פשרות. רק בשר, עשוי כמו שצריך." },
     
     // Story section
     storyTitle: { en: "The Shweet Brew Story", he: "סיפור שוויט ברו" },
     storyParagraph1: { en: "We're South Africans who fell in love with Israel. And we couldn't let go of home.", he: "אנחנו דרום אפריקאים שהתאהבנו בישראל. ולא יכולנו לשחרר את הבית." },
     storyParagraph2: { en: "When we moved to Israel, we missed the braai culture, the authentic flavours, the community. So we decided to bring it here.", he: "כשעברנו לישראל, התגעגענו לתרבות הברייי, לטעמים האותנטיים ולקהילה. אז החלטנו להביא את זה לכאן." },
-    storyParagraph3: { en: "Shweet Brew is our love letter to both nations. Every product is made with 100% beef, authentic SA spices, and the kind of pride that only comes from bridging two homes.", he: "שוויט ברו היא מכתב אהבה שלנו לשתי אומות. כל מוצר עשוי מ-100% בשר בקר, תבליני SA אותנטיים, וסוג הגאווה שמגיע רק מחיבור שני בתים." },
+    storyParagraph3: { en: "Shweet Brew is our love letter to both nations. Every product is made with 100% beef, authentic SA spices, and the kind of pride that only comes from bridging two homes.", he: "שוויט ברו היא מכתב אהבה שלנו לשתי אומות. כל מוצר עשוי מ-100% בשר בקר, תבלינים דרום אפריקאיים אותנטיים, וסוג הגאווה שמגיע רק מחיבור שני בתים." },
     
     // Values
     valuesTitle: { en: "OUR VALUES", he: "הערכים שלנו" },
     beef100: { en: "100% Beef", he: "100% בשר בקר" },
-    beef100Desc: { en: "No fillers, no nonsense", he: "אין מילוי, אין טעויות" },
+    beef100Desc: { en: "No fillers, no nonsense", he: "בלי תוספות ובלי שטויות" },
     kosherCert: { en: "Kosher Ingredients", he: "רכיבים כשרים" },
     kosherCertDesc: { en: "Always Available", he: "תמיד זמין" },
     authenticRecipes: { en: "Authentic Recipes", he: "מתכונים אותנטיים" },
@@ -287,15 +284,15 @@ export const translations = {
 
   // Contact Section
   contact: {
-    title: { en: "GET IN TOUCH", he: "צור קשר" },
+    title: { en: "GET IN TOUCH", he: "צרו קשר" },
     subtitle: { en: "Questions? We're here to help.", he: "שאלות? אנחנו כאן כדי לעזור." },
     whatsappHeader: { en: "Chat with Us on WhatsApp", he: "שוחח איתנו ב-WhatsApp" },
     whatsappDesc: { en: "The fastest way to reach us. We'll respond within a few hours.", he: "הדרך המהירה ביותר להגיע אלינו. נענה תוך כמה שעות." },
     messageNow: { en: "Message Us Now", he: "שלח לנו הודעה עכשיו" },
-    emailUs: { en: "EMAIL US", he: "שלח לנו דואל" },
+    emailUs: { en: "EMAIL US", he: "כתבו לנו במייל" },
     inquiryTypes: { en: "INQUIRY TYPES", he: "סוגי בירורים" },
-    sectionTitle: { en: "GET IN TOUCH", he: "צור קשר" },
-    whatsappUs: { en: "WHATSAPP US", he: "שלח לנו ב-WhatsApp" },
+    sectionTitle: { en: "GET IN TOUCH", he: "צרו קשר" },
+    whatsappUs: { en: "WHATSAPP US", he: "כתבו לנו ב-WhatsApp" },
   },
 
   // Cart & Floating Button
@@ -311,15 +308,9 @@ export const translations = {
     subtotal: { en: "Subtotal", he: "סכום ביניים" },
     delivery: { en: "Delivery", he: "משלוח" },
     total: { en: "Total", he: "סה\"כ" },
-    orderOnWhatsApp: { en: "Order on WhatsApp", he: "הזמן ב-WhatsApp" },
     clearCart: { en: "Clear Cart", he: "נקה עגלה" },
   },
 
-  // Floating WhatsApp Button
-  floatingButton: {
-    orderOnWhatsApp: { en: "Order on WhatsApp", he: "הזמן ב-WhatsApp" },
-    orderNow: { en: "Order Now", he: "הזמן עכשיו" },
-  },
 
   // Footer
   footer: {

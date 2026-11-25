@@ -1,8 +1,8 @@
 /*
- * The bushveld fire at the bottom of the home page. Its ground fades into the footer.
- * A still picture of it shows first; the live one fades in over it when the device has it ready, which
- * on a first visit can take anything from 3 to 35 seconds on Windows. Without WebGL the picture stays.
- * If the scene changes, re-render both pictures from it. Decoration only. See lib/fire/braai.ts.
+ * The steel braai at the bottom of the home page. Its sky is the page's own background, and it fades into the footer.
+ * A still picture of it shows first; the live one fades in over it once its pictures (0.15–0.2 MB) are
+ * here and the device has it ready (a few seconds). Without WebGL the still stays. Decoration only.
+ * See lib/fire/braai.ts.
  */
 
 import { useEffect, useRef } from "react";
@@ -24,14 +24,11 @@ export default function Braai() {
         if (!gone && canvas.current) stop = startBraai(el, canvas.current);
       });
     };
-    // Prepared in the background a few seconds after the page opens, or sooner if you scroll straight
-    // down. It only draws while it is on screen.
-    const timer = setTimeout(begin, 4000);
-    const near = new IntersectionObserver(([entry]) => entry.isIntersecting && begin(), { rootMargin: "1400px" });
+    // Prepared when you come near it (so nobody downloads it who doesn't scroll down). It only draws on screen.
+    const near = new IntersectionObserver((entries) => entries.some((e) => e.isIntersecting) && begin(), { rootMargin: "1800px" });
     near.observe(el);
     return () => {
       gone = true;
-      clearTimeout(timer);
       near.disconnect();
       stop?.();
     };
@@ -40,8 +37,8 @@ export default function Braai() {
   return (
     <div ref={root} className="braai" aria-hidden="true">
       <picture>
-        <source media="(max-width: 767px)" srcSet="/images/fire-phone.webp" />
-        <img src="/images/fire-wide.webp" alt="" loading="lazy" decoding="async" />
+        <source media="(max-width: 551px)" srcSet="/images/fire/phone.webp" />
+        <img src="/images/fire/wide.webp" alt="" loading="lazy" decoding="async" />
       </picture>
       <canvas ref={canvas} />
     </div>

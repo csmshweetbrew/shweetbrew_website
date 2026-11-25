@@ -18,6 +18,7 @@ import { productSrcSet } from "@/lib/images";
 import { FILTER_GROUPS, openShop } from "@/lib/shopFilter";
 import { scrollToTarget } from "@/lib/smoothScroll";
 import { FlagIsrael, FlagSouthAfrica, KosherStar } from "./Flags";
+import { sizeLabel } from "@/config/products";
 
 
 type Range = {
@@ -117,7 +118,7 @@ export default function HeroSection() {
                 <span className="hero-range-name">{r.name[language]}</span>
                 <span className="hero-range-line">
                   {r.line[language]}
-                  {from && <> · {L("from", "החל מ-")} <strong>₪{from.price}</strong> / {from.size}</>}
+                  {from && <> · {L("from", "החל מ-")} <strong>₪{from.price}</strong> / {sizeLabel(from.size, language)}</>}
                 </span>
               </button>
             );

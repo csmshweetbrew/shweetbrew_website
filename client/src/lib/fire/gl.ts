@@ -3,25 +3,24 @@
  * No 3D library: each effect is one full-screen triangle and one fragment shader.
  */
 
+/* Smooth noise, read from a small texture (uniform nz): quicker to draw and to compile than computing it.
+   Keep the weights: the flames are tuned to them. */
 export const NOISE_GLSL = `
-float h1(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
-float ns(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h1(i),h1(i+vec2(1,0)),f.x),mix(h1(i+vec2(0,1)),h1(i+vec2(1,1)),f.x),f.y);}
-float fb(vec2 p){float a=.5,s=0.;for(int i=0;i<4;i++){s+=a*ns(p);p=p*2.03+7.1;a*=.5;}return s;}
-`;
-
-/* The same noise, read from a small texture (uniform nz). Big shaders use this one: it is faster, and
-   the hash version above makes Windows drivers take half a minute to compile them the first time. */
-export const NOISE_TEX_GLSL = `
 uniform sampler2D nz;
-float h1(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
 float ns(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return textureLod(nz,(i+f+.5)/256.,0.).r;}
-float fb(vec2 p){float s=.5*ns(p);p=p*2.03+7.1;s+=.25*ns(p);p=p*2.03+7.1;s+=.125*ns(p);p=p*2.03+7.1;return s+.0625*ns(p);}
+float fb(vec2 p){return .5*ns(p)+.27*ns(p*2.03+7.1)+.15*ns(p*4.1+3.3)+.08*ns(p*8.3+1.7);}
 `;
 
+/** The texture NOISE_GLSL reads */
 export function createNoiseTexture(gl: WebGL2RenderingContext) {
   const bytes = new Uint8Array(256 * 256);
   let seed = 7;
-  for (let i = 0; i < bytes.length; i++) bytes[i] = (seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) >>> 24;
+  const next = () => (seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) >>> 24;
+  // every fourth number: the flames are tuned to exactly this noise
+  for (let i = 0; i < bytes.length; i++) {
+    bytes[i] = next();
+    next(); next(); next();
+  }
   const tex = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, tex);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, 256, 256, 0, gl.RED, gl.UNSIGNED_BYTE, bytes);
@@ -41,7 +40,7 @@ export function createGL(canvas: HTMLCanvasElement, alpha = true): WebGL2Renderi
   return canvas.getContext("webgl2", { alpha, premultipliedAlpha: true, antialias: false, depth: false, stencil: false });
 }
 
-function startProgram(gl: WebGL2RenderingContext, fragment: string, noise = NOISE_GLSL) {
+function startProgram(gl: WebGL2RenderingContext, fragment: string) {
   const compile = (type: number, source: string) => {
     const shader = gl.createShader(type)!;
     gl.shaderSource(shader, source);
@@ -49,7 +48,7 @@ function startProgram(gl: WebGL2RenderingContext, fragment: string, noise = NOIS
     return shader;
   };
   const program = gl.createProgram()!;
-  const shader = compile(gl.FRAGMENT_SHADER, HEAD + noise + fragment);
+  const shader = compile(gl.FRAGMENT_SHADER, HEAD + NOISE_GLSL + fragment);
   gl.attachShader(program, compile(gl.VERTEX_SHADER, VERTEX));
   gl.attachShader(program, shader);
   gl.bindAttribLocation(program, 0, "p");
@@ -69,12 +68,10 @@ function finishProgram(gl: WebGL2RenderingContext, { program, shader }: ReturnTy
   };
 }
 
-export const createProgram = (gl: WebGL2RenderingContext, fragment: string) => finishProgram(gl, startProgram(gl, fragment));
-
-/** For big shaders: compiles in the background (where the browser can), so scrolling doesn't hitch */
-export async function createProgramAsync(gl: WebGL2RenderingContext, fragment: string, noise: string): Promise<Program> {
+/** Compiles in the background (where the browser can), so scrolling doesn't hitch. NOISE_GLSL comes with it. */
+export async function createProgramAsync(gl: WebGL2RenderingContext, fragment: string): Promise<Program> {
   const ext = gl.getExtension("KHR_parallel_shader_compile");
-  const job = startProgram(gl, fragment, noise);
+  const job = startProgram(gl, fragment);
   if (ext) while (!gl.isContextLost() && !gl.getProgramParameter(job.program, ext.COMPLETION_STATUS_KHR)) await new Promise((r) => setTimeout(r, 30));
   return finishProgram(gl, job);
 }

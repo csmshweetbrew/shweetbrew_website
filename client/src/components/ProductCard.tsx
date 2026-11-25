@@ -8,7 +8,7 @@
 import { memo, useEffect, useRef, useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslatedProductName, getCategoryNameHebrew, type ProductVariant } from "@/config/products";
+import { getTranslatedProductName, getCategoryNameHebrew, type ProductVariant, sizeLabel } from "@/config/products";
 import { translations } from "@/config/languages";
 import ProductInfoModal from "./ProductInfoModal";
 import { productSrcSet, PRODUCT_CARD_SIZES } from "@/lib/images";
@@ -153,7 +153,8 @@ const ProductCardComponent = ({ variant, categoryName, index = 0 }: ProductCardP
                     disabled={soldOut}
                     onClick={(e) => handleAdd(s.size, s.price, e.currentTarget)}
                   >
-                    {s.size} · {soldOut ? (language === "he" ? "אזל" : "Sold out") : `₪${s.price}`}
+                    <span>{sizeLabel(s.size, language)}</span>
+                    <span>{soldOut ? (language === "he" ? "אזל" : "Sold out") : `₪${s.price}`}</span>
                   </button>
                 );
               })}
@@ -191,7 +192,7 @@ const ProductCardComponent = ({ variant, categoryName, index = 0 }: ProductCardP
             <span aria-hidden="true">·</span>
             <span>
               {t.priceFrom[language]} <span className="product-price">₪{cheapest.price}</span>
-              <span className="product-unit"> / {cheapest.size}</span>
+              <span className="product-unit"> / {sizeLabel(cheapest.size, language)}</span>
             </span>
           </div>
         </div>

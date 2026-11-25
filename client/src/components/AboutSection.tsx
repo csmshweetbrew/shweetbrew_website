@@ -278,13 +278,13 @@ export default function AboutSection() {
               </div>
               <div
                 className="font-body text-sm tracking-widest font-bold"
-                style={{ color: "var(--accent)", letterSpacing: "0.15em" }}
+                style={{ color: "var(--brand-fire-bright)", letterSpacing: "0.15em" }}
               >
                 {translations.about.twoNations[language]}
               </div>
               <div
                 className="font-body text-sm tracking-widest font-bold"
-                style={{ color: "var(--accent)", letterSpacing: "0.15em" }}
+                style={{ color: "var(--brand-fire-bright)", letterSpacing: "0.15em" }}
               >
                 {translations.about.oneBraai[language]}
               </div>

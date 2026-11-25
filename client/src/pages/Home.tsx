@@ -65,7 +65,7 @@ export default function Home() {
         <ContactSection />
       </section>
 
-      {/* The bushveld fire; its ground fades into the footer */}
+      {/* The steel braai; it fades into the footer */}
       <Braai />
     </div>
   );

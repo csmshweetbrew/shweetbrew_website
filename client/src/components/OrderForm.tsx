@@ -16,7 +16,7 @@ import { useCart, type CartItem } from "@/contexts/CartContext";
 import { useCatalog } from "@/contexts/CatalogContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/config/languages";
-import { getCategoryNameHebrew, getTranslatedProductName } from "@/config/products";
+import { getCategoryNameHebrew, getTranslatedProductName, sizeLabel } from "@/config/products";
 import { findVariant } from "@/lib/catalog";
 import { productThumb } from "@/lib/images";
 import { openCart } from "@/lib/shopFilter";
@@ -86,13 +86,13 @@ export default function OrderForm() {
                   const variant = findVariant(categories, g.first.categoryName, g.first.productName);
                   const name = (variant && getTranslatedProductName(variant.id, language)) || g.first.productName;
                   const category = he ? getCategoryNameHebrew(g.first.categoryName.toUpperCase()) : g.first.categoryName;
-                  const sizes = Array.from(g.sizes.entries()).map(([size, n]) => (n > 1 ? `${size} × ${n}` : size)).join(" · ");
+                  const sizes = Array.from(g.sizes.entries()).map(([size, n]) => (n > 1 ? `${sizeLabel(size, language)} × ${n}` : sizeLabel(size, language))).join(" · ");
                   return (
                     <li key={key} className="order-line">
                       <img src={productThumb(g.first.image)} alt="" className="cart-thumb" loading="lazy" decoding="async" />
                       <span className="min-w-0">
                         <span className="order-line-name">{name}</span>
-                        <span className="order-line-meta">{category} · <span dir="ltr">{sizes}</span></span>
+                        <span className="order-line-meta">{category} · <span dir={he ? "rtl" : "ltr"}>{sizes}</span></span>
                       </span>
                       <span className="order-line-price">₪{g.total}</span>
                     </li>
