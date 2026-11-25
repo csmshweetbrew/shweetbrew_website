@@ -65,14 +65,18 @@ export function startFireBackground(canvas: HTMLCanvasElement): () => void {
     }
   };
 
+  /** The canvas's own box (.fire-bg), not the window: on iPhones the window's height changes with Safari's bars. True if it changed. */
   const size = () => {
-    w = window.innerWidth;
-    h = window.innerHeight;
+    const nw = canvas.clientWidth || window.innerWidth, nh = canvas.clientHeight || window.innerHeight;
+    if (nw === w && nh === h) return false;
+    w = nw;
+    h = nh;
     canvas.width = Math.max(2, Math.round(w * SCALE));
     canvas.height = Math.max(2, Math.round(h * SCALE));
+    return true;
   };
 
-  const target = () => Math.min(1, Math.max(0, window.scrollY / Math.max(1, document.documentElement.scrollHeight - h)));
+  const target = () => Math.min(1, Math.max(0, window.scrollY / Math.max(1, document.documentElement.scrollHeight - window.innerHeight)));
 
   const paint = () => {
     if (!gl || !prog || gl.isContextLost()) return;
@@ -116,12 +120,12 @@ export function startFireBackground(canvas: HTMLCanvasElement): () => void {
     }
     sparks.move(dt, shift * 0.6);
     due -= dt;
-    if (due <= 0.004) { due = progress > 0.93 ? 1 / 20 : 1 / 30; paint(); }
+    if (due <= dt * 0.5) { due = progress > 0.93 ? 1 / 20 : 1 / 30; paint(); }
   };
 
   const onLost = (e: Event) => { e.preventDefault(); prog = null; };
   const onRestored = () => { gl = createGL(canvas, false); void build(); };
-  const onResize = () => { size(); paint(); };
+  const onResize = () => { if (size()) paint(); };
   const onMove = (e: PointerEvent) => {
     const x = e.clientX / w;
     if (lastX >= 0 && scrollY < h) gust = Math.max(-0.5, Math.min(0.5, gust + Math.max(-0.08, Math.min(0.08, x - lastX)) * 1.6));

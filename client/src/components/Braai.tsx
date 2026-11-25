@@ -36,6 +36,7 @@ export default function Braai() {
 
   return (
     <div ref={root} className="braai" aria-hidden="true">
+      <i className="braai-glow" />
       <picture>
         <source media="(max-width: 551px)" srcSet="/images/fire/phone.webp" />
         <img src="/images/fire/wide.webp" alt="" loading="lazy" decoding="async" />

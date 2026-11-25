@@ -258,7 +258,7 @@ export default function AboutSection() {
 
             {/* Floating badge */}
             <div
-              className="absolute -bottom-6 -right-6 md:bottom-8 md:right-8 p-6 rounded-xl border text-center shadow-2xl"
+              className="absolute -bottom-6 right-2 md:bottom-8 md:right-8 p-6 rounded-xl border text-center shadow-2xl"
               style={{
                 backgroundColor: "var(--card)",
                 borderColor: "var(--accent)",

@@ -19,8 +19,8 @@ void main(){
   float h=step(.5,u.x);vec2 a=textureLod(v,hold(u-dt*textureLod(v,u,0.).xy/(WS*vec2(2.,1.)),h,.004),0.).xy;
   vec4 c=textureLod(d,u,0.);float T=c.r;vec2 w=vec2(u.x*2.-h,u.y)*WS;
   float xc=w.x-.75,xw=xc/(h<.5?.40:.33);
-  vec2 up=vec2(-xc*1.1*smoothstep(.05,.4,w.y)*smoothstep(1.2,.5,w.y),mix(1.15,3.1,smoothstep(0.,.8,w.y))*(.30+.70*exp(-xw*xw)));
-  a+=dt*11.*exp(-xw*xw*.8)*smoothstep(1.9,1.2,w.y)*(up-a);
+  vec2 up=vec2(-xc*1.1*smoothstep(.05,.4,w.y)*dn(.5,1.2,w.y),mix(1.15,3.1,smoothstep(0.,.8,w.y))*(.30+.70*exp(-xw*xw)));
+  a+=dt*11.*exp(-xw*xw*.8)*dn(1.2,1.9,w.y)*(up-a);
   a.y+=dt*(5.*T+2.*c.g);
   vec2 n=vec2(fb(w*vec2(4.6,3.2)+vec2(h*31.,-t*6.4)),fb(w*vec2(4.6,3.2)+vec2(h*17.+9.,-t*6.4+5.)))-.5;
   vec2 n2=vec2(fb(w*11.+vec2(h*3.,-t*17.)),fb(w*11.+vec2(7.+h,-t*17.+3.)))-.5;
@@ -28,7 +28,7 @@ void main(){
   a.x+=dt*wind*(1.1+3.*w.y)*(.35+T);
   a*=1.-dt*.55;a.y*=smoothstep(0.,.02,u.y)*.8+.2;
   float ex=abs(u.x*2.-h-.5)*2.;a*=1.-dt*3.*smoothstep(.72,1.,ex);a*=1.-dt*4.*smoothstep(.85,1.,u.y);
-  o=vec4(a,0.,1.);}`;
+  o=vec4(clamp(a,-30.,30.),0.,1.);}`;
 
 /* Keeps small swirls alive */
 const SWIRL = `uniform sampler2D v;uniform vec2 px;uniform float dt;
@@ -58,10 +58,10 @@ void main(){
   float s2=smoothstep(.30,.72,ns(vec2(w.x*13.+h*9.,t*2.4))),pu=.72+.28*ns(vec2(t*2.1,h*4.+.5)),nn=fb(vec2(w.x*9.+h*23.,t*2.6+h*7.));
   float s=exp(-x*x*1.1)*(.08+1.12*smoothstep(.36,.66,nn))*(.55+.45*s2)*(.85+.15*pu);
   s=smoothstep(.10,.60,s);s=s*(1.+.5*flare)+flare*.35*exp(-x*x);
-  float base=.02+.11*exp(-x*x*1.9)+.06*ns(vec2(w.x*11.,h*3.+t*.7)),m=smoothstep(base+.05,base-.02,w.y)*smoothstep(0.,.02,w.y);
+  float base=.02+.11*exp(-x*x*1.9)+.06*ns(vec2(w.x*11.,h*3.+t*.7)),m=dn(base-.02,base+.05,w.y)*smoothstep(0.,.02,w.y);
   float fine=ns(vec2(w.x*30.+h*5.,t*11.))*.6+.4*ns(vec2(w.x*58.,t*17.));
   c.g=max(c.g,s*m*(.42+.80*fine));c.r=max(c.r,s*m);
-  float ex=abs(u.x*2.-h-.5)*2.;c*=1.-smoothstep(.9,1.,ex);c*=1.-smoothstep(.9,1.,u.y);o=c;}`;
+  float ex=abs(u.x*2.-h-.5)*2.;c*=1.-smoothstep(.9,1.,ex);c*=1.-smoothstep(.9,1.,u.y);o=clamp(c,0.,8.);}`;
 
 /** GLSL: gas() reads a fire at p (metres from the middle of its foot, h = which of the two), burn() colours it. Needs uniform t. */
 export const FLAME_LOOK = `uniform sampler2D dye;

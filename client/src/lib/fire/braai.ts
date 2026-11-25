@@ -11,7 +11,7 @@
  * flames, smoke, leaves, tongs and sparks are added. Moving over it makes a breeze; a click or tap blows on the fire.
  *
  * Light on purpose: it runs only on screen, and a device that can't hold 60 frames a second gets a little less sharpness
- * and then an even 30. Reduced motion: one still picture. Beef only (kosher). How to render the pictures again: HANDOFF.md.
+ * and then an even 30 (a screen that only gives 30, like an iPhone saving its battery, isn't slow). Reduced motion: one still picture. Beef only (kosher). How to render the pictures again: HANDOFF.md.
  */
 
 import { Embers } from "./embers";
@@ -49,12 +49,12 @@ vec3 tone(vec3 x){x=(x*(2.51*x+.03))/(x*(2.43*x+.59)+.14);return pow(clamp(x,0.,
 void main(){
   vec2 hp=place(u),cs=vec2((hp.x-.5)*pas,.5-hp.y);
   vec3 rd=normalize(fw*foc+rt*cs.x+up*cs.y);vec2 pa=(ro+rd*((Z1-ro.z)/rd.z)).xy-vec2(0.,FY);
-  vec2 wob=vec2(0.);float hot=smoothstep(.95,.55,abs(pa.x))*smoothstep(.06,.3,pa.y)*(1.-smoothstep(.7,1.4,pa.y));
+  vec2 wob=vec2(0.);float hot=dn(.55,.95,abs(pa.x))*smoothstep(.06,.3,pa.y)*(1.-smoothstep(.7,1.4,pa.y));
   if(hot>.02)wob=(vec2(ns(vec2(cs.x*44.,cs.y*26.-t*5.)),ns(vec2(cs.x*40.+9.,cs.y*26.-t*5.)))-.5)*.0030*hot;
-  if(hp.y<.62){float leaf=textureLod(pK,hp,0.).b*smoothstep(.62,.10,hp.y);if(leaf>.004)wob.x-=leaf*(.0021*(sin(t*1.7+cs.x*19.+cs.y*8.)*.35+sin(t*2.9+cs.x*41.)*.22+(ns(vec2(cs.x*2.2-t*.55,t*.35))-.5)*1.1)+.0125*wind*(.8+.4*sin(t*3.1+cs.x*23.)));}
+  if(hp.y<.62){float leaf=textureLod(pK,hp,0.).b*dn(.10,.62,hp.y);if(leaf>.004)wob.x-=leaf*(.0021*(sin(t*1.7+cs.x*19.+cs.y*8.)*.35+sin(t*2.9+cs.x*41.)*.22+(ns(vec2(cs.x*2.2-t*.55,t*.35))-.5)*1.1)+.0125*wind*(.8+.4*sin(t*3.1+cs.x*23.)));}
   vec4 S=textureLod(scene,u+wob*vec2(1./(pas*crop.x),-1./(crop.y*(1.+ext))),0.);vec3 col=S.rgb;float cov=S.a;
   if(abs(pa.x)<.95&&pa.y>-.02&&pa.y<.67+.30*flare){float K=textureLod(pK,hp+wob*vec2(1./pas,1.),0.).r;if(K<.99){
-    vec2 pb=(ro+rd*((Z2-ro.z)/rd.z)).xy-vec2(0.,FY);float cut=smoothstep(.66+.30*flare,.42,pa.y)*(1.-K);
+    vec2 pb=(ro+rd*((Z2-ro.z)/rd.z)).xy-vec2(0.,FY);float cut=dn(.42,.66+.30*flare,pa.y)*(1.-K);
     col+=(flame(pa,-.50,SZ*.98,0.,1.,.80)+flame(pa,-.02,SZ*1.18,1.,1.,.85)+flame(pa,.49,SZ*1.04,0.,-1.,.80)+flame(pa,-.27,SZ*.66,1.,-1.,.50)+flame(pa,.24,SZ*.70,0.,1.,.50))*cut*.92+(flame(pb,-.36,SZ*.60,1.,1.,.55)+flame(pb,.12,SZ*.64,0.,-1.,.55))*cut*.8;}}
   float y=pa.y-.18,x=pa.x-wind*y*.45-y*.10;
   if(y>0.&&y<1.7&&abs(x)<.98+.24*y){
@@ -105,6 +105,7 @@ export function startBraai(root: HTMLElement, canvas: HTMLCanvasElement): () => 
   const phone = window.matchMedia("(max-width: 551px)"); // the same width as the still picture in Braai.tsx
   let kit: Kit | null = null, kitJob: Promise<Kit | null> | null = null, view: { shot: Shot; cam: ReturnType<typeof camera>; pics: Pic[] } | null = null;
   let live = false, loading: Shot | null = null, round = 0, w = 1, h = 1, quality = 1, t = 4, last = 0, raf = 0, seen = false, stopped = false, carry = 0, flare = 0, wind = 0, push = 0, lastX = -1, swing = 0.02, swingSpeed = 0;
+  let beats: number[] = [], capped = false; // the screen's own rhythm, timed before the fire runs
   let slow = 0, half = false, odd = false, redraw = 0; // 30fps mode; time until the lit scene is drawn again
   const light = [1, 1, 1, 1];
   const off = () => { live = false; root.classList.remove("is-live"); };
@@ -194,6 +195,12 @@ export function startBraai(root: HTMLElement, canvas: HTMLCanvasElement): () => 
     raf = 0;
     if (stopped || !seen || !live || !kit) return;
     raf = requestAnimationFrame(frame);
+    if (beats.length < 12) {
+      beats.push(now - last);
+      last = now;
+      if (beats.length === 12) capped = beats.slice(2).sort((a, b) => a - b)[2] > 27; // even its quick ones are 30 a second
+      return;
+    }
     odd = !odd;
     if (half && odd) return;
     const dt = Math.min(0.05, (now - last) / 1000 || 0.016);
@@ -213,8 +220,8 @@ export function startBraai(root: HTMLElement, canvas: HTMLCanvasElement): () => 
     carry += dt * (w < 768 ? 4 : 7) * (1 + flare * 2);
     while (carry > 1) { carry--; spark(60, 50 + Math.random() * 170); }
     // can't hold 60: first a little less sharp, then an even 30 (smoother to look at than an uneven 45)
-    slow = slow * 0.96 + (dt > (half ? 0.042 : 0.021) ? 0.04 : 0);
-    if (slow > 0.34) { slow = 0; if (quality > 0.85) { quality -= 0.15; size(); } else if (!half) half = true; else if (quality > 0.55) { quality -= 0.15; size(); } }
+    slow = slow * 0.96 + (dt > (half || capped ? 0.042 : 0.021) ? 0.04 : 0);
+    if (slow > 0.34) { slow = 0; if (quality > 0.85) { quality -= 0.15; size(); } else if (!half && !capped) half = true; else if (quality > 0.55) { quality -= 0.15; size(); } }
     paint(dt);
   };
   const wake = () => { if (!live || stopped) return; if (still) paint(0); else if (seen && !raf) { last = performance.now(); raf = requestAnimationFrame(frame); } };

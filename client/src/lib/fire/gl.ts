@@ -7,6 +7,8 @@
    Keep the weights: the flames are tuned to them. */
 export const NOISE_GLSL = `
 uniform sampler2D nz;
+/* 1 at lo and below, 0 at hi and above (smoothstep with its edges swapped is undefined, and phones differ) */
+float dn(float lo,float hi,float x){return 1.-smoothstep(lo,hi,x);}
 float ns(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return textureLod(nz,(i+f+.5)/256.,0.).r;}
 float fb(vec2 p){return .5*ns(p)+.27*ns(p*2.03+7.1)+.15*ns(p*4.1+3.3)+.08*ns(p*8.3+1.7);}
 `;

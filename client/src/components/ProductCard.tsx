@@ -38,21 +38,30 @@ function flyToCart(from: HTMLElement) {
   const b = target.getBoundingClientRect();
   const dot = document.createElement("div");
   dot.className = "cart-fly-dot";
-  document.body.appendChild(dot);
   const x0 = a.left + a.width / 2 - 7, y0 = a.top + a.height / 2 - 7;
   const x1 = b.left + b.width / 2 - 7, y1 = b.top + b.height / 2 - 7;
-  const anim = dot.animate(
-    [
-      { transform: `translate(${x0}px, ${y0}px) scale(1)` },
-      { transform: `translate(${(x0 + x1) / 2}px, ${Math.min(y0, y1) - 120}px) scale(1.3)`, offset: 0.5 },
-      { transform: `translate(${x1}px, ${y1}px) scale(0.5)` },
-    ],
-    { duration: 650, easing: "cubic-bezier(.5,0,.3,1)" }
-  );
-  anim.onfinish = () => {
+  // A real curve in small steps (one corner in the middle looked like a bounce), eased along the way
+  const cx = (x0 + x1) / 2, cy = Math.max(8, Math.min(y0, y1) - 130);
+  const path: Keyframe[] = [];
+  for (let i = 0; i <= 24; i++) {
+    const f = i / 24, t = f < 0.5 ? 2 * f * f : 1 - 2 * (1 - f) * (1 - f);
+    const x = (1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * cx + t * t * x1;
+    const y = (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * cy + t * t * y1;
+    path.push({ transform: `translate3d(${x}px, ${y}px, 0) scale(${1 + Math.sin(t * Math.PI) * 0.3 - t * 0.5})`, opacity: f > 0.92 ? (1 - f) / 0.08 : 1 });
+  }
+  // It starts where it starts and stays where it ends: Safari shows its resting place for a frame before and after
+  dot.style.transform = path[0].transform as string;
+  document.body.appendChild(dot);
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
     dot.remove();
     bump();
   };
+  const anim = dot.animate(path, { duration: 700, easing: "linear", fill: "both" });
+  anim.onfinish = finish;
+  window.setTimeout(finish, 900); // a paused tab or a missed event: never leave it on the screen
 }
 
 const ProductCardComponent = ({ variant, categoryName, index = 0 }: ProductCardProps) => {
