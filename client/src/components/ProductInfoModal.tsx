@@ -106,7 +106,7 @@ export default function ProductInfoModal({ variant, categoryName, isOpen, onClos
         {/* Nutrition: one row of four */}
         <div>
           <p className="text-[0.9rem] font-bold uppercase mb-2" style={labelStyle}>
-            {t.nutrition[language]} · {sizeLabel("100g", language)}
+            {t.nutrition[language]} · {sizeLabel(/ml$/i.test(variant.sizes[0]?.size ?? "") ? "100ml" : "100g", language)}
           </p>
           <div className="grid grid-cols-4 rounded overflow-hidden" style={{ backgroundColor: "var(--card)" }}>
             {stats.map((s, i) => (

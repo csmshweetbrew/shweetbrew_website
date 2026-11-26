@@ -82,12 +82,13 @@ export default function HeroSection() {
 
       <div className="relative z-10 container hero-shop-inner">
         {/* 1. What this is */}
-        <h1 className="hero-shop-title" data-reveal="heading" style={{ ["--reveal-delay" as string]: "60ms" }}>
-          <span style={{ color: "var(--accent)" }}>{translations.hero.title1Word1[language]}</span>{" "}
-          {translations.hero.title1Word2[language]}
+        {/* The slogan stays in English on the Hebrew site too (Caleb, 2026-11-26) */}
+        <h1 className="hero-shop-title" lang="en" dir="ltr" data-reveal="heading" style={{ ["--reveal-delay" as string]: "60ms" }}>
+          <span style={{ color: "var(--accent)" }}>{translations.hero.title1Word1.en}</span>{" "}
+          {translations.hero.title1Word2.en}
           <br />
-          <span style={{ color: "var(--brand-israeli-blue-light)" }}>{translations.hero.title2Word1[language]}</span>{" "}
-          {translations.hero.title2Word2[language]}
+          <span style={{ color: "var(--brand-israeli-blue-light)" }}>{translations.hero.title2Word1.en}</span>{" "}
+          {translations.hero.title2Word2.en}
         </h1>
         <p className="hero-shop-what" data-reveal="text" style={{ ["--reveal-delay" as string]: "160ms" }}>
           {/* Product words highlighted in their range tile colours (biltong blue, boerewors gold, jerky red) */}

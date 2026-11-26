@@ -40,30 +40,11 @@
     <link rel="preload" href="/fonts/lato-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin />
     <!-- Hero photo (self-hosted WebP): start downloading the right size immediately -->
     <link rel="preload" as="image" href="/images/hero-1280.webp" imagesrcset="/images/hero-960.webp 960w, /images/hero-1280.webp 1280w" imagesizes="100vw" fetchpriority="high" />
-    <script>
-      // Reveal-on-scroll: hide [data-reveal] content from the first paint (lib/reveal.ts shows it).
-      // Skipped for visitors who prefer reduced motion.
-      try {
-        if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("reveal-on");
-      } catch (e) {}
-    </script>
-    <script>
-      // Hebrew visitors: preload the Hebrew faces too (language is remembered in localStorage)
-      try {
-        var lang = localStorage.getItem("shweet-brew-language");
-        if (lang === "he") {
-          // Set Hebrew before the first paint so the page never flashes in English first
-          document.documentElement.lang = "he";
-          document.documentElement.dir = "rtl";
-          ["open-sans-hebrew-700-normal", "open-sans-hebrew-800-normal", "open-sans-latin-700-normal"].forEach(function (f) {
-            var l = document.createElement("link");
-            l.rel = "preload"; l.as = "font"; l.type = "font/woff2"; l.crossOrigin = "anonymous";
-            l.href = "/fonts/" + f + ".woff2";
-            document.head.appendChild(l);
-          });
-        }
-      } catch (e) {}
-    </script>
+    <!-- Reveal-on-scroll: hide [data-reveal] content from the first paint (lib/reveal.ts shows it); skipped for reduced motion.
+         Hebrew visitors: set Hebrew before the first paint and preload the Hebrew faces (the language is remembered in localStorage).
+         Both are one line on purpose: netlify.toml's Content-Security-Policy lists their SHA-256 (check: node scripts/check-csp.mjs). -->
+    <script>try{if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("reveal-on")}catch(e){}</script>
+    <script>try{if(localStorage.getItem("shweet-brew-language")==="he"){document.documentElement.lang="he";document.documentElement.dir="rtl";["open-sans-hebrew-700-normal","open-sans-hebrew-800-normal","open-sans-latin-700-normal"].forEach(function(f){var l=document.createElement("link");l.rel="preload";l.as="font";l.type="font/woff2";l.crossOrigin="anonymous";l.href="/fonts/"+f+".woff2";document.head.appendChild(l)})}}catch(e){}</script>
     <style>
       @font-face { font-family: "Bebas Neue"; font-style: normal; font-weight: 400; font-display: block; src: url(/fonts/bebas-neue-latin-400-normal.woff2) format("woff2"); }
       @font-face { font-family: "Lato"; font-style: normal; font-weight: 400; font-display: block; src: url(/fonts/lato-latin-400-normal.woff2) format("woff2"); }

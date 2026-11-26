@@ -223,7 +223,8 @@ await as("authenticated", admin, () => db.query(`insert into storage.objects (bu
 ok(true, "admin uploads a product photo");
 await expectError("authenticated", cust, `insert into storage.objects (bucket_id, name) values ('product-images', 'x.webp')`, [], "row-level security", "customer cannot upload photos");
 await expectError("anon", null, `insert into storage.objects (bucket_id, name) values ('product-images', 'x.webp')`, [], "row-level security", "guest cannot upload photos");
-const seen = await as("anon", null, () => db.query(`select count(*)::int c from storage.objects where bucket_id='product-images'`));
+const seen = await as("authenticated", admin, () => db.query(`select count(*)::int c from storage.objects where bucket_id='product-images'`));
+ok((await as("anon", null, () => db.query(`select count(*)::int c from storage.objects where bucket_id='product-images'`))).rows[0].c === 0, "visitors can't list the photos (0021; public photos are fetched by their address)");
 ok(seen.rows[0].c === 1, "guests can see product photos");
 
 // No customer accounts (0019)
@@ -276,6 +277,25 @@ ok(await claim(oldO.id) === false && await switchTo(oldO.id, "cash") === false, 
 await expectError("anon", null, `update public.orders set payment_claimed_at = now(), payment_status = 'paid'`, [], "permission denied", "visitors still can't change orders themselves");
 const ov = await as("authenticated", admin, () => db.query(`select payment_method, payment_claimed_at, item_count from public.order_overview where id = $1`, [pb.id]));
 ok(ov.rows[0].payment_method === "bit_paybox" && !!ov.rows[0].payment_claimed_at && ov.rows[0].item_count === 1, "the admin list shows both");
+
+// 0021: tightening
+for (const t of ["products", "product_sizes", "categories", "delivery_zones", "orders"]) {
+  await expectError("anon", null, `truncate public.${t}`, [], "permission denied", `visitors can't empty ${t}`);
+  await expectError("authenticated", cust, `truncate public.${t}`, [], "permission denied", `signed-in users can't empty ${t}`);
+}
+const guestRun = async (n, headers, tag) => { await db.exec("begin"); let stop = ""; try {
+    await db.query(`select set_config('request.jwt.claim.sub', '', true), set_config('request.jwt.claim.role', 'anon', true)`); await db.exec("set local role anon");
+    for (let i = 0; i < n; i++) { await db.query(`select set_config('request.headers', $1, true)`, [JSON.stringify(headers(i))]);
+      try { await db.query(`savepoint s`); await db.query(`select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "100g", quantity: 1 }], { zone_id: "modiin", phone: `0509${tag}${String(i).padStart(4, "0")}`, email: `${tag}${i}@example.test` }))]); await db.query(`release savepoint s`); }
+      catch (e) { await db.query(`rollback to savepoint s`); stop = `${i + 1}: ${e.message}`; break; } }
+  } finally { await db.exec("rollback"); } return stop; };
+await db.exec("delete from public.guest_order_log");
+let stop = await guestRun(12, (i) => ({ "cf-connecting-ip": "198.51.100.7", "x-forwarded-for": `10.9.9.${i}, 198.51.100.7` }), "1");
+ok(stop.startsWith("11: TOO_MANY_ORDERS"), "a made-up x-forwarded-for no longer dodges the per-visitor limit -> " + stop);
+stop = await guestRun(70, (i) => ({ "cf-connecting-ip": `198.51.100.${i}` }), "2");
+ok(stop.startsWith("61: TOO_MANY_ORDERS"), "at most 60 guest orders an hour in all -> " + stop);
+const fns = (await db.query(`select proname, proconfig from pg_proc where proname in ('set_updated_at','order_status_timestamps')`)).rows;
+ok(fns.length === 2 && fns.every((r) => String(r.proconfig).includes("search_path")), "trigger functions have a fixed search_path");
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

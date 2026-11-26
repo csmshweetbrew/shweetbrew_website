@@ -154,7 +154,9 @@ export function CheckoutProblems({ checkout, idPrefix }: { checkout: Checkout; i
   );
 }
 
-/* ---------- searchable delivery-area picker ---------- */
+/* ---------- delivery-area picker ----------
+   A button opens the list of areas; a tap on an area chooses it. Typing a town is optional: the search box
+   isn't focused by itself on phones, so the keyboard doesn't open and cover the list (iPhone, 2026-11-26). */
 function AreaPicker({ idPrefix, language, value, onChange, error }: {
   idPrefix: string; language: string; value: string; onChange: (id: string) => void; error?: string;
 }) {
@@ -165,7 +167,10 @@ function AreaPicker({ idPrefix, language, value, onChange, error }: {
   const [active, setActive] = useState(0);
   const boxRef = useRef<HTMLDivElement>(null);
   const selected = deliveryZones.find((z) => z.id === value);
-  const inputId = `${idPrefix}-area`;
+  const inputId = `${idPrefix}-area`; // the button: "Before you can order" jumps here
+  const searchId = `${idPrefix}-area-search`;
+  const searchRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
 
   const lang = he ? "he" : "en";
   const label = (z: DeliveryZone) => (z.id === OTHER_ZONE ? L("Somewhere else", "מקום אחר") : zoneName(z, lang));
@@ -191,14 +196,20 @@ function AreaPicker({ idPrefix, language, value, onChange, error }: {
       if (boxRef.current && !e.composedPath().includes(boxRef.current)) setOpen(false);
     };
     document.addEventListener("pointerdown", onDown, true);
+    // Computers: straight into the search box. Phones: no keyboard until they tap it.
+    if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) searchRef.current?.focus();
+    window.setTimeout(() => boxRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" }), 50);
     return () => document.removeEventListener("pointerdown", onDown, true);
   }, [open]);
+
+  useEffect(() => { listRef.current?.querySelector<HTMLElement>(".is-active")?.scrollIntoView({ block: "nearest" }); }, [active, open]);
 
   const choose = (zoneId: string) => {
     onChange(zoneId);
     setQuery("");
     setOpen(false);
   };
+  const reopen = () => { onChange(""); setQuery(""); setActive(0); setOpen(true); };
 
   if (selected && !open) {
     return (
@@ -210,62 +221,79 @@ function AreaPicker({ idPrefix, language, value, onChange, error }: {
             <span>{days(selected)}</span>
           </span>
           <span className="cart-area-fee">{fee(selected)}</span>
-          <button type="button" className="cart-link" onClick={() => { onChange(""); setQuery(""); setOpen(true); setActive(0); }}>{L("Change", "שינוי")}</button>
+          <button type="button" className="cart-link" onClick={reopen}>{L("Change", "שינוי")}</button>
         </div>
       </div>
     );
   }
 
+  const keys = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowDown") { e.preventDefault(); setActive((a) => Math.min(a + 1, results.length - 1)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setActive((a) => Math.max(a - 1, 0)); }
+    else if (e.key === "Enter" && results[active]) { e.preventDefault(); choose(results[active].zone.id); }
+    else if (e.key === "Escape") { e.preventDefault(); setOpen(false); }
+  };
+
   return (
     <div className="cart-field" ref={boxRef}>
-      <label htmlFor={inputId}>{L("Delivery area", "אזור משלוח")}</label>
-      <div className="cart-search">
-        <Search className="w-4 h-4" aria-hidden="true" />
-        <input
-          id={inputId}
-          role="combobox"
-          aria-expanded={open}
-          aria-controls={`${inputId}-list`}
-          aria-activedescendant={open && results[active] ? `${inputId}-${results[active].zone.id}` : undefined}
-          aria-invalid={error ? "true" : undefined}
-          aria-describedby={error ? `${inputId}-err` : undefined}
-          autoComplete="off"
-          placeholder={L("Type your town, e.g. Ra'anana", "הקלידו עיר, למשל רעננה")}
-          value={query}
-          onFocus={() => setOpen(true)}
-          onClick={() => setOpen(true)}
-          onChange={(e) => { setQuery(e.target.value); setOpen(true); setActive(0); }}
-          onKeyDown={(e) => {
-            if (e.key === "ArrowDown") { e.preventDefault(); setActive((a) => Math.min(a + 1, results.length - 1)); }
-            else if (e.key === "ArrowUp") { e.preventDefault(); setActive((a) => Math.max(a - 1, 0)); }
-            else if (e.key === "Enter" && open && results[active]) { e.preventDefault(); choose(results[active].zone.id); }
-            else if (e.key === "Escape" && open) { e.preventDefault(); setOpen(false); }
-          }}
-        />
-        <ChevronDown className={`cart-search-caret w-4 h-4 ${open ? "rotate-180" : ""}`} aria-hidden="true" />
-      </div>
+      <span className="cart-label" id={`${inputId}-label`}>{L("Delivery area", "אזור משלוח")}</span>
+      <button
+        type="button"
+        id={inputId}
+        className={`cart-area-open ${open ? "is-open" : ""}`}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls={`${inputId}-list`}
+        aria-labelledby={`${inputId}-label ${inputId}`}
+        aria-invalid={error ? "true" : undefined}
+        aria-describedby={error ? `${inputId}-err` : undefined}
+        onClick={() => setOpen((o) => !o)}
+      >
+        <span>{L("Choose your area", "בחרו אזור")}</span>
+        <ChevronDown className={`w-4 h-4 ${open ? "rotate-180" : ""}`} aria-hidden="true" />
+      </button>
       {open && (
-        <ul id={`${inputId}-list`} role="listbox" className="cart-area-list" data-lenis-prevent>
-          {results.map(({ zone: z, town }, i) => (
-            <li
-              key={z.id}
-              id={`${inputId}-${z.id}`}
-              role="option"
-              aria-selected={i === active}
-              className={i === active ? "is-active" : ""}
-              // A tap chooses; a finger that scrolls the list doesn't (pointerdown chose on the first touch). mousedown keeps the focus in the box.
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => choose(z.id)}
-              onMouseEnter={() => setActive(i)}
-            >
-              <span className="min-w-0">
-                <strong>{label(z)}</strong>
-                <span>{town ? town : days(z)}</span>
-              </span>
-              <span className="cart-area-fee">{fee(z)}</span>
-            </li>
-          ))}
-        </ul>
+        <div className="cart-area-panel">
+          <div className="cart-search">
+            <Search className="w-4 h-4" aria-hidden="true" />
+            <input
+              ref={searchRef}
+              id={searchId}
+              type="search"
+              enterKeyHint="search"
+              autoComplete="off"
+              aria-label={L("Find your town", "חיפוש עיר")}
+              aria-controls={`${inputId}-list`}
+              aria-activedescendant={results[active] ? `${inputId}-${results[active].zone.id}` : undefined}
+              placeholder={L("Or type your town, e.g. Ra'anana", "או הקלידו עיר, למשל רעננה")}
+              value={query}
+              onChange={(e) => { setQuery(e.target.value); setActive(0); }}
+              onKeyDown={keys}
+            />
+          </div>
+          <ul id={`${inputId}-list`} ref={listRef} role="listbox" aria-label={L("Delivery areas", "אזורי משלוח")} className="cart-area-list" data-lenis-prevent onKeyDown={keys}>
+            {results.map(({ zone: z, town }, i) => (
+              <li key={z.id} role="presentation">
+                <button
+                  type="button"
+                  role="option"
+                  id={`${inputId}-${z.id}`}
+                  aria-selected={i === active}
+                  tabIndex={-1}
+                  className={i === active ? "is-active" : ""}
+                  onClick={() => choose(z.id)}
+                  onMouseEnter={() => setActive(i)}
+                >
+                  <span className="min-w-0">
+                    <strong>{label(z)}</strong>
+                    <span>{town ? town : days(z)}</span>
+                  </span>
+                  <span className="cart-area-fee">{fee(z)}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
       {error && <span id={`${inputId}-err`} className="cart-err">{error}</span>}
     </div>

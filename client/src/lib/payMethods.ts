@@ -22,6 +22,9 @@ export const payMethodsFor = (zoneId: string | undefined): PayMethod[] =>
 export const PAY_NUMBER = "0584132576";
 export const PAY_NUMBER_DISPLAY = "058-413-2576";
 
+/** The business owner's own Bit payment page (his, 2026-11-26): opens Bit straight on paying him */
+const BIT_LINK = "https://www.bitpay.co.il/app/me/CD33CBC4-22FB-ACDD-2105-7CD2DF8DA3155344";
+
 /** The owner's personal "PayBox for business" link, if there is one: opens straight on paying us */
 const PAYBOX_LINK = "";
 
@@ -39,7 +42,7 @@ export function payAppLink(app: PayApp): string | null {
   const android = /android/i.test(ua);
   const ios = /iphone|ipad|ipod/i.test(ua) || (/macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
   if (!android && !ios) return null;
-  if (app === "bit") return `https://www.bitpay.co.il/app/transfer?phone=${PAY_NUMBER}`;
+  if (app === "bit") return BIT_LINK;
   if (PAYBOX_LINK) return PAYBOX_LINK;
   if (android) {
     const store = encodeURIComponent("https://play.google.com/store/apps/details?id=com.payboxapp");

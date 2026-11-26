@@ -40,6 +40,7 @@ echo "✓ Clean, and $AHEAD commit(s) ahead of $TARGET"
 say "2/5  Type check and production build (same as Netlify)"
 npx tsc --noEmit
 npx vite build --logLevel warn
+node scripts/check-csp.mjs >/dev/null || fail "netlify.toml's Content-Security-Policy doesn't match the scripts in index.html: run node scripts/check-csp.mjs"
 echo "✓ Build OK"
 
 say "3/5  Database changes in this deploy"

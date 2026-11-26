@@ -9,6 +9,20 @@
 [context.deploy-preview]
   command = "cd client && pnpm install && pnpm run build"
 
+# Browser protection for every page (security check, 2026-11-26). The site may only load its own files and
+# talk to its own Supabase project; nobody can show it inside another site (clickjacking).
+# script-src lists the two one-line scripts in client/index.html: after changing them, run a build and
+# node scripts/check-csp.mjs, and put the hashes it prints here. Netlify's preview toolbar is blocked by this, on purpose.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'sha256-a96kOG07GNPCKuLtN+wwY3B6Sdhg3puMRiAT0s8elZM=' 'sha256-F5eEUYSWJ+ldDXq3X1R5xSQjuDKhNixKisP+l3oncMY='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://tgudknahqdipdodahbpe.supabase.co; font-src 'self'; connect-src 'self' https://tgudknahqdipdodahbpe.supabase.co; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+    Cross-Origin-Opener-Policy = "same-origin"
+
 # Returning visitors keep what they already have (fewer Netlify credits).
 # /assets: the file name changes with every build, so it can stay for good.
 [[headers]]

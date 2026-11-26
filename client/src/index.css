@@ -154,6 +154,11 @@
   html[lang="he"] h1 {
     font-weight: 900;
   }
+  /* the English slogan on the Hebrew site keeps its own face */
+  html[lang="he"] .hero-shop-title, html[lang="he"] .hero-shop-title * {
+    font-family: 'Bebas Neue', sans-serif !important;
+    font-weight: 400;
+  }
   html[lang="he"] h2,
   html[lang="he"] h3,
   html[lang="he"] h4,
@@ -571,9 +576,10 @@
   @media (min-width: 768px) {
     .hero-shop-title { font-size: clamp(2.61rem, 7.29vw, 5.67rem); }
   }
-  html[lang="he"] .hero-shop-title { font-size: clamp(2.34rem, 6.75vw, 4.95rem); }
+  /* the slogan is English on the Hebrew site too: the same size as in English (Hebrew pages scale rem by 93.75%) */
+  html[lang="he"] .hero-shop-title { font-size: clamp(3.072rem, 8.1vw, 6.72rem); }
   @media (min-width: 768px) {
-    html[lang="he"] .hero-shop-title { font-size: clamp(2.1rem, 6.08vw, 4.45rem); }
+    html[lang="he"] .hero-shop-title { font-size: clamp(2.784rem, 7.29vw, 6.048rem); }
   }
   @media (prefers-reduced-motion: reduce) {
     .hero-range, .hero-range img, .hero-btn { transition: none; }
@@ -874,12 +880,16 @@
   .cart-search input:focus { cursor: text; }
   .cart-address { display: grid; gap: 0.75rem; margin: 0; padding: 0; border: 0; min-width: 0; }
   .cart-address legend { padding: 0; margin-bottom: 0.1rem; font-size: 0.9rem; font-weight: 700; color: var(--foreground); }
+  /* the area button (CheckoutFields AreaPicker): looks like the other fields */
+  .cart-area-open { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; width: 100%; min-height: 2.9rem; padding: 0.6rem 0.75rem; border-radius: 4px; border: 1px solid oklch(1 0 0 / 0.18); background-color: var(--card); color: var(--muted-foreground); font-size: 1rem; text-align: start; }
+  .cart-area-open svg { flex-shrink: 0; transition: transform 0.2s; }
+  .cart-area-open.is-open, .cart-area-open:focus-visible { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 25%, transparent); }
+  .cart-area-open[aria-invalid="true"] { border-color: oklch(0.70 0.18 25); }
+  .cart-area-panel { display: grid; gap: 0.4rem; margin-top: 0.4rem; }
   .cart-area-list {
-    position: absolute;
-    top: 100%;
-    inset-inline: 0;
-    z-index: 2;
-    margin-top: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
     max-height: 16rem;
     overflow-y: auto;
     overscroll-behavior: contain; /* reaching the end doesn't scroll the cart behind it */
@@ -889,15 +899,15 @@
     background-color: var(--card);
     box-shadow: 0 16px 40px oklch(0 0 0 / 0.55);
   }
-  .cart-area-list li, .cart-area-chosen {
+  .cart-area-list button, .cart-area-chosen {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     gap: 0.75rem;
     padding: 0.55rem 0.75rem;
   }
-  .cart-area-list li { cursor: pointer; }
-  .cart-area-list li.is-active { background-color: color-mix(in oklab, var(--accent) 18%, transparent); }
+  .cart-area-list button { width: 100%; min-height: 3rem; text-align: start; cursor: pointer; }
+  .cart-area-list button.is-active { background-color: color-mix(in oklab, var(--accent) 18%, transparent); }
   .cart-area-list strong, .cart-area-chosen strong { display: block; font-size: 0.9rem; color: var(--foreground); }
   .cart-area-list span span, .cart-area-chosen span span { display: block; font-size: 0.78rem; color: var(--muted-foreground); }
   .cart-area-chosen {
