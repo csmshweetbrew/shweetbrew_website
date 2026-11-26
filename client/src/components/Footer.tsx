@@ -1,27 +1,33 @@
 /*
  * SHWEETBREW FOOTER
- * Design: Dark charcoal background, red accents, horizontal layout
+ * Design: hero black (on the home page the fire's ground fades into it), red accents, horizontal layout
  * Logo left, description, social links, and two columns right
  */
 
 import { Mail, MapPin, Phone } from "lucide-react";
+import { Link, useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/config/languages";
 import { SOCIAL_LINKS, CONTACT_INFO, NAV_LINKS } from "@/config/constants";
 import { getPrimaryColor } from "@/config/colors";
+import { PUBLIC_LEGAL_PAGES } from "@/config/legal";
+import { scrollToTarget } from "@/lib/smoothScroll";
 
 export default function Footer() {
   const { language } = useLanguage();
   const navLinks = language === "en" ? NAV_LINKS.en : NAV_LINKS.he;
 
+  const [, navigate] = useLocation();
+
   const handleNavClick = (href: string) => {
     const el = document.querySelector(href);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
+    if (el) scrollToTarget(el);
+    else navigate("/"); // from a legal page or the 404 page
   };
 
   return (
     <footer
-      style={{ backgroundColor: "oklch(0.10 0.005 60)", borderTop: "1px solid oklch(1 0 0 / 0.08)" }}
+      style={{ backgroundColor: "oklch(0.10 0.005 60)" }}
     >
       {/* Main footer */}
       <div className="container py-8 md:py-12">
@@ -31,6 +37,8 @@ export default function Footer() {
             {/* Logo */}
             <div className="mb-4 w-40">
               <svg
+                role="img"
+                aria-label="Shweet Brew"
                 viewBox="0 0 600 602"
                 className="w-full h-auto"
                 style={{ fill: getPrimaryColor() }}
@@ -54,7 +62,7 @@ export default function Footer() {
             {/* Description */}
             <p
               className="font-body text-sm leading-relaxed mb-4"
-              style={{ color: "oklch(0.60 0.015 75)" }}
+              style={{ color: "oklch(0.68 0.015 75)" }}
             >
               {translations.footer.tagline[language]}
             </p>
@@ -66,9 +74,9 @@ export default function Footer() {
                   href={SOCIAL_LINKS.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-8 h-8 rounded flex items-center justify-center border transition-all hover:scale-110"
+                  className="w-10 h-10 rounded flex items-center justify-center border transition-all hover:scale-110"
                   style={{
-                    backgroundColor: "oklch(0.18 0.006 60)",
+                    backgroundColor: "var(--card)",
                     borderColor: "oklch(1 0 0 / 0.12)",
                     color: "oklch(0.70 0.015 75)",
                   }}
@@ -83,9 +91,9 @@ export default function Footer() {
                   href={SOCIAL_LINKS.facebook}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-8 h-8 rounded flex items-center justify-center border transition-all hover:scale-110"
+                  className="w-10 h-10 rounded flex items-center justify-center border transition-all hover:scale-110"
                   style={{
-                    backgroundColor: "oklch(0.18 0.006 60)",
+                    backgroundColor: "var(--card)",
                     borderColor: "oklch(1 0 0 / 0.12)",
                     color: "oklch(0.70 0.015 75)",
                   }}
@@ -93,40 +101,6 @@ export default function Footer() {
                 >
                   <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" xmlns="http://www.w3.org/2000/svg">
                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                  </svg>
-                </a>
-                {/* LinkedIn */}
-                <a
-                  href="https://linkedin.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-8 h-8 rounded flex items-center justify-center border transition-all hover:scale-110"
-                  style={{
-                    backgroundColor: "oklch(0.18 0.006 60)",
-                    borderColor: "oklch(1 0 0 / 0.12)",
-                    color: "oklch(0.70 0.015 75)",
-                  }}
-                  aria-label="LinkedIn"
-                >
-                  <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z"/>
-                  </svg>
-                </a>
-                {/* Twitter */}
-                <a
-                  href="https://twitter.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-8 h-8 rounded flex items-center justify-center border transition-all hover:scale-110"
-                  style={{
-                    backgroundColor: "oklch(0.18 0.006 60)",
-                    borderColor: "oklch(1 0 0 / 0.12)",
-                    color: "oklch(0.70 0.015 75)",
-                  }}
-                  aria-label="Twitter"
-                >
-                  <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417a9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
                   </svg>
                 </a>
               </div>
@@ -140,13 +114,13 @@ export default function Footer() {
             >
               {language === "en" ? "Quick Links" : "קישורים מהירים"}
             </h4>
-            <ul className="space-y-2">
+            <ul className="space-y-1">
               {navLinks.map((link) => (
                 <li key={link.href}>
                   <button
                     onClick={() => handleNavClick(link.href)}
-                    className="font-body text-sm transition-colors hover:text-fire"
-                    style={{ color: "oklch(0.60 0.015 75)" }}
+                    className="font-body text-sm inline-block py-1 transition-colors hover:text-fire"
+                    style={{ color: "oklch(0.68 0.015 75)" }}
                   >
                     {link.label}
                   </button>
@@ -161,7 +135,7 @@ export default function Footer() {
               className="font-display text-lg mb-4 tracking-wider"
               style={{ fontFamily: "'Bebas Neue', sans-serif", color: "oklch(0.94 0.025 75)", letterSpacing: "0.1em" }}
             >
-              {language === "en" ? "Contact" : "צור קשר"}
+              {language === "en" ? "Contact" : "צרו קשר"}
             </h4>
             <ul className="space-y-3">
               <li className="flex items-start gap-2">
@@ -170,18 +144,18 @@ export default function Footer() {
                   href={`https://wa.me/${CONTACT_INFO.whatsapp.replace("+", "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-body text-sm transition-colors hover:text-fire"
-                  style={{ color: "oklch(0.60 0.015 75)" }}
+                  className="font-body text-sm inline-block py-1 transition-colors hover:text-fire"
+                  style={{ color: "oklch(0.68 0.015 75)" }}
                 >
-                  {CONTACT_INFO.whatsappDisplay}
+                  <bdi dir="ltr">{CONTACT_INFO.whatsappDisplay}</bdi>
                 </a>
               </li>
               <li className="flex items-start gap-2">
                 <Mail className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "var(--accent)" }} />
                 <a
                   href={`mailto:${CONTACT_INFO.email}`}
-                  className="font-body text-sm transition-colors hover:text-fire"
-                  style={{ color: "oklch(0.60 0.015 75)" }}
+                  className="font-body text-sm inline-block py-1 transition-colors hover:text-fire"
+                  style={{ color: "oklch(0.68 0.015 75)" }}
                 >
                   {CONTACT_INFO.email}
                 </a>
@@ -190,7 +164,7 @@ export default function Footer() {
                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "var(--accent)" }} />
                 <span
                   className="font-body text-sm"
-                  style={{ color: "oklch(0.60 0.015 75)" }}
+                  style={{ color: "oklch(0.68 0.015 75)" }}
                 >
                   {language === "en" ? "Based in Modiin, Israel" : "ממוקמים במודיעין, ישראל"}
                 </span>
@@ -199,6 +173,15 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Legal pages, once they're public (config/legal.ts) */}
+        {PUBLIC_LEGAL_PAGES.length > 0 && (
+          <nav className="mt-8 flex flex-wrap gap-x-5" aria-label={language === "en" ? "Legal" : "מידע משפטי"}>
+            {PUBLIC_LEGAL_PAGES.map((p) => (
+              <Link key={p.path} href={p.path} className="font-body text-sm py-2 transition-colors hover:text-fire" style={{ color: "oklch(0.68 0.015 75)" }}>{p.title[language]}</Link>
+            ))}
+          </nav>
+        )}
+
         {/* Bottom Bar */}
         <div
           className="mt-8 pt-6 border-t flex flex-col md:flex-row items-center justify-between"
@@ -206,15 +189,15 @@ export default function Footer() {
         >
           <p
             className="font-body text-xs"
-            style={{ color: "oklch(0.40 0.010 75)" }}
+            style={{ color: "oklch(0.64 0.012 75)" }}
           >
-            © {new Date().getFullYear()} Shweet Brew. {language === "en" ? "All rights reserved. Made with 🇿🇦 love in 🇮🇱 Israel." : "כל הזכויות שמורות. עשוי באהבה 🇿🇦 בישראל 🇮🇱."}
+            © {new Date().getFullYear()} Shweet Brew. {language === "en" ? "All rights reserved." : "כל הזכויות שמורות."}
           </p>
           <div className="flex items-center gap-1 mt-4 md:mt-0">
-            <span className="font-body text-xs" style={{ color: "oklch(0.35 0.010 75)" }}>
+            <span className="font-body text-xs" style={{ color: "oklch(0.64 0.012 75)" }}>
               {language === "en" ? "Am Yisrael Chai" : "עם ישראל חי"}
             </span>
-            <span className="text-sm">✡</span>
+            <span className="text-sm" aria-hidden="true">✡</span>
           </div>
         </div>
       </div>

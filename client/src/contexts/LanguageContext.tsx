@@ -7,29 +7,37 @@ type LanguageContextType = {
   isHebrew: boolean;
 };
 
+const TITLE = { en: "Shweet Brew: Biltong, Boerewors & Braai Culture in Israel", he: "שוויט ברו: בילטונג, בוארווורס ותרבות הברייי בישראל" };
+const DESCRIPTION = {
+  en: "South African biltong, boerewors and drywors, American-style jerky and sauces. Made in Modiin, delivered across Israel.",
+  he: "בילטונג, בוארווורס ודרייוורס דרום אפריקאיים, ג'רקי בסגנון אמריקאי ורטבים. מיוצרים במודיעין ונשלחים לכל הארץ.",
+};
+
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>("en");
-
-  // Load language from localStorage on mount, default to English
-  useEffect(() => {
-    const saved = localStorage.getItem("shweet-brew-language") as Language | null;
-    if (saved && (saved === "en" || saved === "he")) {
-      setLanguageState(saved);
-      document.documentElement.lang = saved;
-      document.documentElement.dir = saved === "he" ? "rtl" : "ltr";
-    } else {
-      // Default to English
-      setLanguageState("en");
-      document.documentElement.lang = "en";
-      document.documentElement.dir = "ltr";
+  // Read the saved language synchronously so the first render is already in the right
+  // language (index.html sets lang/dir before paint too), instead of rendering English
+  // and then switching.
+  const [language, setLanguageState] = useState<Language>(() => {
+    try {
+      const saved = localStorage.getItem("shweet-brew-language");
+      return saved === "he" ? "he" : "en";
+    } catch {
+      return "en";
     }
-  }, []);
+  });
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+    document.documentElement.dir = language === "he" ? "rtl" : "ltr";
+    document.title = TITLE[language];
+    document.querySelector('meta[name="description"]')?.setAttribute("content", DESCRIPTION[language]);
+  }, [language]);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem("shweet-brew-language", lang);
+    try { localStorage.setItem("shweet-brew-language", lang); } catch { /* private window: just for this visit */ }
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === "he" ? "rtl" : "ltr";
   };

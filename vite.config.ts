@@ -203,7 +203,19 @@ function vitePluginStorageProxy(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy()];
+// Manus editor tooling (source-location attributes, the ~360KB inline editor runtime with its own
+// copy of React, and the log collector) is only for the local dev server. Keeping it out of
+// production builds removes a large render-blocking script from every page load.
+const devOnly = (p: Plugin): Plugin => ({ ...p, apply: "serve" });
+
+const plugins = [
+  react(),
+  tailwindcss(),
+  devOnly(jsxLocPlugin() as Plugin),
+  devOnly(vitePluginManusRuntime()),
+  vitePluginManusDebugCollector(),
+  vitePluginStorageProxy(),
+];
 
 export default defineConfig({
   plugins,
@@ -219,6 +231,13 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        // React and the other libraries change rarely: in their own file, a returning visitor keeps them
+        // (cached for a year) when only the site's own code changed.
+        manualChunks: (id) => (!id.endsWith(".css") && /node_modules[\/](.pnpm[\/])?(react|react-dom|scheduler|wouter|lenis|lucide-react)[@\/]/.test(id) ? "vendor" : undefined),
+      },
+    },
   },
   server: {
     port: 3000,

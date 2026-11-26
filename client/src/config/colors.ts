@@ -1,26 +1,26 @@
 /**
  * SHWEETBREW COLOR CONFIGURATION
- * Centralized color definitions for easy management and theming
- * Update these values to change colors throughout the entire site
+ * Constants for inline styles. These mirror the tokens in client/src/index.css
+ * (the source of truth) — keep both in sync. See design-system.md.
  */
 
 export const BRAND_COLORS = {
-  // Primary brand color - used for accents, buttons, badges
+  // Shweet Red — the brand color: buttons, prices, labels, logo
   primary: "var(--accent)",
   primaryBright: "#e63946",
-  
-  // Background and text
-  charcoal: "oklch(0.15 0.005 60)",
-  charcoalMid: "oklch(0.20 0.005 60)",
-  charcoalLight: "oklch(0.28 0.008 60)",
-  cream: "oklch(0.94 0.025 75)",
-  creamDim: "oklch(0.80 0.020 75)",
-  
+
+  // Backgrounds and text
+  heroBlack: "oklch(0.10 0.005 60)",
+  charcoal: "oklch(0.13 0.005 60)", // page background (--background)
+  card: "var(--card)", // oklch(0.21 0.006 60)
+  cream: "oklch(0.94 0.025 75)", // headings and strong text (--foreground)
+  creamDim: "oklch(0.80 0.020 75)", // body copy
+
   // Accent colors
-  israeliBlue: "oklch(0.35 0.15 260)",
-  israeliBlueLightish: "oklch(0.50 0.18 260)",
+  israeliBlue: "oklch(0.50 0.18 260)", // blue for text and accents
+  israeliBlueDeep: "oklch(0.35 0.15 260)", // blue for fills and glows (--primary)
   gold: "oklch(0.75 0.15 75)",
-  red: "oklch(0.48 0.20 25)",
+  destructive: "oklch(0.48 0.20 25)", // errors / spice level 5 (--destructive)
 };
 
 // Helper function to get primary color

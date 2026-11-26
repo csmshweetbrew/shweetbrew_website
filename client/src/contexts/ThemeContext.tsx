@@ -21,32 +21,19 @@ export function ThemeProvider({
   defaultTheme = "light",
   switchable = false,
 }: ThemeProviderProps) {
+  // The site is designed dark-only, so the visitor's OS light/dark setting is
+  // ignored: use defaultTheme, or the stored choice when switching is enabled.
   const [theme, setTheme] = useState<Theme>(() => {
     if (switchable) {
-      const stored = localStorage.getItem("theme");
-      if (stored) return (stored as Theme);
-    }
-    // Check system preference
-    if (typeof window !== "undefined" && window.matchMedia) {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      return prefersDark ? "dark" : "light";
+      try {
+        const stored = localStorage.getItem("theme");
+        if (stored === "light" || stored === "dark") return stored;
+      } catch {
+        /* storage unavailable */
+      }
     }
     return defaultTheme;
   });
-
-  // Listen for system theme changes
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.matchMedia) {
-      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-      const handleChange = (e: MediaQueryListEvent) => {
-        if (!switchable) {
-          setTheme(e.matches ? "dark" : "light");
-        }
-      };
-      mediaQuery.addEventListener("change", handleChange);
-      return () => mediaQuery.removeEventListener("change", handleChange);
-    }
-  }, [switchable]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -57,7 +44,11 @@ export function ThemeProvider({
     }
 
     if (switchable) {
-      localStorage.setItem("theme", theme);
+      try {
+        localStorage.setItem("theme", theme);
+      } catch {
+        /* storage unavailable */
+      }
     }
   }, [theme, switchable]);
 

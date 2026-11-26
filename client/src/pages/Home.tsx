@@ -13,10 +13,14 @@ import AboutSection from "@/components/AboutSection";
 import FAQSection from "@/components/FAQSection";
 import ContactSection from "@/components/ContactSection";
 import CartPanel from "@/components/CartPanel";
+import ProductTicker from "@/components/ProductTicker";
+import FireBackground from "@/components/FireBackground";
+import Braai from "@/components/Braai";
 
 export default function Home() {
   return (
     <div className="w-full">
+      <FireBackground />
       <CartPanel />
       
       {/* Landing Section */}
@@ -24,33 +28,35 @@ export default function Home() {
         <HeroSection />
       </section>
 
+      <ProductTicker />
+
       {/* Products Section */}
       <section id="products">
         <ProductsSection />
       </section>
 
       {/* Delivery Section */}
-      <section id="delivery">
+      <section>
         <DeliverySection />
       </section>
 
       {/* Order Section */}
-      <section id="order">
+      <section>
         <OrderSection />
       </section>
 
       {/* Reviews Section */}
-      <section id="reviews">
+      <section>
         <ReviewsSection />
       </section>
 
       {/* About Section - PRIORITY */}
-      <section id="about">
+      <section>
         <AboutSection />
       </section>
 
       {/* FAQ Section */}
-      <section id="faq">
+      <section>
         <FAQSection />
       </section>
 
@@ -58,6 +64,9 @@ export default function Home() {
       <section id="contact">
         <ContactSection />
       </section>
+
+      {/* The steel braai; it fades into the footer */}
+      <Braai />
     </div>
   );
 }

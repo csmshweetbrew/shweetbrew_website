@@ -1,6 +1,6 @@
 /*
  * SHWEETBREW SITE CONFIGURATION
- * Central configuration for contact details, delivery zones, and site-wide settings
+ * Contact details, social links and the story in both languages. Delivery zones live in deliveryZones.ts.
  */
 
 export const SITE_CONFIG = {
@@ -11,7 +11,7 @@ export const SITE_CONFIG = {
   contact: {
     whatsapp: "+972584132576", // WhatsApp number (with country code)
     whatsappDisplay: "058 413 2576", // Display format
-    email: "csmshweetbrew@gmail.com",
+    email: "urimarks@gmail.com",
     phone: "+972584132576",
   },
 
@@ -20,68 +20,6 @@ export const SITE_CONFIG = {
     instagram: "https://instagram.com/shweetbrew",
     facebook: "https://facebook.com/shweetbrew",
     tiktok: "https://tiktok.com/@shweetbrew",
-  },
-
-  // Delivery Zones
-  deliveryZones: [
-    {
-      name: "Modiin (HQ)",
-      daysMin: 0,
-      daysMax: 1,
-      fee: 0,
-      label: "Same day / Next day",
-      icon: "🏠",
-    },
-    {
-      name: "Tel Aviv & Gush Dan",
-      daysMin: 1,
-      daysMax: 2,
-      fee: 20,
-      label: "1–2 days",
-      icon: "🌆",
-    },
-    {
-      name: "Jerusalem",
-      daysMin: 1,
-      daysMax: 2,
-      fee: 25,
-      label: "1–2 days",
-      icon: "🕍",
-    },
-    {
-      name: "Haifa & North",
-      daysMin: 2,
-      daysMax: 3,
-      fee: 30,
-      label: "2–3 days",
-      icon: "⛵",
-    },
-    {
-      name: "Beer Sheva & South",
-      daysMin: 2,
-      daysMax: 3,
-      fee: 30,
-      label: "2–3 days",
-      icon: "🌵",
-    },
-    {
-      name: "Everywhere Else",
-      daysMin: 2,
-      daysMax: 5,
-      fee: null, // Variable
-      label: "Varies",
-      icon: "📍",
-    },
-  ],
-
-  // Delivery Info
-  delivery: {
-    minimumOrder: 80, // NIS
-    minimumOrderPickup: 0, // NIS
-    orderCutoff: "12pm", // For same-day delivery in Modiin
-    paymentMethods: ["Cash", "Bank Transfer", "Bit"],
-    pickupAvailable: true,
-    pickupLocation: "Modiin",
   },
 
   // About Us
@@ -115,18 +53,35 @@ When you see the Shweet Brew label, you know you're getting:
 3. Good Times Only: Products designed to be shared, celebrated, and enjoyed.
 
 Everything is good. Everything is Shweet. Welcome to the family. Grab a bag, fire up the grill, and let's get the vibe going.`,
-    values: [
-      { icon: "🥩", title: "100% Beef", description: "No fillers, no nonsense" },
-      { icon: "✡", title: "Kosher Options", description: "Certified & available" },
-      { icon: "🇿🇦", title: "Authentic Recipes", description: "Straight from SA" },
-      { icon: "🇮🇱", title: "Israeli Pride", description: "Made with love in Israel" },
-    ],
-  },
+    // Our translation of the story above (the business owner asked for the full story in Hebrew, 2026-11-25)
+    storyHe: `הכול התחיל מאובססיה פשוטה אחת: למה להסתפק במשהו סבבה כשאפשר לקבל משהו אגדי?
 
-  // Order Form
-  orderForm: {
-    minimumProducts: 1,
-    successMessage: "Order sent! We'll confirm via WhatsApp within 1 hour.",
+בשוויט ברו אנחנו מאמינים שאוכל צריך להיות חוויה, לא סתם חטיף. אנחנו לא רק מכינים אוכל; אנחנו מכינים את הדלק להרפתקה הבאה שלכם, לשקיעות של סוף השבוע ולפשיטות הליליות על המטבח. הסיפור שלנו בנוי מאותנטיות, קורט של מרד והמון נשמה.
+
+האומנות שמאחורי הטעם
+
+אנחנו לוקחים את הבשר ברצינות כדי שאתם לא תצטרכו. הבילטונג, הבוארווורס והג'רקי שלנו לא מיוצרים בהמוניהם במפעל חסר שם. הם תוצאה של דיוק, סבלנות וכבוד עמוק למסורת.
+
+• שורשים אותנטיים: אנחנו משתמשים בשיטות עתיקות ובנתחים הטובים ביותר, כדי שבכל ביס של בילטונג תרגישו את הטעם העמוק והעשיר שאתם אוהבים.
+• הרחש על האש: הבוארווורס שלנו מלא בתערובת התבלינים המושלמת, בלי תוספות ובלי שטויות. רק הפצפוץ והעסיסיות של נקניקייה אמיתית ומשובחת.
+• הקצה: בג'רקי וברטבים שלנו אנחנו נותנים ליצירתיות להשתולל, עם איזון בין חריף, מתוק וחמצמץ שפשוט ממכר.
+
+מה יש בשם? (הנקודה השוויטית)
+
+אולי אתם שואלים את עצמכם: מה זה בכלל שוויט ברו? בעולם שלנו, שוויט הוא יותר ממילה, הוא מצב רוח. זאת ההרגשה כשהמוזיקה נכונה, החברה עוד יותר טובה והאוכל מושלם. אלה החיים המתוקים, עם קצה חד.
+
+הברו הוא הקסם שקורה כשמערבבים תשוקה עם תהליך. בין אם זה הייבוש האיטי של הבשר ובין אם זו החליטה הקפדנית של הרטבים, כל מה שאנחנו עושים מבושל לשלמות.
+
+כיפי, פאנקי ונועז בלי להתנצל
+
+משעמם זה לא אצלנו. מהמטבח שלנו ועד לשולחן שלכם, שוויט ברו זה אנרגיה פאנקית עם אווירה. אנחנו חושבים שאוכל טעים יותר כשמכינים אותו אנשים שאוהבים את מה שהם עושים ולא מפחדים למתוח את גבולות הטעם.
+
+כשאתם רואים את התווית של שוויט ברו, אתם יודעים שאתם מקבלים:
+1. איכות בלי פשרות: מרכיבים אותנטיים ושיטות עבודת יד.
+2. חדשנות נועזת: טעמים פאנקיים שלא תמצאו בשום מקום אחר.
+3. רק רגעים טובים: מוצרים שנועדו לחלוק, לחגוג וליהנות מהם.
+
+הכול טוב. הכול שוויט. ברוכים הבאים למשפחה. קחו שקית, הדליקו את הגריל ובואו נתחיל את האווירה.`,
   },
 };
 
@@ -136,6 +91,3 @@ export function getWhatsAppLink(message?: string): string {
   return `https://wa.me/${SITE_CONFIG.contact.whatsapp.replace(/[^\d]/g, "")}${message ? `?text=${encoded}` : ""}`;
 }
 
-export function getDeliveryZoneByName(name: string) {
-  return SITE_CONFIG.deliveryZones.find((z) => z.name === name);
-}

@@ -1,431 +1,338 @@
 /*
- * SHWEETBREW CART PANEL COMPONENT
- * Floating cart drawer with checkout form
+ * SHWEETBREW CART — two-step drawer
+ *
+ * Step 1 "Bag": one block per product. Every pack is its own small row with its
+ * own size, so 1.5kg can be 1kg + 500g instead of 500g x3. The + on a product
+ * adds another row (same size as the last one); each row can change size or be
+ * removed.
+ * Step 2 "Details": the shared checkout form (components/checkout): confirmed
+ * email, delivery area, name, phone, address, note. The Order section on the
+ * page uses the very same form and rules (useCheckout).
+ * Then the "Order placed" screen (shared with the Order section).
+ *
+ * Closes on the X, a click outside, or Escape.
  */
 
-import { useState, useEffect } from "react";
-import { useCart } from "@/contexts/CartContext";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useCart, type CartItem } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ShoppingCart, X, Trash2, Check } from "lucide-react";
-import { getWhatsAppLink } from "@/config/site";
-import { PRODUCTS } from "@/config/products";
-import { translations } from "@/config/languages";
-import { deliveryZones, getNextDeliveryDate, formatDeliveryDate } from "@/config/deliveryZones";
+import { ShoppingBag, X, Plus, Minus, ChevronLeft } from "lucide-react";
+import { getTranslatedProductName, sizeLabel } from "@/config/products";
+import { useCatalog } from "@/contexts/CatalogContext";
+import { findVariant as findCatalogVariant } from "@/lib/catalog";
+import { productThumb } from "@/lib/images";
+import { scrollToTarget, lockPageScroll } from "@/lib/smoothScroll";
+import { OPEN_CART_EVENT } from "@/lib/shopFilter";
+import { useCheckout } from "./checkout/useCheckout";
+import CheckoutFields, { CheckoutProblems } from "./checkout/CheckoutFields";
+import OrderPlaced from "./checkout/OrderPlaced";
+
+type Step = 1 | 2;
 
 export default function CartPanel() {
   const { language } = useLanguage();
-  const { items, removeItem, updateQuantity, updateSize, subtotal, selectedArea, setSelectedArea, clearCart, name, setName, phone, setPhone, notes, setNotes } = useCart();
+  const he = language === "he";
+  const L = (en: string, hebrew: string) => (he ? hebrew : en);
+  const { items, addItem, updateQuantity, subtotal, placed, setPlaced, placedRestored } = useCart();
+
+  const { categories } = useCatalog();
+  const findVariant = (categoryName: string, productName: string) => findCatalogVariant(categories, categoryName, productName);
+
   const [isOpen, setIsOpen] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [city, setCity] = useState("");
-  const [address, setAddress] = useState("");
+  const [step, setStep] = useState<Step>(1);
+  const panelRef = useRef<HTMLElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const checkout = useCheckout(panelRef);
 
-  // Calculate delivery fee from new deliveryZones config
-  const selectedZone = deliveryZones.find((z) => z.id === selectedArea);
-  const deliveryFee = selectedZone?.price || 0;
-  const total = subtotal + deliveryFee;
-  const nextDeliveryDate = selectedZone ? getNextDeliveryDate(selectedZone) : null;
-
-  // Listen for cart added events
+  const count = items.reduce((n, i) => n + i.quantity, 0);
+  // Close on outside click / Escape
   useEffect(() => {
-    const handleCartAdded = (event: any) => {
-      setToastMessage(`✓ Added ${event.detail.product} (${event.detail.size}) to cart`);
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 2000);
+    if (!isOpen) return;
+    // Capture phase + composedPath(): the path is fixed when the press starts, so a button
+    // inside the cart that disappears on click (a removed row, a chosen area) still counts as inside.
+    const onDown = (e: PointerEvent) => {
+      const path = e.composedPath();
+      if ((panelRef.current && path.includes(panelRef.current)) || (toggleRef.current && path.includes(toggleRef.current))) return;
+      setIsOpen(false);
     };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !e.defaultPrevented) setIsOpen(false);
+    };
+    document.addEventListener("pointerdown", onDown, true);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onDown, true);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [isOpen]);
 
-    window.addEventListener("cartAdded", handleCartAdded);
-    return () => window.removeEventListener("cartAdded", handleCartAdded);
+  // "Edit bag" in the Order section opens the drawer on the bag
+  useEffect(() => {
+    const open = () => {
+      setStep(1);
+      setIsOpen(true);
+    };
+    window.addEventListener(OPEN_CART_EVENT, open);
+    return () => window.removeEventListener(OPEN_CART_EVENT, open);
   }, []);
 
-  const handleCheckout = () => {
-    if (items.length === 0) {
-      alert(language === "en" ? "Your cart is empty!" : "העגלה שלך ריקה!");
-      return;
+  // Freeze the page behind the open drawer
+  useEffect(() => {
+    lockPageScroll(isOpen);
+    return () => lockPageScroll(false);
+  }, [isOpen]);
+
+  // Back to the bag when it empties. The "Order placed" screen stays until "Back to the shop"
+  // or a new bag, so closing the drawer by accident doesn't lose the payment details.
+  useEffect(() => {
+    if (!items.length && step === 2) setStep(1);
+  }, [items.length, step]);
+  // The phone dropped the page while the customer was paying in another app: show it again
+  useEffect(() => {
+    if (placedRestored) setIsOpen(true);
+  }, [placedRestored]);
+
+  /* ---------- bag grouping: one block per product, one row per pack ---------- */
+  const groups = useMemo(() => {
+    const map = new Map<string, { key: string; first: CartItem; packs: CartItem[] }>();
+    for (const item of items) {
+      const key = `${item.categoryName}|${item.productName}`;
+      const g = map.get(key) ?? { key, first: item, packs: [] };
+      for (let i = 0; i < item.quantity; i++) g.packs.push(item);
+      map.set(key, g);
     }
+    // keep packs in size order inside each product
+    const list = Array.from(map.values());
+    list.forEach((g) => {
+      const sizes = findVariant(g.first.categoryName, g.first.productName)?.sizes.map((s) => s.size) ?? [];
+      g.packs.sort((a: CartItem, b: CartItem) => sizes.indexOf(a.size) - sizes.indexOf(b.size));
+    });
+    return list;
+  }, [items, categories]);
 
-    if (!name || !phone) {
-      alert(language === "en" ? "Please enter your name and phone number." : "אנא הזן את שמך ומספר הטלפון שלך.");
-      return;
+  const addPack = (base: CartItem, size: string) => {
+    const variant = findVariant(base.categoryName, base.productName);
+    const price = variant?.sizes.find((s) => s.size === size)?.price ?? base.price;
+    addItem({ ...base, id: `${base.categoryName}-${base.productName}-${size}`, size, price, quantity: 1 });
+  };
+  const removePack = (pack: CartItem) => {
+    const current = items.find((i) => i.id === pack.id && i.size === pack.size);
+    if (current) updateQuantity(current.id, current.size, current.quantity - 1);
+  };
+  /** Set how many packs of a product are in the bag: adds rows (same size as the last one) or removes from the end */
+  const setPackCount = (packs: CartItem[], target: number) => {
+    const n = Math.max(0, Math.min(99, Math.round(target)));
+    if (n > packs.length) {
+      const last = packs[packs.length - 1];
+      const variant = findVariant(last.categoryName, last.productName);
+      const price = variant?.sizes.find((s) => s.size === last.size)?.price ?? last.price;
+      addItem({ ...last, id: `${last.categoryName}-${last.productName}-${last.size}`, price, quantity: n - packs.length });
+    } else if (n < packs.length) {
+      const drop = new Map<string, { item: CartItem; k: number }>();
+      packs.slice(n).forEach((p) => {
+        const key = `${p.id}|${p.size}`;
+        const entry = drop.get(key) ?? { item: p, k: 0 };
+        entry.k += 1;
+        drop.set(key, entry);
+      });
+      drop.forEach(({ item, k }) => {
+        const current = items.find((i) => i.id === item.id && i.size === item.size);
+        if (current) updateQuantity(current.id, current.size, current.quantity - k);
+      });
     }
-
-    if (!selectedArea) {
-      alert(language === "en" ? "Please select a delivery area." : "אנא בחר אזור משלוח.");
-      return;
-    }
-
-    const orderSummary = items
-      .map((item) => `${item.categoryName} - ${item.productName} (${item.size}) x${item.quantity} - ₪${item.price * item.quantity}`)
-      .join("\n");
-
-    const fullShippingDetails = [city, address].filter(Boolean).join(", ");
-    const zoneName = typeof selectedZone?.name === "string" ? selectedZone.name : selectedArea;
-    const deliveryDays = selectedZone?.deliveryDays.join(", ") || "";
-
-    const message = [
-      `*Shweet Brew Order*`,
-      ``,
-      `*Customer Details*`,
-      `Name: ${name}`,
-      `Phone: ${phone}`,
-      fullShippingDetails ? `Location: ${fullShippingDetails}` : "",
-      `Delivery Zone: ${zoneName} (${deliveryDays})`,
-      ``,
-      `*Order Items*`,
-      orderSummary,
-      ``,
-      `*Subtotal: ₪${subtotal}*`,
-      deliveryFee > 0 ? `*Delivery Fee: ₪${deliveryFee}*` : "*Pickup - FREE*",
-      `*Total: ₪${total}*`,
-      ``,
-      notes ? `*Special Requests:*\n${notes}` : "",
-      ``,
-      `Please confirm and arrange delivery/pickup.`,
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-    window.open(getWhatsAppLink(message), "_blank");
-    clearCart();
-    setCity("");
-    setAddress("");
-    setIsOpen(false);
   };
 
-  // Get available sizes for a product
-  const getAvailableSizes = (categoryName: string, productName: string) => {
-    const category = PRODUCTS.find((c) => c.name === categoryName);
-    const variant = category?.variants.find((v) => v.name === productName);
-    return variant?.sizes.map((s) => s.size) || [];
+  const changePackSize = (pack: CartItem, newSize: string) => {
+    if (newSize === pack.size) return;
+    removePack(pack);
+    addPack(pack, newSize);
   };
+
+  const goToDetails = () => setStep(2);
+
+  const title = placed ? L("Order placed", "ההזמנה התקבלה") : step === 2 ? L("Your details", "הפרטים שלכם") : L("Your bag", "הסל שלכם");
 
   return (
     <>
-      {/* Toast Notification */}
-      {showToast && (
-        <div
-          className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg flex items-center gap-2 animate-bounce"
-          style={{
-            backgroundColor: "var(--accent)",
-            color: "oklch(0.97 0.005 260)",
-            boxShadow: "0 0 20px oklch(0.62 0.20 42 / 0.6)",
-          }}
-        >
-          <Check className="w-5 h-5" />
-          <span className="font-bold">{toastMessage}</span>
-        </div>
-      )}
-
-      {/* Cart Icon Button */}
+      {/* Floating cart button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-8 right-8 z-40 p-4 rounded-full shadow-lg transition-all hover:scale-110"
-        style={{
-          backgroundColor: "var(--accent)",
-          boxShadow: "0 0 30px oklch(0.62 0.20 42 / 0.5)",
-        }}
+        ref={toggleRef}
+        onClick={() => setIsOpen((o) => !o)}
+        data-cart-target
+        aria-label={L("Open cart", "פתח סל")}
+        aria-expanded={isOpen}
+        className="fixed bottom-8 right-8 z-40 p-4 rounded-full shadow-lg transition-transform hover:scale-110"
+        style={{ backgroundColor: "var(--accent)", boxShadow: "0 0 30px color-mix(in oklab, var(--accent) 45%, transparent)" }}
       >
-        <ShoppingCart className="w-6 h-6" style={{ color: "oklch(0.97 0.005 260)" }} />
-        {items.length > 0 && (
-          <span
-            className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
-            style={{
-              backgroundColor: "oklch(0.80 0.020 75)",
-              color: "oklch(0.13 0.005 60)",
-            }}
-          >
-            {items.length}
-          </span>
-        )}
+        <ShoppingBag className="w-6 h-6" style={{ color: "var(--foreground)" }} />
+        {count > 0 && <span className="cart-count">{count}</span>}
       </button>
 
-      {/* Cart Panel */}
-      {isOpen && (
-        <div
-          className="fixed bottom-0 left-0 right-0 md:bottom-24 md:right-8 md:left-auto z-40 md:w-96 rounded-t-lg md:rounded-lg shadow-2xl overflow-hidden flex flex-col"
-          style={{
-            backgroundColor: "oklch(0.13 0.005 60)",
-            border: "2px solid var(--accent)",
-            boxShadow: "0 0 40px oklch(0 0 0 / 0.6)",
-            maxHeight: "calc(100vh - 100px)",
-          }}
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between p-3 border-b flex-shrink-0" style={{ borderColor: "var(--accent)" }}>
-            <h3
-              className="font-bold text-base"
-              style={{
-                fontFamily: "'Bebas Neue', sans-serif",
-                color: "oklch(0.97 0.005 260)",
-                letterSpacing: "0.05em",
-              }}
-            >
-              {language === "en" ? "YOUR CART" : "העגלה שלך"}
-            </h3>
-            <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-gray-800 rounded">
-              <X className="w-4 h-4" style={{ color: "oklch(0.97 0.005 260)" }} />
+      <div className={`cart-scrim ${isOpen ? "is-on" : ""}`} aria-hidden="true" />
+
+      <aside
+        ref={panelRef}
+        className={`cart-drawer ${isOpen ? "is-open" : ""}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        aria-hidden={!isOpen}
+        inert={!isOpen}
+      >
+        <header className="cart-head">
+          <h2>
+            {title}
+            {!placed && count > 0 && <small>{count} {count === 1 ? L("item", "פריט") : L("items", "פריטים")}</small>}
+          </h2>
+          <button type="button" className="cart-icon-btn" onClick={() => setIsOpen(false)} aria-label={L("Close", "סגור")}>
+            <X className="w-5 h-5" />
+          </button>
+        </header>
+
+        {items.length > 0 && !placed && (
+          <nav className="cart-steps" aria-label={L("Checkout steps", "שלבי הזמנה")}>
+            <button type="button" onClick={() => setStep(1)} aria-current={step === 1 ? "step" : undefined} className={step > 1 ? "is-done" : ""}>
+              1. {L("Bag", "סל")}
             </button>
-          </div>
+            <button type="button" onClick={goToDetails} aria-current={step === 2 ? "step" : undefined}>
+              2. {L("Details", "פרטים")}
+            </button>
+          </nav>
+        )}
 
-          {/* Items (Scrollable) */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-2 min-h-0">
-            {items.length === 0 ? (
-              <p style={{ color: "oklch(0.80 0.020 75)" }} className="text-center py-6 text-sm">
-                {language === "en" ? "Your cart is empty" : "העגלה שלך ריקה"}
-              </p>
-            ) : (
-              items.map((item, idx) => {
-                const availableSizes = getAvailableSizes(item.categoryName, item.productName);
-                return (
-                  <div
-                    key={idx}
-                    className="p-2 rounded border text-sm"
-                    style={{
-                      backgroundColor: "oklch(0.21 0.006 285.885)",
-                      borderColor: "oklch(0.62 0.20 42 / 0.5)",
-                    }}
-                  >
-                    <div className="flex items-start justify-between mb-1">
-                      <div className="flex-1">
-                        <p style={{ color: "var(--accent)" }} className="font-bold text-xs mb-0.5">
-                          {language === "en" ? item.categoryName : (item.categoryName === "Biltong" ? "בילטונג" : item.categoryName === "Boerewors" ? "בוארווורס" : item.categoryName === "Drywors" ? "דרייוורס" : item.categoryName === "Jerky" ? "ג'רקי" : item.categoryName === "Chilli Bites" ? "ביטות צ'ילי" : item.categoryName === "Shots" ? "שוטות" : item.categoryName === "Sauces" ? "רטבים" : item.categoryName)}
-                        </p>
-                        <p style={{ color: "oklch(0.97 0.005 260)" }} className="font-bold text-xs">
-                          {item.productName}
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => removeItem(item.id, item.size)}
-                        className="p-0.5 hover:bg-red-900/20 rounded"
-                      >
-                        <Trash2 className="w-3 h-3" style={{ color: "var(--accent)" }} />
-                      </button>
-                    </div>
+        <div className="cart-body" data-lenis-prevent>
+          {/* ---------- Order placed ---------- */}
+          {placed && <OrderPlaced order={placed} onDone={() => { setPlaced(null); setIsOpen(false); }} />}
 
-                    {/* Size Selector */}
-                    <div className="mb-1">
-                      <select
-                        value={item.size}
-                        onChange={(e) => {
-                          const newSize = e.target.value;
-                          updateSize(item.id, item.size, newSize);
-                        }}
-                        className="w-full px-1.5 py-0.5 rounded text-xs"
-                        style={{
-                          backgroundColor: "oklch(0.13 0.005 60)",
-                          borderColor: "var(--accent)",
-                          color: "oklch(0.97 0.005 260)",
-                          border: "1px solid var(--accent)",
-                        }}
-                      >
-                        {availableSizes.map((size) => (
-                          <option key={size} value={size}>
-                            {size}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Quantity & Price */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
-                          className="px-1.5 py-0.5 rounded text-xs"
-                          style={{ backgroundColor: "oklch(0.13 0.005 60)", color: "oklch(0.97 0.005 260)" }}
-                        >
-                          −
-                        </button>
-                        <span style={{ color: "oklch(0.97 0.005 260)" }} className="w-6 text-center text-xs">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
-                          className="px-1.5 py-0.5 rounded text-xs"
-                          style={{ backgroundColor: "oklch(0.13 0.005 60)", color: "oklch(0.97 0.005 260)" }}
-                        >
-                          +
-                        </button>
-                      </div>
-                      <span style={{ color: "var(--accent)" }} className="font-bold text-xs">
-                        ₪{item.price * item.quantity}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-
-          {/* Checkout Section (Fixed) */}
-          {items.length > 0 && (
-            <div className="border-t p-3 space-y-2 flex-shrink-0" style={{ borderColor: "var(--accent)" }}>
-              {/* Name & Phone Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder={language === "en" ? "Name" : "שם"}
-                  className="px-2 py-1.5 rounded text-xs"
-                  style={{
-                    backgroundColor: "oklch(0.13 0.005 60)",
-                    borderColor: "var(--accent)",
-                    color: "oklch(0.97 0.005 260)",
-                    border: "1px solid var(--accent)",
-                  }}
-                />
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder={language === "en" ? "Phone" : "טלפון"}
-                  className="px-2 py-1.5 rounded text-xs"
-                  style={{
-                    backgroundColor: "oklch(0.13 0.005 60)",
-                    borderColor: "var(--accent)",
-                    color: "oklch(0.97 0.005 260)",
-                    border: "1px solid var(--accent)",
-                  }}
-                />
-              </div>
-
-              {/* Delivery Area Dropdown */}
-              <select
-                value={selectedArea}
-                onChange={(e) => setSelectedArea(e.target.value)}
-                className="w-full px-2 py-1.5 rounded text-xs font-bold"
-                style={{
-                  backgroundColor: "oklch(0.13 0.005 60)",
-                  borderColor: "var(--accent)",
-                  color: "oklch(0.97 0.005 260)",
-                  border: "1px solid var(--accent)",
-                }}
-              >
-                <option value="">{language === "en" ? "Select delivery area..." : "בחר אזור משלוח..."}</option>
-                {deliveryZones.map((zone) => {
-                  const zoneName = typeof zone.name === "string" ? zone.name : zone.name[language === "en" ? "en" : "he"];
-                  const deliveryDays = zone.deliveryDays.length > 0 ? zone.deliveryDays.join(", ") : (language === "en" ? "By arrangement" : "לפי הסכמה");
-                  let priceDisplay: string;
-                  if (zone.price === -1) {
-                    priceDisplay = language === "en" ? "(Please contact us)" : "(אנא צור איתנו קשר)";
-                  } else if (zone.price === 0) {
-                    priceDisplay = "(FREE)";
-                  } else {
-                    priceDisplay = `(₪${zone.price})`;
-                  }
-                  return (
-                    <option key={zone.id} value={zone.id}>
-                      {zoneName} {priceDisplay} - {deliveryDays}
-                    </option>
-                  );
-                })}
-              </select>
-              {selectedZone && nextDeliveryDate && (
-                <p style={{ color: "oklch(0.65 0.15 120)", fontSize: "0.75rem" }} className="mt-1">
-                  {language === "en" ? "Next available delivery: " : "משלוח זמין הבא: "}
-                  <strong>{formatDeliveryDate(nextDeliveryDate)}</strong>
-                </p>
-              )}
-
-              {/* City & Address Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <input
-                  type="text"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  placeholder={language === "en" ? "City" : "עיר"}
-                  className="px-2 py-1.5 rounded text-xs"
-                  style={{
-                    backgroundColor: "oklch(0.13 0.005 60)",
-                    borderColor: "var(--accent)",
-                    color: "oklch(0.97 0.005 260)",
-                    border: "1px solid var(--accent)",
-                  }}
-                />
-                <input
-                  type="text"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  placeholder={language === "en" ? "Address" : "כתובת"}
-                  className="px-2 py-1.5 rounded text-xs"
-                  style={{
-                    backgroundColor: "oklch(0.13 0.005 60)",
-                    borderColor: "var(--accent)",
-                    color: "oklch(0.97 0.005 260)",
-                    border: "1px solid var(--accent)",
-                  }}
-                />
-              </div>
-
-              {/* Notes */}
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder={language === "en" ? "Special requests..." : "בקשות מיוחדות..."}
-                className="w-full px-2 py-1 rounded text-xs resize-none"
-                rows={2}
-                style={{
-                  backgroundColor: "oklch(0.13 0.005 60)",
-                  borderColor: "var(--accent)",
-                  color: "oklch(0.97 0.005 260)",
-                  border: "1px solid var(--accent)",
-                }}
-              />
-
-              {/* Pricing Breakdown */}
-              <div className="text-xs space-y-1 border-t pt-2" style={{ borderColor: "oklch(0.62 0.20 42 / 0.5)" }}>
-                <div className="flex justify-between" style={{ color: "oklch(0.80 0.020 75)" }}>
-                  <span>{language === "en" ? "Subtotal:" : "סה\"כ ביניים:"}</span>
-                  <span>₪{subtotal}</span>
-                </div>
-                {deliveryFee > 0 && (
-                  <div className="flex justify-between" style={{ color: "oklch(0.80 0.020 75)" }}>
-                    <span>{language === "en" ? "Delivery:" : "משלוח:"}</span>
-                    <span>+₪{deliveryFee}</span>
-                  </div>
-                )}
-                {deliveryFee === 0 && selectedArea && (
-                  <div className="flex justify-between" style={{ color: "oklch(0.65 0.15 120)" }}>
-                    <span>{language === "en" ? "Delivery:" : "משלוח:"}</span>
-                    <span>{language === "en" ? "FREE" : "חינם"}</span>
-                  </div>
-                )}
-                <div className="flex justify-between font-bold" style={{ color: "var(--accent)" }}>
-                  <span>{language === "en" ? "Total:" : "סה\"כ:"}</span>
-                  <span className="text-base">₪{total}</span>
-                </div>
-              </div>
-
-              {/* Order Button */}
-              <button
-                onClick={handleCheckout}
-                className="w-full py-2 rounded font-bold text-sm transition-all hover:scale-105"
-                style={{
-                  backgroundColor: "#25D366",
-                  color: "#fff",
-                }}
-              >
-                {language === "en" ? "Order on WhatsApp" : "הזמן ב-WhatsApp"}
-              </button>
-
-              {/* Clear Cart Button */}
-              <button
-                onClick={() => clearCart()}
-                className="w-full py-1.5 rounded font-bold text-xs"
-                style={{
-                  backgroundColor: "oklch(0.21 0.006 285.885)",
-                  color: "oklch(0.80 0.020 75)",
-                  border: "1px solid var(--accent)",
-                }}
-              >
-                {language === "en" ? "Clear Cart" : "נקה עגלה"}
+          {/* ---------- Empty ---------- */}
+          {!placed && items.length === 0 && (
+            <div className="cart-empty">
+              <p className="cart-empty-title">{L("Your bag is empty", "הסל ריק")}</p>
+              <p>{L("Tap the red + on any product to add it.", "לחצו על ה-+ האדום במוצר כדי להוסיף.")}</p>
+              <button type="button" className="cart-secondary" onClick={() => { setIsOpen(false); scrollToTarget("#products"); }}>
+                {L("See the products", "למוצרים")}
               </button>
             </div>
           )}
+
+          {/* ---------- Step 1: bag ---------- */}
+          {step === 1 && items.length > 0 && (
+            <ul className="cart-groups">
+              {groups.map((g) => {
+                const variant = findVariant(g.first.categoryName, g.first.productName);
+                const sizes = variant?.sizes ?? [];
+                const displayName = variant ? getTranslatedProductName(variant.id, language) || g.first.productName : g.first.productName;
+                const groupTotal = g.packs.reduce((n, p) => n + p.price, 0);
+                return (
+                  <li key={g.key} className="cart-group">
+                    <img src={productThumb(g.first.image)} alt="" className="cart-thumb" loading="lazy" decoding="async" />
+                    <div className="min-w-0">
+                      <div className="cart-group-head">
+                        <span className="cart-name">{displayName}</span>
+                        <span className="cart-price">₪{groupTotal}</span>
+                      </div>
+                      <QtyBox
+                        id={`qty-${g.key}`}
+                        value={g.packs.length}
+                        label={L(`How many packs of ${displayName}`, `כמה חבילות ${displayName}`)}
+                        lessLabel={L("One less", "אחד פחות")}
+                        moreLabel={L("One more", "אחד יותר")}
+                        onChange={(n) => setPackCount(g.packs, n)}
+                      />
+                      <ul className="cart-packs">
+                        {g.packs.map((p, i) => (
+                          <li key={`${p.size}-${i}`} className="cart-pack">
+                            <label className="sr-only" htmlFor={`pack-${g.key}-${i}`}>{L("Size", "גודל")}</label>
+                            <select
+                              id={`pack-${g.key}-${i}`}
+                              value={p.size}
+                              onChange={(e) => changePackSize(p, e.target.value)}
+                              className="cart-size"
+                            >
+                              {sizes.map((s) => (
+                                <option key={s.size} value={s.size}>{sizeLabel(s.size, language)} · ₪{s.price}</option>
+                              ))}
+                            </select>
+                            <button type="button" className="cart-pack-remove" onClick={() => removePack(p)} aria-label={L(`Remove ${p.size}`, `הסירו ${sizeLabel(p.size, "he")}`)}>
+                              <X className="w-4 h-4" />
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
+          {/* ---------- Step 2: details ---------- */}
+          {step === 2 && items.length > 0 && <CheckoutFields checkout={checkout} idPrefix="cart" />}
         </div>
-      )}
+
+        {/* ---------- Footer: totals + main action ---------- */}
+        {items.length > 0 && !placed && (
+          <footer className="cart-foot">
+            <dl className="cart-totals">
+              <div><dt>{L("Subtotal", "סכום ביניים")}</dt><dd>₪{subtotal}</dd></div>
+              {step === 2 && (
+                <div>
+                  <dt>{L("Delivery", "משלוח")}</dt>
+                  <dd>{checkout.deliveryText}</dd>
+                </div>
+              )}
+              <div className="cart-grand"><dt>{L("Total", "סה\"כ")}</dt><dd>₪{step === 2 ? checkout.total : subtotal}</dd></div>
+            </dl>
+            {step === 1 ? (
+              <button type="button" className="cart-primary" onClick={goToDetails}>{L("Continue", "המשך")}</button>
+            ) : (
+              <>
+                <CheckoutProblems checkout={checkout} idPrefix="cart" />
+                {checkout.orderError && (
+                  <p className="cart-min cart-order-error" role="alert">
+                    {checkout.orderError}
+                  </p>
+                )}
+                <button type="button" className="cart-primary" onClick={checkout.placeOrder} disabled={checkout.submitting} aria-busy={checkout.submitting}>
+                  {checkout.submitting ? L("Placing your order…", "שולחים את ההזמנה…") : L("Place order", "ביצוע הזמנה")}
+                </button>
+                <button type="button" className="cart-link cart-back" onClick={() => setStep(1)}>
+                  <ChevronLeft className="w-4 h-4 rtl:rotate-180" /> {L("Back to bag", "חזרה לסל")}
+                </button>
+              </>
+            )}
+          </footer>
+        )}
+      </aside>
     </>
+  );
+}
+
+/* ---------- quantity box: − [number] + ---------- */
+function QtyBox({ id, value, label, lessLabel, moreLabel, onChange }: {
+  id: string; value: number; label: string; lessLabel: string; moreLabel: string; onChange: (n: number) => void;
+}) {
+  const [draft, setDraft] = useState(String(value));
+  useEffect(() => setDraft(String(value)), [value]);
+  const commit = () => {
+    const n = parseInt(draft, 10);
+    if (Number.isNaN(n)) setDraft(String(value));
+    else if (n !== value) onChange(n);
+  };
+  return (
+    <div className="cart-qty" role="group" aria-label={label}>
+      <button type="button" onClick={() => onChange(value - 1)} aria-label={lessLabel}><Minus className="w-3.5 h-3.5" strokeWidth={3} /></button>
+      <input
+        id={id}
+        inputMode="numeric"
+        pattern="[0-9]*"
+        aria-label={label}
+        value={draft}
+        onChange={(e) => setDraft(e.target.value.replace(/[^0-9]/g, "").slice(0, 2))}
+        onBlur={commit}
+        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); commit(); } }}
+      />
+      <button type="button" onClick={() => onChange(value + 1)} aria-label={moreLabel}><Plus className="w-3.5 h-3.5" strokeWidth={3} /></button>
+    </div>
   );
 }

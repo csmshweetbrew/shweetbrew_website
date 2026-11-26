@@ -1,185 +1,214 @@
 /*
- * SHWEETBREW PRODUCT CARD COMPONENT
- * Displays individual product variants with size selection and add to cart
- * Info popup for nutrients, ingredients, and full description
+ * SHWEETBREW PRODUCT CARD — "Big Picture"
+ * The photo leads; only name, heat and starting price sit underneath.
+ * The red + on the photo slides up the sizes; one tap adds to the cart.
+ * The round (i) button (top corner) opens the nutrition / ingredients popup.
  */
 
-import { memo, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getSpiceFlames, getTranslatedProductName, getTranslatedProductDescription, getTranslatedProductTagline, type ProductVariant } from "@/config/products";
+import { getTranslatedProductName, getCategoryNameHebrew, type ProductVariant, isAdultProduct, sizeLabel } from "@/config/products";
 import { translations } from "@/config/languages";
 import ProductInfoModal from "./ProductInfoModal";
-import { ShoppingCart, Info } from "lucide-react";
+import { productSrcSet, PRODUCT_CARD_SIZES } from "@/lib/images";
+import { Check, Flame, Info, Plus } from "lucide-react";
 
 interface ProductCardProps {
   variant: ProductVariant;
   categoryName: string;
+  index?: number;
 }
 
-const ProductCardComponent = ({ variant, categoryName }: ProductCardProps) => {
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* A small red dot arcs from the tapped size to the floating cart button, which then bumps. */
+function flyToCart(from: HTMLElement) {
+  const target = document.querySelector<HTMLElement>("[data-cart-target]");
+  if (!target) return;
+  const bump = () => {
+    target.classList.remove("cart-bump");
+    void target.offsetWidth;
+    target.classList.add("cart-bump");
+  };
+  if (prefersReducedMotion()) return bump();
+
+  const a = from.getBoundingClientRect();
+  const b = target.getBoundingClientRect();
+  const dot = document.createElement("div");
+  dot.className = "cart-fly-dot";
+  const x0 = a.left + a.width / 2 - 7, y0 = a.top + a.height / 2 - 7;
+  const x1 = b.left + b.width / 2 - 7, y1 = b.top + b.height / 2 - 7;
+  // A real curve in small steps (one corner in the middle looked like a bounce), eased along the way
+  const cx = (x0 + x1) / 2, cy = Math.max(8, Math.min(y0, y1) - 130);
+  const path: Keyframe[] = [];
+  for (let i = 0; i <= 24; i++) {
+    const f = i / 24, t = f < 0.5 ? 2 * f * f : 1 - 2 * (1 - f) * (1 - f);
+    const x = (1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * cx + t * t * x1;
+    const y = (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * cy + t * t * y1;
+    path.push({ transform: `translate3d(${x}px, ${y}px, 0) scale(${1 + Math.sin(t * Math.PI) * 0.3 - t * 0.5})`, opacity: f > 0.92 ? (1 - f) / 0.08 : 1 });
+  }
+  // It starts where it starts and stays where it ends: Safari shows its resting place for a frame before and after
+  dot.style.transform = path[0].transform as string;
+  document.body.appendChild(dot);
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    dot.remove();
+    bump();
+  };
+  const anim = dot.animate(path, { duration: 700, easing: "linear", fill: "both" });
+  anim.onfinish = finish;
+  window.setTimeout(finish, 900); // a paused tab or a missed event: never leave it on the screen
+}
+
+const ProductCardComponent = ({ variant, categoryName, index = 0 }: ProductCardProps) => {
   const { addItem } = useCart();
   const { language } = useLanguage();
-  const [selectedSize, setSelectedSize] = useState<string>(variant.sizes[0].size);
+  const [isTrayOpen, setIsTrayOpen] = useState(false);
+  const [justAdded, setJustAdded] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const cardRef = useRef<HTMLElement>(null);
+  const t = translations.products;
+  const isRtl = language === "he";
+  const isAvailable = variant.isAvailable !== false;
+  const name = getTranslatedProductName(variant.id, language);
+  const cheapest = variant.sizes[0];
 
-  const selectedSizeData = variant.sizes.find((s) => s.size === selectedSize);
+  // Close the size tray on outside click or Escape
+  useEffect(() => {
+    if (!isTrayOpen) return;
+    const onDown = (e: PointerEvent) => {
+      if (cardRef.current && !cardRef.current.contains(e.target as Node)) setIsTrayOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setIsTrayOpen(false);
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [isTrayOpen]);
 
-  const handleAddToCart = () => {
-    if (variant.isAvailable === false) {
-      alert(`${variant.name} is currently unavailable: ${variant.unavailableReason}`);
-      return;
-    }
-    if (!selectedSize || !selectedSizeData) {
-      alert("Please select a size");
-      return;
-    }
-
+  const handleAdd = (size: string, price: number, el: HTMLElement) => {
     addItem({
-      id: `${categoryName}-${variant.name}-${selectedSize}`,
+      id: `${categoryName}-${variant.name}-${size}`,
       categoryName,
       productName: variant.name,
-      size: selectedSize,
-      price: selectedSizeData.price,
+      size,
+      price,
       quantity: 1,
       image: variant.image,
     });
-
-    // Show feedback
-    const event = new CustomEvent("cartAdded", {
-      detail: { product: variant.name, size: selectedSize, price: selectedSizeData.price },
-    });
-    window.dispatchEvent(event);
+    window.dispatchEvent(new CustomEvent("cartAdded", { detail: { product: variant.name, size, price } }));
+    flyToCart(el);
+    setIsTrayOpen(false);
+    setJustAdded(true);
+    window.setTimeout(() => setJustAdded(false), 1300);
   };
+
+  const heatLevel = variant.spiceLevel <= 1 ? 0 : Math.min(variant.spiceLevel - 1, 3);
 
   return (
     <>
-      <div
-        className="h-full rounded-lg overflow-hidden shadow-lg transition-shadow duration-200 hover:shadow-2xl flex flex-col"
-        style={{
-          backgroundColor: "oklch(0.21 0.006 285.885)",
-          borderLeft: "4px solid var(--accent)",
-        }}
+      <article
+        ref={cardRef}
+        className={`product-card ${isTrayOpen ? "is-open" : ""}`}
+        style={{ ["--i" as string]: index }}
       >
-        {/* Product Image */}
-        <button
-          type="button"
-          aria-label={`View information for ${variant.name}`}
-          className="relative block w-full h-48 overflow-hidden bg-black cursor-pointer hover:opacity-80 transition-opacity text-left"
-          onClick={() => setIsInfoOpen(true)}
-        >
+        <div className="product-shot">
           <img
             src={variant.image}
-            alt={`${categoryName} - ${variant.name}`}
-            className="w-full h-full object-cover"
+            srcSet={productSrcSet(variant.image)}
+            sizes={PRODUCT_CARD_SIZES}
+            width={720}
+            height={900}
+            alt={`${categoryName} – ${name}`}
+            loading="lazy"
+            decoding="async"
+            className={isAvailable ? "" : "is-unavailable"}
           />
-          {/* Badges Container */}
-          <div className={`absolute top-3 flex flex-col gap-1 max-w-[120px] ${language === "he" ? "left-3" : "right-3"}`}>
-            {/* Unavailable Badge */}
-            {variant.isAvailable === false && (
-              <div
-                className="px-2 py-0.5 rounded text-xs font-bold"
-                style={{
-                  backgroundColor: "oklch(0.50 0.05 0)",
-                  color: "oklch(0.70 0.05 0)",
-                }}
-                title={variant.unavailableReason}
-              >
-                {translations.products.notAvailable[language]}
-              </div>
-            )}
 
-          </div>
-          {/* Info Button */}
-          <span
-            className="absolute bottom-3 left-3 p-2 rounded-full transition-all hover:scale-110"
-            style={{
-              backgroundColor: "oklch(0.62 0.20 42 / 0.9)",
-              color: "oklch(0.97 0.005 260)",
-            }}
-            title="View nutrients & ingredients"
+          {/* (i) → nutrition, ingredients, full description */}
+          <button
+            type="button"
+            className={`product-info-btn ${isRtl ? "left-2.5" : "right-2.5"}`}
+            onClick={() => setIsInfoOpen(true)}
+            aria-label={`${t.info[language]}: ${name}`}
           >
-            <Info className="w-4 h-4" />
-          </span>
-        </button>
+            <Info className="w-4 h-4" aria-hidden="true" />
+          </button>
 
-        {/* Product Info */}
-        <div className="p-4 flex-1 flex flex-col">
-          {/* Category & Name */}
-          <p className="text-xs font-bold mb-1" style={{ color: "var(--accent)" }}>
-            {language === "en" ? categoryName : (translations.products as any)[categoryName.toLowerCase()]?.[language] || categoryName}
-          </p>
-          <h3 className="font-display text-lg font-bold mb-1" style={{ color: "oklch(0.97 0.005 260)" }}>
-            {getTranslatedProductName(variant.id, language)}
-          </h3>
+          {isAdultProduct(variant.id) && <span className={`product-adult ${isRtl ? "right-2.5" : "left-2.5"}`}><bdi dir="ltr">18+</bdi></span>}
 
-          {/* Tagline */}
-          <p className="text-xs mb-3" style={{ color: "oklch(0.70 0.015 65)", fontStyle: "italic" }}>
-            {getTranslatedProductTagline(variant.id, language)}
-          </p>
+          {!isAvailable && (
+            <span className="product-unavailable" title={variant.unavailableReason}>
+              {t.notAvailable[language]}
+            </span>
+          )}
 
-          {/* Spice Level with Label */}
-          <div className="mb-3">
-            <div className="flex flex-col items-start">
-              <span className="text-sm font-bold mb-1" style={{ color: "var(--accent)" }}>
-                {translations.products.spiceLevel[language]}
-              </span>
-              <div className="flex gap-1 items-center">
-                <span className="text-lg font-bold" aria-label={variant.spiceLevel <= 1 ? "No Heat" : "Spice level"} style={{ color: variant.spiceLevel <= 1 ? "oklch(0.80 0.020 75)" : undefined }}>
-                  {getSpiceFlames(variant.spiceLevel, language)}
-                </span>
-              </div>
+          {/* Size tray */}
+          <div className="product-tray" aria-hidden={!isTrayOpen} id={`sizes-${variant.id}`}>
+            <span className="product-tray-label">{t.pickSize[language]}</span>
+            <div className="grid grid-cols-2 gap-1.5">
+              {variant.sizes.map((s) => {
+                const soldOut = s.stock === 0;
+                return (
+                  <button
+                    key={s.size}
+                    type="button"
+                    className="size-chip"
+                    tabIndex={isTrayOpen ? 0 : -1}
+                    disabled={soldOut}
+                    onClick={(e) => handleAdd(s.size, s.price, e.currentTarget)}
+                  >
+                    <span>{sizeLabel(s.size, language)}</span>
+                    <span>{soldOut ? (language === "he" ? "אזל" : "Sold out") : `₪${s.price}`}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Description (short) */}
-          <p className="text-sm mb-4 leading-relaxed line-clamp-2 min-h-[3rem]" style={{ color: "oklch(0.80 0.020 75)" }}>
-            {getTranslatedProductDescription(variant.id, language)}
-          </p>
-
-          {/* Size Selection */}
-          <div className="mb-4 pb-4 border-b" style={{ borderColor: "oklch(0.62 0.20 42 / 0.3)" }}>
-            <label
-              className="block text-xs font-bold mb-2"
-              style={{ color: "oklch(0.80 0.020 75)", letterSpacing: "0.05em" }}
+          {isAvailable && (
+            <button
+              type="button"
+              className={`product-plus ${isRtl ? "left-2.5" : "right-2.5"} ${justAdded ? "is-done" : ""}`}
+              onClick={() => setIsTrayOpen((o) => !o)}
+              aria-expanded={isTrayOpen}
+              aria-controls={`sizes-${variant.id}`}
+              aria-label={`${justAdded ? t.added[language] : t.addProduct[language]} ${name}`}
             >
-              {translations.products.selectSize[language]}
-            </label>
-            <select
-              value={selectedSize}
-              onChange={(e) => setSelectedSize(e.target.value)}
-              className="w-full min-w-0 px-2 sm:px-3 py-2 rounded text-xs sm:text-sm font-bold"
-              style={{
-                backgroundColor: "oklch(0.13 0.005 60)",
-                borderColor: "var(--accent)",
-                color: "oklch(0.97 0.005 260)",
-                border: "1px solid var(--accent)",
-              }}
-            >
-              {variant.sizes.map((size) => (
-                <option key={size.size} value={size.size}>
-                  {size.size} · ₪{size.price}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Add to Cart Button */}
-          <button
-            onClick={handleAddToCart}
-            className="w-full py-3 rounded font-bold text-sm flex items-center justify-center gap-2 transition-all hover:scale-105"
-            style={{
-              backgroundColor: "var(--accent)",
-              color: "oklch(0.97 0.005 260)",
-            }}
-          >
-            <ShoppingCart className="w-4 h-4" />
-            {translations.products.addToCart[language]}
-          </button>
+              {justAdded ? <Check className="w-5 h-5" strokeWidth={3} /> : <Plus className="w-5 h-5 product-plus-icon" strokeWidth={3} />}
+            </button>
+          )}
         </div>
-      </div>
 
-      {/* Info Modal (nutrients, ingredients, description) */}
+        <div className="product-text">
+          <h3 className="product-name">{name}</h3>
+          {/* What kind of product this is, so "Traditional" reads as "Traditional · Biltong" */}
+          <p className="product-category">{language === "he" ? getCategoryNameHebrew(categoryName.toUpperCase()) : categoryName}</p>
+          <div className="product-meta">
+            {heatLevel === 0 ? (
+              <span className="product-mild">{t.spiceMild[language]}</span>
+            ) : (
+              <span className="flex" aria-label={`${t.spiceLevel[language]} ${heatLevel}/3`}>
+                {Array.from({ length: heatLevel }).map((_, i) => (
+                  <Flame key={i} className="w-3.5 h-3.5" fill="currentColor" strokeWidth={0} style={{ color: "var(--accent)" }} aria-hidden="true" />
+                ))}
+              </span>
+            )}
+            <span aria-hidden="true">·</span>
+            <span>
+              {t.priceFrom[language]} <span className="product-price">₪{cheapest.price}</span>
+              <span className="product-unit"> / {sizeLabel(cheapest.size, language)}</span>
+            </span>
+          </div>
+        </div>
+      </article>
+
       <ProductInfoModal
         variant={variant}
         categoryName={categoryName}

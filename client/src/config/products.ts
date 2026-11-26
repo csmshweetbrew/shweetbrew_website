@@ -17,6 +17,10 @@ export type SizeOption = {
   size: string;
   weight: string;
   price: number; // in NIS
+  /** Live catalogue only: the product_sizes row id in Supabase */
+  sizeId?: string;
+  /** Live catalogue only: packs left. null / undefined = not tracked (always orderable) */
+  stock?: number | null;
 };
 
 export type Nutrition = {
@@ -51,15 +55,14 @@ export type ProductCategory = {
 };
 
 // ============================================================================
-// PRODUCT IMAGES - Define all product images here
+// PRODUCT IMAGES - self-hosted WebP in client/public/images (360 + 720 wide; see lib/images.ts)
 // ============================================================================
-const BILTONG_IMG = "https://i.postimg.cc/DZTwQbD4/Gemini-Generated-Image-gchvregchvregchv.png";
-const BOEREWORS_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663491314336/GHvX6FS9zEwj9cBKkXQgeg/shweetbrew-boerewors-HH3YRHnsYSGBPy5kcrdoBT.webp";
-const SHOTS_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663491314336/GHvX6FS9zEwj9cBKkXQgeg/shweetbrew-shots-Hb6gfTMf6mhbGddvFT325c.webp";
-const DRYWORS_IMG = "https://i.postimg.cc/B6Vw9x0B/shweetbrew-drywors.png";
-const CHILLI_BITES_IMG = "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=600&q=80";
-const CHILLI_SAUCE_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663491314336/GHvX6FS9zEwj9cBKkXQgeg/shweetbrew_sweet_chili_sauce_1_fec07e64.jpeg";
-const HOLY_LAND_JERKY_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663491314336/GHvX6FS9zEwj9cBKkXQgeg/shweetbrew_jerky_8e61172e.jpeg";
+const BILTONG_IMG = "/images/biltong-720.webp";
+const BOEREWORS_IMG = "/images/boerewors-720.webp";
+const SHOTS_IMG = "/images/shots-720.webp";
+const DRYWORS_IMG = "/images/drywors-720.webp";
+const CHILLI_SAUCE_IMG = "/images/sauce-720.webp";
+const HOLY_LAND_JERKY_IMG = "/images/jerky-720.webp";
 
 // ============================================================================
 // PRODUCT REGISTRY - Add/remove products here
@@ -229,7 +232,7 @@ const PRODUCT_REGISTRY = [
         tagline: "The classic that started it all.",
         image: HOLY_LAND_JERKY_IMG,
         spiceLevel: 0,
-        isKosher: false,
+        isKosher: true,
         sizes: [
           { size: "100g", weight: "100g", price: 50 },
           { size: "250g", weight: "250g", price: 100 },
@@ -250,7 +253,7 @@ const PRODUCT_REGISTRY = [
         tagline: "Sweet meets savory.",
         image: HOLY_LAND_JERKY_IMG,
         spiceLevel: 1,
-        isKosher: false,
+        isKosher: true,
         sizes: [
           { size: "100g", weight: "100g", price: 50 },
           { size: "250g", weight: "250g", price: 100 },
@@ -271,7 +274,7 @@ const PRODUCT_REGISTRY = [
         tagline: "Sweet Heat. Bold Bite",
         image: HOLY_LAND_JERKY_IMG,
         spiceLevel: 2,
-        isKosher: false,
+        isKosher: true,
         sizes: [
           { size: "100g", weight: "100g", price: 50 },
           { size: "250g", weight: "250g", price: 100 },
@@ -292,7 +295,7 @@ const PRODUCT_REGISTRY = [
         tagline: "Serious heat. Serious flavor.",
         image: HOLY_LAND_JERKY_IMG,
         spiceLevel: 4,
-        isKosher: false,
+        isKosher: true,
         sizes: [
           { size: "100g", weight: "100g", price: 50 },
           { size: "250g", weight: "250g", price: 100 },
@@ -366,11 +369,13 @@ const PRODUCT_REGISTRY = [
         sizes: [
           { size: "550ml", weight: "550ml", price: 60 },
         ],
+        // per 100 ml, like a sweet vodka liqueur of the same strength (Sourz, 15%: 175–190 kcal, 24 g sugar).
+        // Confirmed by the business owner (2026-11-26).
         nutrition: {
           protein: "0g",
           fat: "0g",
-          carbs: "2g",
-          calories: "110",
+          carbs: "24g",
+          calories: "180",
         },
       },
     ],
@@ -406,6 +411,29 @@ const PRODUCT_REGISTRY = [
 ];
 
 // ============================================================================
+// LIVE TEXT FROM THE DATABASE (lib/catalog.ts fills these when Supabase is on).
+// The helpers below check them first, so names and text edited in the admin
+// app show up on the site in both languages.
+// ============================================================================
+type Bilingual = { en?: string; he?: string };
+type LiveProductText = { name?: Bilingual; description?: Bilingual; tagline?: Bilingual; ingredients?: Bilingual; allergens?: Bilingual };
+const LIVE_TEXT = new Map<string, LiveProductText>();
+const LIVE_CATEGORY_HE = new Map<string, string>();
+
+export function setLiveProductText(variantId: string, text: LiveProductText) {
+  LIVE_TEXT.set(variantId, text);
+}
+export function setLiveCategoryHebrew(categoryName: string, hebrew: string) {
+  LIVE_CATEGORY_HE.set(categoryName.toUpperCase(), hebrew);
+}
+/** Database text for this language; Hebrew falls back to built-in Hebrew, then database English. */
+function liveText(variantId: string, field: keyof LiveProductText, language: Language, builtIn: string): string {
+  const t = LIVE_TEXT.get(variantId)?.[field];
+  if (!t) return builtIn;
+  return t[language] || builtIn || t.en || "";
+}
+
+// ============================================================================
 // AUTO-GENERATED PRODUCTS ARRAY - Do not edit manually
 // This is automatically generated from PRODUCT_REGISTRY
 // ============================================================================
@@ -416,6 +444,28 @@ export const PRODUCTS: ProductCategory[] = PRODUCT_REGISTRY.map((product) => ({
   image: product.image,
   variants: product.variants,
 }));
+
+/** Products with alcohol: an 18+ mark on the product, and an age tick before ordering. */
+const ADULT_PRODUCTS: Record<string, { alcohol: string }> = {
+  "shweetbrew-shots": { alcohol: "14%" }, // "+/- 14 percent" (business owner, 2026-11-25)
+};
+export function isAdultProduct(variantId: string | undefined): boolean {
+  return !!variantId && variantId in ADULT_PRODUCTS;
+}
+export function adultText(variantId: string, language: Language): string {
+  const a = ADULT_PRODUCTS[variantId];
+  if (!a) return "";
+  return language === "he" ? `מגיל 18 ומעלה בלבד. כ-${a.alcohol} אלכוהול.` : `18+ only. About ${a.alcohol} alcohol.`;
+}
+
+/** "250g" → "250 גרם" in Hebrew. Only for showing: orders and prices always use the size as it is. */
+export function sizeLabel(size: string, language: Language): string {
+  if (language !== "he") return size;
+  const m = /^([\d.]+)\s*(kg|g|ml|l)$/i.exec(size.trim());
+  if (!m) return size;
+  const units: Record<string, string> = { kg: "ק״ג", g: "גרם", ml: "מ״ל", l: "ליטר" };
+  return `${m[1]} ${units[m[2].toLowerCase()]}`;
+}
 
 // ============================================================================
 // HELPER FUNCTIONS - Automatically work with all products in PRODUCT_REGISTRY
@@ -441,6 +491,24 @@ export function getSpiceFlames(spiceLevel: number, language: Language = "en"): s
   }
 }
 
+/** Hebrew names approved by the business owner (2026-11-25). Products without one show in English. */
+const NAMES_HE: Record<string, string> = {
+  "biltong-traditional": "קלאסי",
+  "biltong-teriyaki": "טריאקי",
+  "biltong-sweet-chilli": "צ'ילי מתוק",
+  "biltong-chilli": "צ'ילי",
+  "boerewors-classic": "קלאסי",
+  "drywors-classic": "קלאסי",
+  "holy-land-jerky-cowboy": "קאובוי קלאסי",
+  "holy-land-jerky-teriyaki": "טריאקי",
+  "holy-land-jerky-sweet-chilli": "צ'ילי מתוק",
+  "holy-land-jerky-chilli": "צ'ילי",
+  "holy-land-jerky-chicken-sweet-chilli": "ג'רקי עוף צ'ילי מתוק",
+  "holy-land-jerky-chicken-teriyaki": "ג'רקי עוף טריאקי",
+  "shweetbrew-shots": "שוטס של שוויט ברו",
+  "chilli-sauce": "רוטב צ'ילי מתוק",
+};
+
 export function getTranslatedProductName(variantId: string, language: Language): string {
   const translationMap: Record<string, Record<Language, string>> = {};
 
@@ -449,12 +517,12 @@ export function getTranslatedProductName(variantId: string, language: Language):
     product.variants.forEach((variant) => {
       translationMap[variant.id] = {
         en: variant.name,
-        he: (translations.products as any)[variant.id]?.he || variant.name,
+        he: NAMES_HE[variant.id] || variant.name,
       };
     });
   });
 
-  return translationMap[variantId]?.[language] || "";
+  return liveText(variantId, "name", language, translationMap[variantId]?.[language] || "");
 }
 
 export function getTranslatedProductDescription(variantId: string, language: Language): string {
@@ -470,12 +538,14 @@ export function getTranslatedProductDescription(variantId: string, language: Lan
     "holy-land-jerky-teriyaki": translations.products.holyLandJerkyTeriyakiDesc,
     "holy-land-jerky-sweet-chilli": translations.products.holyLandJerkySweetChilliDesc,
     "holy-land-jerky-chilli": translations.products.holyLandJerkyChilliDesc,
+    "holy-land-jerky-chicken-sweet-chilli": translations.products.chickenSweetChilliDesc,
+    "holy-land-jerky-chicken-teriyaki": translations.products.chickenTeriyakiDesc,
     "chilli-bites": translations.products.chilliBitesDesc,
     "shweetbrew-shots": translations.products.shotsDesc,
     "chilli-sauce": translations.products.chilliSauceDesc,
   };
   const fallback = PRODUCT_REGISTRY.flatMap((product) => product.variants).find((variant) => variant.id === variantId)?.description || "";
-  return translationMap[variantId]?.[language] || fallback;
+  return liveText(variantId, "description", language, translationMap[variantId]?.[language] || fallback);
 }
 
 export function getTranslatedProductTagline(variantId: string, language: Language): string {
@@ -491,12 +561,14 @@ export function getTranslatedProductTagline(variantId: string, language: Languag
     "holy-land-jerky-teriyaki": translations.products.holyLandJerkyTeriyakiTagline,
     "holy-land-jerky-sweet-chilli": translations.products.holyLandJerkySweetChilliTagline,
     "holy-land-jerky-chilli": translations.products.holyLandJerkyChilliTagline,
+    "holy-land-jerky-chicken-sweet-chilli": translations.products.chickenSweetChilliTagline,
+    "holy-land-jerky-chicken-teriyaki": translations.products.chickenTeriyakiTagline,
     "chilli-bites": translations.products.chilliBitesTagline,
     "shweetbrew-shots": translations.products.shotsTagline,
     "chilli-sauce": translations.products.chilliSauceTagline,
   };
   const fallback = PRODUCT_REGISTRY.flatMap((product) => product.variants).find((variant) => variant.id === variantId)?.tagline || "";
-  return translationMap[variantId]?.[language] || fallback;
+  return liveText(variantId, "tagline", language, translationMap[variantId]?.[language] || fallback);
 }
 
 export function getCategoryNameHebrew(categoryName: string): string {
@@ -504,12 +576,13 @@ export function getCategoryNameHebrew(categoryName: string): string {
     "BILTONG": "בילטונג",
     "BOEREWORS": "בוארווורס",
     "DRYWORS": "דרייוורס",
-    "HOLY LAND JERKY": "ג'רקי הארץ הקדושה",
+    "HOLY LAND JERKY": "ג'רקי ארץ הקודש",
     "CHILLI BITES": "ביטות צ'ילי",
     "DOPPE": "שטיות",
     "SAUCES": "רטבים",
+    "SHOTS": "שוטס",
   };
-  return categoryMap[categoryName] || categoryName;
+  return LIVE_CATEGORY_HE.get(categoryName.toUpperCase()) || categoryMap[categoryName] || categoryName;
 }
 
 export function getTranslatedIngredients(variantId: string, language: Language): string {
@@ -520,36 +593,40 @@ export function getTranslatedIngredients(variantId: string, language: Language):
     "biltong-chilli": { en: "Premium beef, chilli powder, black pepper, garlic, and spices.", he: "בשר בקר פרימיום, אבקת צ'ילי, פלפל שחור, שום ותבלינים." },
     "biltong-wasabi": { en: "Premium beef, wasabi powder, ginger, garlic, and spices.", he: "בשר בקר פרימיום, אבקת וואסבי, ג'ינג'ר, שום ותבלינים." },
     "boerewors-classic": { en: "Premium beef, coriander, cloves, nutmeg, garlic, and spices.", he: "בשר בקר פרימיום, כוסברה, ציפורנים, אגוז מוסקט, שום ותבלינים." },
-    "drywors-classic": { en: "Premium beef, coriander, black pepper, garlic, and spices.", he: "בשר בקר פרימיום, כוסברה, פלפל שחור, שום ותבלינים." },
-    "holy-land-jerky-cowboy": { en: "Premium beef, salt, black pepper, onion powder, garlic powder, and spices.", he: "בשר בקר פרימיום, מלח, פלפל שחור, אבקת בצל, אבקת שום ותבלינים." },
+    "drywors-classic": { en: "Premium beef, coriander, black pepper, vinegar, soya sauce, salt, and spices.", he: "בשר בקר פרימיום, כוסברה, פלפל שחור, חומץ, רוטב סויה, מלח ותבלינים." },
+    "holy-land-jerky-cowboy": { en: "Premium beef, soya sauce, salt, black pepper, onion powder, garlic powder, and spices.", he: "בשר בקר פרימיום, רוטב סויה, מלח, פלפל שחור, אבקת בצל, אבקת שום ותבלינים." },
     "holy-land-jerky-teriyaki": { en: "Premium beef, teriyaki sauce, soy sauce, ginger, garlic, and spices.", he: "בשר בקר פרימיום, רטב טריאקי, רטב סויה, ג'ינג'ר, שום ותבלינים." },
     "holy-land-jerky-sweet-chilli": { en: "Premium beef, sweet chilli seasoning, honey, garlic, and spices.", he: "בשר בקר פרימיום, תיבול צ'ילי מתוק, דבש, שום ותבלינים." },
-    "holy-land-jerky-chilli": { en: "Premium beef, chilli powder, cayenne pepper, black pepper, garlic, and spices.", he: "בשר בקר פרימיום, אבקט צ'ילי, פלפל קיינה, פלפל שחור, שום ותבלינים." },
+    "holy-land-jerky-chilli": { en: "Premium beef, dried chilli spice, soya sauce, salt, and vinegar.", he: "בשר בקר פרימיום, תבלין צ'ילי מיובש, רוטב סויה, מלח וחומץ." },
+    "holy-land-jerky-chicken-sweet-chilli": { en: "Chicken, sugar, dried chilli spice, vinegar, and salt.", he: "עוף, סוכר, תבלין צ'ילי מיובש, חומץ ומלח." },
+    "holy-land-jerky-chicken-teriyaki": { en: "Chicken, teriyaki sauce, soy sauce, ginger, garlic powder, salt, and vinegar.", he: "עוף, רוטב טריאקי, רוטב סויה, ג'ינג'ר, אבקת שום, מלח וחומץ." },
     "chilli-bites": { en: "Premium beef, chilli powder, black pepper, garlic, and spices.", he: "בשר בקר פרימיום, אבקת צ'ילי, פלפל שחור, שום ותבלינים." },
     "shweetbrew-shots": { en: "Vodka, chilli, cinnamon, vanilla, and natural flavors.", he: "וודקה, צ'ילי, קינמון, וניל וטעמים טבעיים." },
-    "chilli-sauce": { en: "Red chillies, garlic, vinegar, salt, and spices.", he: "צ'ילי אדום, שום, חומץ, מלח ותבלינים." },
+    "chilli-sauce": { en: "Red chillies, sugar, garlic, vinegar, salt, and spices.", he: "צ'ילי אדום, סוכר, שום, חומץ, מלח ותבלינים." },
   };
-  return ingredientsMap[variantId]?.[language] || "";
+  return liveText(variantId, "ingredients", language, ingredientsMap[variantId]?.[language] || "");
 }
 
 export function getTranslatedAllergens(variantId: string, language: Language): string {
   const allergensMap: Record<string, Record<Language, string>> = {
     "biltong-traditional": { en: "May contain traces of nuts and soy.", he: "עלול להכיל עקבות של אגוזים וסויה." },
-    "biltong-teriyaki": { en: "Contains soy. May contain traces of nuts.", he: "מכיל סויה. עלול להכיל עקבות של אגוזים." },
+    "biltong-teriyaki": { en: "Contains soy and wheat. May contain traces of nuts.", he: "מכיל סויה וחיטה. עלול להכיל עקבות של אגוזים." },
     "biltong-sweet-chilli": { en: "May contain traces of nuts and soy.", he: "עלול להכיל עקבות של אגוזים וסויה." },
     "biltong-chilli": { en: "May contain traces of nuts and soy.", he: "עלול להכיל עקבות של אגוזים וסויה." },
     "biltong-wasabi": { en: "May contain traces of nuts, soy, and sesame.", he: "עלול להכיל עקבות של אגוזים, סויה וסומסום." },
     "boerewors-classic": { en: "May contain traces of nuts and soy.", he: "עלול להכיל עקבות של אגוזים וסויה." },
-    "drywors-classic": { en: "May contain traces of nuts and soy.", he: "עלול להכיל עקבות של אגוזים וסויה." },
-    "holy-land-jerky-cowboy": { en: "May contain traces of nuts and soy.", he: "עלול להכיל עקבות של אגוזים וסויה." },
-    "holy-land-jerky-teriyaki": { en: "Contains soy. May contain traces of nuts and sesame.", he: "מכיל סויה. עלול להכיל עקבות של אגוזים וסומסום." },
+    "drywors-classic": { en: "Contains soy and wheat. May contain traces of nuts.", he: "מכיל סויה וחיטה. עלול להכיל עקבות של אגוזים." },
+    "holy-land-jerky-cowboy": { en: "Contains soy and wheat. May contain traces of nuts.", he: "מכיל סויה וחיטה. עלול להכיל עקבות של אגוזים." },
+    "holy-land-jerky-teriyaki": { en: "Contains soy and wheat. May contain traces of nuts and sesame.", he: "מכיל סויה וחיטה. עלול להכיל עקבות של אגוזים וסומסום." },
     "holy-land-jerky-sweet-chilli": { en: "May contain traces of nuts and soy.", he: "עלול להכיל עקבות של אגוזים וסויה." },
-    "holy-land-jerky-chilli": { en: "May contain traces of nuts and soy.", he: "עלול להכיל עקבות של אגוזים וסויה." },
+    "holy-land-jerky-chilli": { en: "Contains soy and wheat. May contain traces of nuts.", he: "מכיל סויה וחיטה. עלול להכיל עקבות של אגוזים." },
     "chilli-bites": { en: "May contain traces of nuts and soy.", he: "עלול להכיל עקבות של אגוזים וסויה." },
-    "shweetbrew-shots": { en: "Contains alcohol. May contain traces of nuts.", he: "מכיל אלכוהול. עלול להכיל עקבות של אגוזים." },
+    "holy-land-jerky-chicken-sweet-chilli": { en: "May contain traces of nuts and soy.", he: "עלול להכיל עקבות של אגוזים וסויה." },
+    "holy-land-jerky-chicken-teriyaki": { en: "Contains soy and wheat. May contain traces of nuts.", he: "מכיל סויה וחיטה. עלול להכיל עקבות של אגוזים." },
+    "shweetbrew-shots": { en: "Contains alcohol. May contain traces of nuts and soy.", he: "מכיל אלכוהול. עלול להכיל עקבות של אגוזים וסויה." },
     "chilli-sauce": { en: "May contain traces of nuts and soy.", he: "עלול להכיל עקבות של אגוזים וסויה." },
   };
-  return allergensMap[variantId]?.[language] || "";
+  return liveText(variantId, "allergens", language, allergensMap[variantId]?.[language] || "");
 }
 
 export function getAvailableSizes(categoryName: string, productName: string): string[] {

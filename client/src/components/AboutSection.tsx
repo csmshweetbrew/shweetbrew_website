@@ -5,11 +5,215 @@
  * Warm, personal storytelling tone with Zionistic pride
  */
 
-import { SITE_CONFIG, getWhatsAppLink } from "@/config/site";
+import { SITE_CONFIG } from "@/config/site";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/config/languages";
+import { useEffect, useRef, useState } from "react";
+import { ArrowUpRight, X } from "lucide-react";
+import { createPortal } from "react-dom";
+import { lockPageScroll } from "@/lib/smoothScroll";
+import { FlagIsrael, FlagSouthAfrica } from "./Flags";
 
-const ABOUT_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663491314336/GHvX6FS9zEwj9cBKkXQgeg/shweetbrew-about-U8jtzjtUTgvoZwGw9kPPbK.webp";
+const ABOUT_IMG = "/images/about-1100.webp";
+
+const PULL_LINE = /^(Everything is good\. Everything is Shweet\.|הכול טוב\. הכול שוויט\.)\s*([\s\S]*)$/;
+
+/*
+ * The story is plain text with blank lines between paragraphs.
+ * Short lines without a full stop become Bebas sub-heads, lines starting
+ * with "•" or "1." become list items, and the closing
+ * "Everything is good. Everything is Shweet." becomes a big red line.
+ */
+function StoryText({ text }: { text: string }) {
+  const blocks = text.split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean);
+  const bodyStyle = { color: "oklch(0.80 0.020 75)", lineHeight: 1.8 };
+
+  return (
+    <div className="mb-10 max-w-[65ch]">
+      {blocks.map((block, i) => {
+        const lines = block.split("\n").map((l) => l.trim()).filter(Boolean);
+        const isItem = (l: string) => /^(•|\d+\.)\s*/.test(l);
+        const pull = block.match(PULL_LINE);
+
+        if (pull) {
+          return (
+            <div key={i} className="mt-12">
+              <p
+                className="font-display mb-4"
+                style={{
+                  fontFamily: "'Bebas Neue', sans-serif",
+                  fontSize: "clamp(2.5rem, 5vw, 4rem)",
+                  lineHeight: 0.95,
+                  letterSpacing: "0.03em",
+                  color: "var(--accent)",
+                  textWrap: "balance",
+                }}
+              >
+                {pull[1]}
+              </p>
+              {pull[2] && <p className="text-lg" style={bodyStyle}>{pull[2]}</p>}
+            </div>
+          );
+        }
+
+        if (lines.length === 1 && lines[0].length < 60 && !/[.!:]$/.test(lines[0])) {
+          return (
+            <h4
+              key={i}
+              className="font-display mt-12 mb-4"
+              style={{
+                fontFamily: "'Bebas Neue', sans-serif",
+                fontSize: "clamp(1.75rem, 3vw, 2.25rem)",
+                lineHeight: 1,
+                letterSpacing: "0.04em",
+                color: "var(--foreground)",
+              }}
+            >
+              {lines[0]}
+            </h4>
+          );
+        }
+
+        const lead = lines.filter((l) => !isItem(l));
+        const items = lines.filter(isItem);
+        return (
+          <div key={i} className="mb-6">
+            {lead.length > 0 && (
+              <p className="text-lg" style={bodyStyle}>{lead.join(" ")}</p>
+            )}
+            {items.length > 0 && (
+              <ul className="mt-3 space-y-3">
+                {items.map((item, j) => {
+                  const clean = item.replace(/^(•|\d+\.)\s*/, "");
+                  const [title, ...rest] = clean.split(":");
+                  return (
+                    <li key={j} className="flex gap-3 text-lg" style={bodyStyle}>
+                      <span
+                        aria-hidden="true"
+                        className="mt-[0.7em] inline-block w-2 h-2 shrink-0 rotate-45"
+                        style={{ backgroundColor: "var(--accent)" }}
+                      />
+                      <span>
+                        {rest.length > 0 ? (
+                          <>
+                            <strong style={{ color: "var(--foreground)" }}>{title}:</strong>
+                            {rest.join(":")}
+                          </>
+                        ) : (
+                          clean
+                        )}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/*
+ * Shows the first ~5 lines of the story with a soft fade. "Read the full story" opens
+ * the whole story in a popup, styled like the product info popup (portal over the page,
+ * close on X / backdrop / Escape, page frozen behind it). If the story is short
+ * it's shown in full with no button.
+ */
+const COLLAPSED_REM = 10; // about 5 lines of 1.125rem text at 1.8 line-height
+
+function CollapsibleStory({ language, title, children }: { language: string; title: string; children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  const [needed, setNeeded] = useState(true);
+  const he = language === "he";
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => {
+      const collapsedPx = COLLAPSED_REM * parseFloat(getComputedStyle(document.documentElement).fontSize);
+      setNeeded(el.scrollHeight > collapsedPx + 24);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el.firstElementChild ?? el);
+    return () => ro.disconnect();
+  }, [language]);
+
+  // Popup: freeze the page and close on Escape
+  useEffect(() => {
+    lockPageScroll(open);
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      lockPageScroll(false);
+    };
+  }, [open]);
+
+  return (
+    <div className="mb-10">
+      <div
+        ref={ref}
+        className={`about-story ${needed ? "is-collapsed" : ""}`}
+        style={{ maxHeight: needed ? `${COLLAPSED_REM}rem` : "none" }}
+      >
+        {children}
+      </div>
+      {needed && (
+        <button type="button" className="about-story-toggle" aria-haspopup="dialog" onClick={() => setOpen(true)}>
+          {he ? "לסיפור המלא" : "Read the full story"}
+          <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
+        </button>
+      )}
+
+      {open &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 info-modal-backdrop"
+            style={{ backgroundColor: "oklch(0 0 0 / 0.7)" }}
+            onClick={() => setOpen(false)}
+          >
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label={title}
+              data-lenis-prevent
+              className="info-modal about-story-modal relative w-full max-w-[42rem] max-h-[88vh] overflow-y-auto rounded-lg p-5 sm:p-8"
+              style={{
+                backgroundColor: "var(--background)",
+                border: "1px solid color-mix(in oklab, var(--accent) 60%, transparent)",
+                boxShadow: "0 30px 80px oklch(0 0 0 / 0.6)",
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label={he ? "סגור" : "Close"}
+                autoFocus
+                className="absolute top-4 end-4 w-10 h-10 grid place-items-center rounded-full transition-colors hover:bg-white/10"
+                style={{ color: "var(--foreground)" }}
+              >
+                <X className="w-6 h-6" />
+              </button>
+              <h2
+                className="pe-12 mb-6"
+                style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.9rem, 4vw, 2.6rem)", lineHeight: 1, letterSpacing: "0.03em", color: "var(--foreground)" }}
+              >
+                {title}
+              </h2>
+              {children}
+            </div>
+          </div>,
+          document.body
+        )}
+    </div>
+  );
+}
 
 export default function AboutSection() {
   const { language } = useLanguage();
@@ -17,19 +221,11 @@ export default function AboutSection() {
     <section
       id="about"
       className="py-24 md:py-40 relative"
-      style={{ backgroundColor: "oklch(0.13 0.005 60)" }}
     >
       <div className="container">
         {/* Section Header */}
         <div className="text-center mb-20">
-          <h2
-            className="font-display text-5xl md:text-7xl font-bold mb-6"
-            style={{
-              fontFamily: "'Bebas Neue', sans-serif",
-              color: "oklch(0.97 0.005 260)",
-              letterSpacing: "0.05em",
-            }}
-          >
+          <h2 className="section-title mb-6">
             {translations.about.sectionTitle[language]}
           </h2>
           <p
@@ -50,6 +246,10 @@ export default function AboutSection() {
             >
               <img
                 src={ABOUT_IMG}
+                srcSet="/images/about-640.webp 640w, /images/about-1100.webp 1100w"
+                sizes="(min-width: 1024px) 600px, 92vw"
+                loading="lazy"
+                decoding="async"
                 alt="Shweet Brew founders at a braai with Israeli and South African flags"
                 className="w-full h-full object-cover"
                 style={{ aspectRatio: "4/3" }}
@@ -58,29 +258,33 @@ export default function AboutSection() {
 
             {/* Floating badge */}
             <div
-              className="absolute -bottom-6 -right-6 md:bottom-8 md:right-8 p-6 rounded-xl border text-center shadow-2xl"
+              className="absolute -bottom-6 right-2 md:bottom-8 md:right-8 p-6 rounded-xl border text-center shadow-2xl"
               style={{
-                backgroundColor: "oklch(0.18 0.006 60)",
+                backgroundColor: "var(--card)",
                 borderColor: "var(--accent)",
                 borderWidth: "2px",
-                boxShadow: "0 0 40px oklch(0.62 0.20 42 / 0.3)",
+                boxShadow: "0 0 40px color-mix(in oklab, var(--accent) 30%, transparent)",
               }}
             >
               <div
                 className="font-display text-5xl mb-2"
                 style={{ fontFamily: "'Bebas Neue', sans-serif" }}
               >
-                🇿🇦 + 🇮🇱
+                <span className="inline-flex items-center gap-2 align-middle" aria-label="South Africa and Israel">
+                  <FlagSouthAfrica className="w-12 h-9 rounded-sm" />
+                  <span aria-hidden="true">+</span>
+                  <FlagIsrael className="w-12 h-9 rounded-sm" />
+                </span>
               </div>
               <div
                 className="font-body text-sm tracking-widest font-bold"
-                style={{ color: "var(--accent)", letterSpacing: "0.15em" }}
+                style={{ color: "var(--brand-fire-bright)", letterSpacing: "0.15em" }}
               >
                 {translations.about.twoNations[language]}
               </div>
               <div
                 className="font-body text-sm tracking-widest font-bold"
-                style={{ color: "var(--accent)", letterSpacing: "0.15em" }}
+                style={{ color: "var(--brand-fire-bright)", letterSpacing: "0.15em" }}
               >
                 {translations.about.oneBraai[language]}
               </div>
@@ -89,136 +293,61 @@ export default function AboutSection() {
 
           {/* Right - Story Text */}
           <div>
-            <div
-              className="font-body text-xs tracking-widest uppercase mb-6"
-              style={{ color: "var(--accent)", letterSpacing: "0.25em" }}
-            >
-              {language === "en" ? "WHO WE ARE" : "מי אנחנו"}
-            </div>
 
             <h3
               className="font-display text-4xl md:text-5xl font-bold mb-8 leading-tight"
               style={{
                 fontFamily: "'Bebas Neue', sans-serif",
-                color: "oklch(0.97 0.005 260)",
+                color: "oklch(0.94 0.025 75)",
                 letterSpacing: "0.02em",
               }}
             >
               {language === "en" ? SITE_CONFIG.about.headline : translations.about.headlineHe.he}
             </h3>
 
-            <p
-              className="text-lg leading-relaxed mb-8"
-              style={{ color: "oklch(0.80 0.020 75)", lineHeight: "1.8" }}
-            >
-              {language === "en" ? SITE_CONFIG.about.story : translations.about.storyHe.he}
-            </p>
+            <CollapsibleStory language={language} title={language === "en" ? SITE_CONFIG.about.headline : translations.about.headlineHe.he}>
+              <StoryText text={language === "en" ? SITE_CONFIG.about.story : SITE_CONFIG.about.storyHe} />
+            </CollapsibleStory>
 
-            <a
-              href={getWhatsAppLink("Hi Shweet Brew! I'd love to learn more about your story!")}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-8 py-4 rounded font-body font-bold text-lg tracking-wide transition-all hover:scale-105"
-              style={{
-                backgroundColor: "#25D366",
-                color: "#fff",
-                boxShadow: "0 0 30px rgba(37,211,102,0.4), 0 4px 20px rgba(0,0,0,0.4)",
-              }}
-            >
-              <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" xmlns="http://www.w3.org/2000/svg">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-              </svg>
-              {language === "en" ? "Chat with Us" : "דבר איתנו"}
-            </a>
           </div>
         </div>
 
-        {/* Values Grid */}
-        <div className="mt-24 pt-24 border-t" style={{ borderColor: "oklch(1 0 0 / 10%)" }}>
-          <h3
-            className="font-display text-4xl font-bold text-center mb-16"
-            style={{
-              fontFamily: "'Bebas Neue', sans-serif",
-              color: "oklch(0.97 0.005 260)",
-              letterSpacing: "0.05em",
-            }}
-          >
-            {language === "en" ? "OUR VALUES" : "הערכים שלנו"}
-          </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                icon: "🥩",
-                titleKey: "beef100",
-                descKey: "beef100Desc",
-              },
-              {
-                icon: "✡",
-                titleKey: "kosherCert",
-                descKey: "kosherCertDesc",
-              },
-              {
-                icon: "🇿🇦",
-                titleKey: "authenticRecipes",
-                descKey: "authenticRecipesDesc",
-              },
-              {
-                icon: "🇮🇱",
-                titleKey: "israeliPride",
-                descKey: "israeliPrideDesc",
-              },
-            ].map((value, idx) => (
+        {/* Values: four plain statements in one row, separated by hairlines (no cards, no emoji) */}
+        <div className="mt-24 pt-12 border-t" style={{ borderColor: "oklch(1 0 0 / 10%)" }}>
+          <h3 className="sr-only">{language === "en" ? "Our values" : "הערכים שלנו"}</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-4">
+            {(["beef100", "kosherCert", "authenticRecipes", "israeliPride"] as const).map((key, idx) => (
               <div
-                key={idx}
-                className="p-8 rounded-lg text-center transition-all hover:shadow-lg"
-                style={{
-                  backgroundColor: "oklch(0.21 0.006 285.885)",
-                  border: "2px solid oklch(0.62 0.20 42 / 0.3)",
-                  borderLeft: "4px solid var(--accent)",
-                }}
+                key={key}
+                className={`py-6 lg:px-6 first:lg:ps-0 ${idx > 0 ? "border-t lg:border-t-0 lg:border-s" : ""}`}
+                style={{ borderColor: "oklch(1 0 0 / 10%)" }}
               >
-                <div className="text-5xl mb-4">{value.icon}</div>
                 <h4
-                  className="font-display text-2xl font-bold mb-3"
-                  style={{
-                    fontFamily: "'Bebas Neue', sans-serif",
-                    color: "oklch(0.97 0.005 260)",
-                    letterSpacing: "0.02em",
-                  }}
+                  className="mb-2"
+                  style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.75rem", lineHeight: 1, letterSpacing: "0.03em", color: "var(--foreground)" }}
                 >
-                  {(translations.about as any)[value.titleKey][language]}
+                  {(translations.about as any)[key][language]}
                 </h4>
-                <p style={{ color: "oklch(0.80 0.020 75)" }}>
-                  {(translations.about as any)[value.descKey][language]}
+                <p style={{ color: "var(--brand-cream-dim)" }}>
+                  {(translations.about as any)[`${key}Desc`][language]}
                 </p>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Mission Statement */}
-        <div
-          className="mt-24 p-12 md:p-16 rounded-2xl text-center"
-          style={{
-            backgroundColor: "oklch(0.21 0.006 285.885)",
-            border: "3px solid var(--accent)",
-            boxShadow: "0 0 40px oklch(0.62 0.20 42 / 0.2)",
-          }}
-        >
-          <h3
-            className="font-display text-4xl md:text-5xl font-bold mb-6"
+        {/* Mission: a large statement set in the display face, no box or glow */}
+        <div className="mt-20 max-w-4xl mx-auto text-center">
+          <h3 className="sr-only">{translations.about.missionTitle[language]}</h3>
+          <p
             style={{
               fontFamily: "'Bebas Neue', sans-serif",
-              color: "var(--accent)",
-              letterSpacing: "0.05em",
+              fontSize: "clamp(1.9rem, 3.6vw, 3rem)",
+              lineHeight: 1.08,
+              letterSpacing: "0.02em",
+              color: "var(--foreground)",
+              textWrap: "balance",
             }}
-          >
-            {translations.about.missionTitle[language]}
-          </h3>
-          <p
-            className="text-xl md:text-2xl leading-relaxed max-w-3xl mx-auto"
-            style={{ color: "oklch(0.80 0.020 75)" }}
           >
             {translations.about.missionDesc[language]}
           </p>

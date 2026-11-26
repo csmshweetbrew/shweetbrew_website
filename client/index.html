@@ -1,26 +1,70 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
 
   <head>
     <meta charset="UTF-8" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0" />
-    <title>Shweet Brew — Biltong, Boerewors &amp; Braai Culture in Israel</title>
-    <meta name="description" content="Authentic South African biltong, boerewors, drywors, chilli bites, beef jerky, and Shweet Brew Shots — made with Israeli pride. Order on WhatsApp for delivery in Israel." />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&family=Playfair+Display:ital,wght@1,400;1,600&family=Open+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+    <title>Shweet Brew: Biltong, Boerewors &amp; Braai Culture in Israel</title>
+    <!-- Both follow the language once the page runs (LanguageContext) -->
+    <meta name="description" content="South African biltong, boerewors and drywors, American-style jerky and sauces. Made in Modiin, delivered across Israel." />
+    <link rel="canonical" href="https://shweetbrew.com/" />
+    <meta name="theme-color" content="#090706" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <!-- What WhatsApp, Facebook and others show when the link is shared (picture: temp/fire/share.mjs) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Shweet Brew" />
+    <meta property="og:url" content="https://shweetbrew.com/" />
+    <meta property="og:title" content="Shweet Brew: Biltong, Boerewors &amp; Braai Culture in Israel" />
+    <meta property="og:description" content="South African biltong, boerewors and drywors, American-style jerky and sauces. Made in Modiin, delivered across Israel." />
+    <meta property="og:image" content="https://shweetbrew.com/images/share.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="A fire-lit braai with boerewors, steaks and sosaties, and the words Play hard. Snack harder." />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="he_IL" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- Business details for Google. No ratings, opening hours or street address: only what the owner confirmed. -->
+    <script type="application/ld+json">
+      {"@context":"https://schema.org","@type":"OnlineStore","name":"Shweet Brew","url":"https://shweetbrew.com/","logo":"https://shweetbrew.com/icon-512.png","image":"https://shweetbrew.com/images/share.jpg","description":"South African biltong, boerewors and drywors, American-style jerky and sauces. Made in Modiin, delivered across Israel.","email":"urimarks@gmail.com","telephone":"+972584132576","address":{"@type":"PostalAddress","addressLocality":"Modiin","addressCountry":"IL"},"areaServed":"IL"}
+    </script>
+    <!--
+      Self-hosted fonts (files in client/public/fonts, from Fontsource).
+      font-display: block + preload means text waits a moment for the real font
+      instead of flashing in a fallback font and then switching.
+    -->
+    <link rel="preload" href="/fonts/bebas-neue-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/lato-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/lato-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- Hero photo (self-hosted WebP): start downloading the right size immediately -->
+    <link rel="preload" as="image" href="/images/hero-1280.webp" imagesrcset="/images/hero-960.webp 960w, /images/hero-1280.webp 1280w" imagesizes="100vw" fetchpriority="high" />
+    <!-- Reveal-on-scroll: hide [data-reveal] content from the first paint (lib/reveal.ts shows it); skipped for reduced motion.
+         Hebrew visitors: set Hebrew before the first paint and preload the Hebrew faces (the language is remembered in localStorage).
+         Both are one line on purpose: netlify.toml's Content-Security-Policy lists their SHA-256 (check: node scripts/check-csp.mjs). -->
+    <script>try{if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("reveal-on")}catch(e){}</script>
+    <script>try{if(localStorage.getItem("shweet-brew-language")==="he"){document.documentElement.lang="he";document.documentElement.dir="rtl";["open-sans-hebrew-700-normal","open-sans-hebrew-800-normal","open-sans-latin-700-normal"].forEach(function(f){var l=document.createElement("link");l.rel="preload";l.as="font";l.type="font/woff2";l.crossOrigin="anonymous";l.href="/fonts/"+f+".woff2";document.head.appendChild(l)})}}catch(e){}</script>
+    <style>
+      @font-face { font-family: "Bebas Neue"; font-style: normal; font-weight: 400; font-display: block; src: url(/fonts/bebas-neue-latin-400-normal.woff2) format("woff2"); }
+      @font-face { font-family: "Lato"; font-style: normal; font-weight: 400; font-display: block; src: url(/fonts/lato-latin-400-normal.woff2) format("woff2"); }
+      @font-face { font-family: "Lato"; font-style: italic; font-weight: 400; font-display: block; src: url(/fonts/lato-latin-400-italic.woff2) format("woff2"); }
+      @font-face { font-family: "Lato"; font-style: normal; font-weight: 700; font-display: block; src: url(/fonts/lato-latin-700-normal.woff2) format("woff2"); }
+      @font-face { font-family: "Lato"; font-style: normal; font-weight: 900; font-display: block; src: url(/fonts/lato-latin-900-normal.woff2) format("woff2"); }
+      @font-face { font-family: "Playfair Display"; font-style: italic; font-weight: 400; font-display: block; src: url(/fonts/playfair-display-latin-400-italic.woff2) format("woff2"); }
+      @font-face { font-family: "Open Sans"; font-style: normal; font-weight: 400; font-display: block; src: url(/fonts/open-sans-hebrew-400-normal.woff2) format("woff2"); unicode-range: U+0307-0308,U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F; }
+      @font-face { font-family: "Open Sans"; font-style: normal; font-weight: 700; font-display: block; src: url(/fonts/open-sans-hebrew-700-normal.woff2) format("woff2"); unicode-range: U+0307-0308,U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F; }
+      @font-face { font-family: "Open Sans"; font-style: normal; font-weight: 800 900; font-display: block; src: url(/fonts/open-sans-hebrew-800-normal.woff2) format("woff2"); unicode-range: U+0307-0308,U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F; }
+      @font-face { font-family: "Open Sans"; font-style: normal; font-weight: 400; font-display: block; src: url(/fonts/open-sans-latin-400-normal.woff2) format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+      @font-face { font-family: "Open Sans"; font-style: normal; font-weight: 700; font-display: block; src: url(/fonts/open-sans-latin-700-normal.woff2) format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+      @font-face { font-family: "Open Sans"; font-style: normal; font-weight: 800 900; font-display: block; src: url(/fonts/open-sans-latin-800-normal.woff2) format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+    </style>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
 
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script
-      defer
-      src="%VITE_ANALYTICS_ENDPOINT%/umami"
-      data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
   </body>
 
 </html>
