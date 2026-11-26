@@ -890,7 +890,7 @@
     margin: 0;
     padding: 0;
     list-style: none;
-    max-height: 16rem;
+    max-height: min(16rem, 45dvh); /* short phones: the whole list stays on screen */
     overflow-y: auto;
     overscroll-behavior: contain; /* reaching the end doesn't scroll the cart behind it */
     touch-action: pan-y;
@@ -935,6 +935,9 @@
   @media (hover: hover) { .cart-link:hover { color: var(--foreground); } }
   .cart-back { justify-self: center; display: inline-flex; align-items: center; gap: 0.2rem; }
 
+  /* While the area list is open the bar with the total and "Place order" steps aside: on a small iPhone it
+     covered most of the list (2026-11-26). It can't be used before an area is chosen anyway. */
+  .cart-drawer:has(.cart-area-panel) .cart-foot { display: none; }
   .cart-foot {
     display: grid;
     gap: 0.75rem;
