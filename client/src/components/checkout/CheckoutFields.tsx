@@ -1,7 +1,7 @@
 /*
  * The checkout details form, shared by the cart drawer and the Order section:
  * searchable delivery area (+ next delivery date), name +
- * optional phone, the email (required, typed twice, with a "did you mean gmail.com?" hint),
+ * phone (required), the email (required, typed twice, with a "did you mean gmail.com?" hint),
  * address and an optional note. Errors show once a field is left; CheckoutProblems lists
  * what's missing above the Place order button.
  *

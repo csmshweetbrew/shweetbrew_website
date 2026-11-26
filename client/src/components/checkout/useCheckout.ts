@@ -3,7 +3,7 @@
  * Order section (OrderForm), so both check, price and place orders the same way:
  *
  *   - no accounts (owner, 2026-11-24): area, name and email required, the email
- *     typed twice (plus a "did you mean gmail.com?" typo hint); phone optional
+ *     typed twice (plus a "did you mean gmail.com?" typo hint); phone required (2026-11-26)
  *   - errors show as soon as a field is left, and "Place order" with
  *     something missing lists every problem above the button
  *   - no minimum order (business owner, 2026-11-25)
@@ -63,9 +63,11 @@ export function useCheckout(rootRef: RefObject<HTMLElement | null>) {
   const errors = {
     zone: !zone ? L("Choose where it's going.", "בחרו לאן לשלוח.") : "",
     name: !name.trim() ? L("Add your name.", "הוסיפו שם.") : "",
-    // Optional, but a number that can't work is still pointed out (same rule as the database)
     age: needsAge && !adult ? L("Tick this to order alcohol.", "סמנו כדי להזמין אלכוהול.") : "",
-    phone: phone.trim() && !/^\+?[0-9][0-9 ()-]{6,24}$/.test(phone.trim()) ? L("Check the phone number, or leave it empty.", "בדקו את מספר הטלפון, או השאירו ריק.") : "",
+    // Required (2026-11-26), so the courier and the business can reach them; same format rule as the database
+    phone: !phone.trim()
+      ? L("Add your phone number.", "הוסיפו מספר טלפון.")
+      : !/^\+?[0-9][0-9 ()-]{6,24}$/.test(phone.trim()) ? L("Check the phone number.", "בדקו את מספר הטלפון.") : "",
     email: !typedEmail
       ? L("Add your email for the order confirmation.", "הוסיפו מייל לאישור ההזמנה.")
       : !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(typedEmail) ? L("Check the email address.", "בדקו את כתובת המייל.") : "",
@@ -88,7 +90,7 @@ export function useCheckout(rootRef: RefObject<HTMLElement | null>) {
   const problems: { field: string; text: string }[] = [
     errors.zone && { field: "area", text: L("Choose a delivery area", "בחרו אזור משלוח") },
     errors.name && { field: "name", text: L("Add your name", "הוסיפו שם") },
-    errors.phone && { field: "phone", text: L("Check your phone number", "בדקו את מספר הטלפון") },
+    errors.phone && { field: "phone", text: phone.trim() ? L("Check your phone number", "בדקו את מספר הטלפון") : L("Add your phone number", "הוסיפו מספר טלפון") },
     errors.email && { field: "email", text: typedEmail ? L("Check your email address", "בדקו את כתובת המייל") : L("Add your email", "הוסיפו מייל") },
     errors.emailAgain && { field: "emailAgain", text: emailAgain.trim() ? L("Make the two emails match", "ודאו ששני המיילים תואמים") : L("Type your email again", "הקלידו את המייל שוב") },
     errors.age && { field: "age", text: L("Confirm you're 18 or over", "אשרו שאתם בני 18 ומעלה") },
