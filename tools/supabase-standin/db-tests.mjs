@@ -111,15 +111,17 @@ await expectError("anon", null, `select public.place_order($1::jsonb)`, [JSON.st
 await expectError("anon", null, `select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "0507770002", email: "   " }))], "INVALID_INPUT:email", "a guest with a blank email is refused");
 await as("anon", null, () => db.query(`select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "0507770002", email: "second@example.test" }))]));
 await expectError("anon", null, `select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "0507770003", email: "not-an-email" }))], "INVALID_INPUT:email", "a guest's email must look like an email");
-// 0017: the phone is optional
-const noPhone = await as("anon", null, () => db.query(`select public.place_order($1::jsonb) r`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "", email: "nophone@example.test" }))]));
+// 0023: website orders need a phone (0017 made it optional; admins logging an order still may leave it out)
+for (const phone of ["", "   ", null]) await expectError("anon", null, `select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone, email: "nophone@example.test" }))], "INVALID_INPUT:phone", `a website order without a phone is refused (${JSON.stringify(phone)})`);
+await expectError("anon", null, `select public.place_order($1::jsonb)`, [JSON.stringify((({ phone, ...o }) => o)(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { email: "nophone@example.test" })))], "INVALID_INPUT:phone", "a website order with no phone key at all is refused");
+const noPhone = await as("authenticated", admin, () => db.query(`select public.place_order($1::jsonb) r`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "", email: "nophone@example.test", source: "whatsapp" }))]));
 const np = (await db.query(`select phone, email from public.orders where reference=$1`, [noPhone.rows[0].r.reference])).rows[0];
-ok(np.phone === null && np.email === "nophone@example.test", "an order with no phone is saved: " + JSON.stringify(np));
+ok(np.phone === null && np.email === "nophone@example.test", "an admin can still log an order with no phone: " + JSON.stringify(np));
 await expectError("anon", null, `select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "hello", email: "nophone@example.test" }))], "INVALID_INPUT:phone", "a phone that is given must look like one");
 await expectError("authenticated", admin, `select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "", source: "whatsapp" }))], "INVALID_INPUT:email", "an order needs a phone or an email");
 timePasses = false;
-for (let i = 0; i < 5; i++) await as("anon", null, () => db.query(`select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: null, email: "NoPhone@example.test" }))]));
-await expectError("anon", null, `select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "", email: "nophone@example.test" }))], "TOO_MANY_ORDERS", "leaving the phone empty doesn't get around the 5-in-10-minutes limit");
+for (let i = 0; i < 5; i++) await as("anon", null, () => db.query(`select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: `050888000${i}`, email: "NoPhone@example.test" }))]));
+await expectError("anon", null, `select public.place_order($1::jsonb)`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "0508880009", email: "nophone@example.test" }))], "TOO_MANY_ORDERS", "a new phone each time doesn't get around the 5-in-10-minutes limit");
 timePasses = true;
 await db.query(`delete from public.orders where lower(email) = 'nophone@example.test'`);
 const unconf = await as("authenticated", unconfirmed, () => db.query(`select public.place_order($1::jsonb) r`, [JSON.stringify(order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { phone: "0507770004", email: "typed@example.test" }))]));
@@ -232,7 +234,8 @@ await expectError("anon", null, `select public.email_has_account('dana@example.t
 ok((await db.query(`select to_regclass('public.auth_email_checks') r`)).rows[0].r === null, "its log is gone too");
 
 // How the customer will pay (0018)
-const pmOrder = (extra = {}) => order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { zone_id: "modiin", phone: "", email: "pm@example.test", ...extra });
+let pmN = 0; // a new phone each time, so the 5-per-phone flood guard never trips
+const pmOrder = (extra = {}) => order([{ product_id: "biltong-traditional", size: "500g", quantity: 1 }], { zone_id: "modiin", phone: `0507${String(++pmN).padStart(6, "0")}`, email: "pm@example.test", ...extra });
 const pmPlace = async (extra = {}) => (await as("anon", null, () => db.query(`select public.place_order($1::jsonb) r`, [JSON.stringify(pmOrder(extra))]))).rows[0].r;
 const pmRow = async (id) => (await db.query(`select payment_method, payment_status, payment_claimed_at, payment_changes, status from public.orders where id = $1`, [id])).rows[0];
 const claim = async (id) => (await as("anon", null, () => db.query(`select public.claim_payment($1) r`, [id]))).rows[0].r;
