@@ -253,7 +253,9 @@ function AreaPicker({ idPrefix, language, value, onChange, error }: {
               role="option"
               aria-selected={i === active}
               className={i === active ? "is-active" : ""}
-              onPointerDown={(e) => { e.preventDefault(); choose(z.id); }}
+              // A tap chooses; a finger that scrolls the list doesn't (pointerdown chose on the first touch). mousedown keeps the focus in the box.
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => choose(z.id)}
               onMouseEnter={() => setActive(i)}
             >
               <span className="min-w-0">

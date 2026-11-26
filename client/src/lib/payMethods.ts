@@ -9,7 +9,7 @@
  * the button copies the number and opens the app, and the screen has the rest.
  */
 
-import { getSupabase } from "./supabase";
+import { rpc } from "./supabase";
 
 export type PayMethod = "bit_paybox" | "bank_transfer" | "cash";
 export type PayApp = "bit" | "paybox";
@@ -51,9 +51,7 @@ export function payAppLink(app: PayApp): string | null {
 /** The customer says they've paid: recorded on the order and emailed to the owner */
 export async function claimPayment(orderId: string): Promise<boolean> {
   try {
-    const sb = await getSupabase();
-    if (!sb) return false;
-    const { data, error } = await sb.rpc("claim_payment", { p_order_id: orderId });
+    const { data, error } = await rpc<boolean>("claim_payment", { p_order_id: orderId });
     return !error && data === true;
   } catch {
     return false;
@@ -63,9 +61,7 @@ export async function claimPayment(orderId: string): Promise<boolean> {
 /** "Choose another way to pay" after ordering */
 export async function changePayMethod(orderId: string, method: PayMethod): Promise<boolean> {
   try {
-    const sb = await getSupabase();
-    if (!sb) return false;
-    const { data, error } = await sb.rpc("set_payment_method", { p_order_id: orderId, p_method: method });
+    const { data, error } = await rpc<boolean>("set_payment_method", { p_order_id: orderId, p_method: method });
     return !error && data === true;
   } catch {
     return false;

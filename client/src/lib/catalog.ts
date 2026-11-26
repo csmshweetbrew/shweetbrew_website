@@ -16,7 +16,7 @@ import {
   type ProductVariant,
   type SizeOption,
 } from "@/config/products";
-import { getSupabase } from "./supabase";
+import { isSupabaseConfigured, select } from "./supabase";
 
 type DbSize = {
   id: string;
@@ -121,12 +121,11 @@ function mergeCatalog(rows: DbCategory[]): ProductCategory[] {
 
 /** The catalogue from the database, or null when Supabase isn't set up / is empty. */
 export async function fetchCatalog(): Promise<ProductCategory[] | null> {
-  const sb = await getSupabase();
-  if (!sb) return null;
-  const { data, error } = await sb.from("categories").select(SELECT).eq("is_active", true);
-  if (error) throw error;
+  if (!isSupabaseConfigured) return null;
+  const { data, error } = await select<DbCategory[]>("categories", SELECT, "is_active=eq.true");
+  if (error) throw new Error(error.message);
   if (!data?.length) return null; // not seeded yet: keep the built-in list
-  return mergeCatalog(data as unknown as DbCategory[]);
+  return mergeCatalog(data);
 }
 
 /** Find a product by the names the cart stores (category name + variant name). */

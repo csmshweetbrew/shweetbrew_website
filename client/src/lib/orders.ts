@@ -9,7 +9,7 @@
  * WhatsApp is only for contacting us; it plays no part in ordering.
  */
 
-import { getSupabase } from "./supabase";
+import { isSupabaseConfigured, rpc } from "./supabase";
 import type { PayMethod } from "./payMethods";
 
 export type OrderLine = {
@@ -83,12 +83,11 @@ type PlaceOrderResponse = { id: string; reference: string; subtotal: number; del
 
 export async function submitOrder(order: Order): Promise<SubmitResult> {
   try {
-    const sb = await getSupabase();
-    if (!sb) return { ok: false, error: { code: "NETWORK", message: "Supabase is not configured (.env)" } };
+    if (!isSupabaseConfigured) return { ok: false, error: { code: "NETWORK", message: "Supabase is not configured (.env)" } };
     const missing = order.lines.find((l) => !l.productId);
     if (missing) return { ok: false, error: { code: "UNAVAILABLE", productId: "", size: missing.size } };
 
-    const { data, error } = await sb.rpc("place_order", {
+    const { data, error } = await rpc<PlaceOrderResponse>("place_order", {
       p_order: {
         name: order.name,
         phone: order.phone || null,
@@ -105,9 +104,9 @@ export async function submitOrder(order: Order): Promise<SubmitResult> {
         items: order.lines.map((l) => ({ product_id: l.productId, size: l.size, quantity: l.quantity })),
       },
     });
-    if (error) return { ok: false, error: parseOrderError(error.message) };
+    if (error || !data) return { ok: false, error: parseOrderError(error?.message ?? "no answer") };
 
-    const r = data as PlaceOrderResponse;
+    const r = data;
     return {
       ok: true,
       order: {

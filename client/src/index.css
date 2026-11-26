@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -331,6 +330,14 @@
     html.reveal-on [data-reveal] { opacity: 1 !important; transform: none !important; filter: none !important; clip-path: none !important; transition: none !important; animation: none !important; }
   }
 
+  /* ---------- FAQ (FAQSection.tsx): the answer slides open (grid rows 0fr to 1fr) ---------- */
+  .faq-answer { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+  .faq-answer > div { min-height: 0; overflow: hidden; }
+  .faq-answer > div > p { opacity: 0; transform: translateY(-6px); transition: opacity 0.25s, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+  .faq-answer.is-open { grid-template-rows: 1fr; }
+  .faq-answer.is-open > div > p { opacity: 1; transform: none; transition-delay: 0.06s; }
+  @media (prefers-reduced-motion: reduce) { .faq-answer, .faq-answer > div > p { transition: none; } }
+
   /* ---------- About: collapsible story (AboutSection.tsx) ---------- */
   .about-story {
     position: relative;
@@ -497,6 +504,8 @@
   }
 
   .hero-actions {
+    position: relative;
+    z-index: 1; /* above the tiles: their shadows fell across the buttons while the tiles animated in */
     width: 100%;
     max-width: 46rem;
     margin-top: 1.25rem;
@@ -873,6 +882,8 @@
     margin-top: 0.25rem;
     max-height: 16rem;
     overflow-y: auto;
+    overscroll-behavior: contain; /* reaching the end doesn't scroll the cart behind it */
+    touch-action: pan-y;
     border-radius: 6px;
     border: 1px solid oklch(1 0 0 / 0.14);
     background-color: var(--card);

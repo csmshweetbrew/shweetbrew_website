@@ -1,5 +1,3 @@
-import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -37,12 +35,9 @@ function App() {
         <LanguageProvider>
           <CatalogProvider>
             <CartProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Navbar />
-                <Router />
-                <Footer />
-              </TooltipProvider>
+              <Navbar />
+              <Router />
+              <Footer />
             </CartProvider>
           </CatalogProvider>
         </LanguageProvider>

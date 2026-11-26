@@ -231,6 +231,13 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        // React and the other libraries change rarely: in their own file, a returning visitor keeps them
+        // (cached for a year) when only the site's own code changed.
+        manualChunks: (id) => (!id.endsWith(".css") && /node_modules[\/](.pnpm[\/])?(react|react-dom|scheduler|wouter|lenis|lucide-react)[@\/]/.test(id) ? "vendor" : undefined),
+      },
+    },
   },
   server: {
     port: 3000,

@@ -149,16 +149,14 @@ export default function FAQSection() {
                   />
                 </button>
               </h3>
-              {/* Answer */}
-              {expandedIndex === index && (
-                <div id={`faq-a-${index}`} role="region" aria-labelledby={`faq-q-${index}`} className="px-6 py-5 border-t border-border bg-card">
-                  <p
-                    className="text-base leading-relaxed whitespace-pre-line text-card-foreground"
-                  >
+              {/* Answer: always there, so it can slide open and closed (inert while closed) */}
+              <div className={`faq-answer ${expandedIndex === index ? "is-open" : ""}`} inert={expandedIndex !== index}>
+                <div id={`faq-a-${index}`} role="region" aria-labelledby={`faq-q-${index}`} aria-hidden={expandedIndex !== index}>
+                  <p className="px-6 py-5 border-t border-border bg-card text-base leading-relaxed whitespace-pre-line text-card-foreground">
                     {item.answer[language]}
                   </p>
                 </div>
-              )}
+              </div>
             </div>
           ))}
         </div>
