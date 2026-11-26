@@ -370,7 +370,7 @@ const PRODUCT_REGISTRY = [
           { size: "550ml", weight: "550ml", price: 60 },
         ],
         // per 100 ml, like a sweet vodka liqueur of the same strength (Sourz, 15%: 175–190 kcal, 24 g sugar).
-        // An example until the business owner checks his own (2026-11-26).
+        // Confirmed by the business owner (2026-11-26).
         nutrition: {
           protein: "0g",
           fat: "0g",
